@@ -310,25 +310,14 @@ namespace Linh
                 } else {
                     throw error(peek(), "Thiếu tên thuộc tính sau dấu '.'");
                 }
+                // Luôn tạo MemberExpr trước
+                expr = std::make_unique<AST::MemberExpr>(std::move(expr), dot_token, property_token);
+                
+                // Nếu sau đó là dấu '(', thì đây là lời gọi hàm: expr.method(...)
                 if (match({TokenType::LPAREN}))
                 {
-                    // Method call: expr.method(...)
-                    Token lparen_token = previous();
-                    std::vector<AST::ExprPtr> args;
-                    if (!check(TokenType::RPAREN))
-                    {
-                        do
-                        {
-                            args.push_back(expression());
-                        } while (match({TokenType::COMMA}));
-                    }
-                    Token rparen_token = consume(TokenType::RPAREN, "Thiếu dấu ')' sau danh sách tham số.");
-                    expr = std::make_unique<AST::MethodCallExpr>(std::move(expr), dot_token, property_token, lparen_token, std::move(args), rparen_token);
-                }
-                else
-                {
-                    // Chỉ truy cập thuộc tính: expr.ident
-                    expr = std::make_unique<AST::MemberExpr>(std::move(expr), dot_token, property_token);
+                    // Sử dụng finish_call để tạo CallExpr với callee là MemberExpr vừa tạo
+                    expr = finish_call(std::move(expr));
                 }
             }
             else

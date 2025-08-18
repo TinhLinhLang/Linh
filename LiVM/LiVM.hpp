@@ -85,6 +85,12 @@ namespace Linh
         friend void handle_PUSH_FUNCTION(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend Value call_function(FunctionPtr, const std::vector<Value>&, LiVM&);
         friend void handle_LOAD_PACKAGE_CONST(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_CALL_PACKAGE_FUNCTION(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+
+        // Closure support handlers
+        friend void handle_CREATE_CLOSURE(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_CAPTURE_VAR(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_LOAD_CLOSURE_VAR(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
 
         // Optimization methods
         void enable_instruction_caching(bool enable = true) { instruction_caching_enabled = enable; }
@@ -112,6 +118,9 @@ namespace Linh
             std::unordered_map<int, Value> locals;
         };
         std::vector<CallFrame> call_stack;
+
+        // Closure support
+        std::unordered_map<std::string, Value> current_environment; // Current scope variables for closure capture
 
         void set_functions(const std::unordered_map<std::string, Function> &funcs)
         {

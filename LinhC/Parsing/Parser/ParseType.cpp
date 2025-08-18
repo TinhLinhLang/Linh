@@ -109,7 +109,7 @@ namespace Linh
 
         // Xử lý các từ khóa kiểu cơ bản khác không có kích thước <N>
         if (match({TokenType::STR_KW, TokenType::BOOL_KW, TokenType::VOID_KW,
-                   TokenType::ANY_KW, TokenType::SOL_KW}))
+                   TokenType::ANY_KW, TokenType::SOL_KW, TokenType::BYTE_KW, TokenType::BYTEARRAY_KW}))
         {
             return std::make_unique<AST::BaseTypeNode>(previous());
         }

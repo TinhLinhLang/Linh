@@ -1,0 +1,7 @@
+import fs
+fs.open("demo.txt")
+fs.write("A\nB\n")
+print(fs.read())
+fs.append("C\n")
+print(fs.read())
+fs.close()

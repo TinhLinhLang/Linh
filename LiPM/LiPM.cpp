@@ -6,6 +6,9 @@
 #include "LiVM/Value/Value.hpp"
 #include "LiVM/LiVM.hpp"
 #include "../config.hpp"
+#include "Package/time.hpp"
+#include "Package/math.hpp"
+#include "Package/fs.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -16,31 +19,21 @@ namespace Linh
     namespace LiPM
     {
         using MathFunction = std::function<Value(const Value&)>;
+        using TimeFunction = std::function<Value(const Value&)>;
+        using FsFunction = std::function<Value(const Value&)>;
         static std::unordered_map<std::string, std::unordered_map<std::string, Value>> default_packages;
 
         void initialize_default_packages()
         {
-            for (const auto& pkg : linh_packages) {
-                if (pkg == "math") {
-                    std::unordered_map<std::string, Value> math_package;
-                    math_package["pi"] = 3.141592653589793;
-                    math_package["e"] = 2.718281828459045;
-                    math_package["tau"] = 6.283185307179586;
-                    math_package["phi"] = 1.618033988749895;
-                    default_packages["math"] = std::move(math_package);
-                } else if (pkg == "time") {
-                    std::unordered_map<std::string, Value> time_package;
-                    time_package["time"] = []() -> Value {
-                        using namespace std::chrono;
-                        auto now = std::chrono::system_clock::now();
-                        auto duration = now.time_since_epoch();
-                        double seconds = std::chrono::duration_cast<std::chrono::microseconds>(duration).count() / 1e6;
-                        return Value(seconds);
-                    }();
-                    default_packages["time"] = std::move(time_package);
-                }
-                // Có thể mở rộng thêm các package khác ở đây
-            }
+            // Initialize math package
+            initialize_math_functions();
+            
+            // Initialize time package
+            initialize_time_functions();
+            
+            // Initialize fs package
+            initialize_fs_functions();
+            initialize_fs_constants();
         }
 
         const std::unordered_map<std::string, Value>* get_package(const std::string& package_name)
@@ -57,22 +50,21 @@ namespace Linh
             return nullptr;
         }
 
-        Value get_constant(const std::string& package_name, const std::string& constant_name)
-        {
-            const auto* package = get_package(package_name);
-            if (package)
-            {
-                auto it = package->find(constant_name);
-                if (it != package->end())
-                {
-                    return it->second;
-                }
+        Value get_constant(const std::string& package_name, const std::string& constant_name) {
+            if (package_name == "fs") {
+                return Linh::LiPM::get_fs_constant(constant_name);
             }
-            return Value{}; // Return sol if not found
+            // Có thể mở rộng cho các package khác
+            return Value{};
         }
 
         bool package_exists(const std::string& package_name)
         {
+            // Built-in packages
+            if (package_name == "math" || package_name == "time" || package_name == "fs") {
+                return true;
+            }
+            
             if (default_packages.empty())
             {
                 initialize_default_packages();
@@ -108,5 +100,6 @@ namespace Linh
             }
             return {};
         }
+
     }
 } 

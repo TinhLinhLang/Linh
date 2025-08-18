@@ -1,0 +1,37 @@
+import fs;
+
+// Test fs.size với file không tồn tại
+print("Size of non-existent file:");
+print(fs.size("nonexistent.txt"));
+
+// Test fs.size với file hiện có
+print("Size of demo.txt:");
+print(fs.size("demo.txt"));
+
+// Test fs.encoding, fs.seek với file mới
+fs.open("test_encoding.txt");
+fs.write("Hello World! This is a test for encoding and seek functions.");
+fs.close();
+
+print("File created. Now testing encoding and seek:");
+
+fs.open("test_encoding.txt");
+fs.encoding("utf-8");
+print("After setting encoding to utf-8:");
+print(fs.read());
+
+fs.seek(6);
+print("After seek(6):");
+print(fs.read());
+
+fs.seek(12);
+print("After seek(12):");
+print(fs.read());
+
+fs.seek(0);
+print("After seek(0):");
+print(fs.read());
+
+fs.close();
+
+print("All tests completed!");

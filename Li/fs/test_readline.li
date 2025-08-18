@@ -1,9 +1,9 @@
 import fs;
 fs.open("demo.txt");
-var n = fs.read();
 var line1 = fs.readline();
 var line2 = fs.readline();
+var line3 = fs.readline();
 print("Line 1: ", line1);
 print("Line 2: ", line2);
-print("Full content: ", n);
-fs.close();
+print("Line 3: ", line3);
+fs.close(); 

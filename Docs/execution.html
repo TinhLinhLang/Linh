@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linh Programming Language - Execution Flow Diagram</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .diagram-container {
+            padding: 40px;
+            position: relative;
+        }
+
+        .flow-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .phase {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .phase:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .phase-title {
+            font-size: 1.4em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phase-icon {
+            width: 30px;
+            height: 30px;
+            background: #3498db;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .component {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .component:hover {
+            border-color: #3498db;
+            box-shadow: 0 3px 10px rgba(52, 152, 219, 0.2);
+        }
+
+        .component-title {
+            font-weight: 600;
+            color: #34495e;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .component-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .arrow {
+            position: absolute;
+            width: 100px;
+            height: 2px;
+            background: #3498db;
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .arrow::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: -3px;
+            width: 0;
+            height: 0;
+            border-left: 8px solid #3498db;
+            border-top: 4px solid transparent;
+            border-bottom: 4px solid transparent;
+        }
+
+        .data-flow {
+            background: #ecf0f1;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .data-flow h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .data-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin: 15px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .data-icon {
+            width: 40px;
+            height: 40px;
+            background: #e74c3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .data-info h4 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .data-info p {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .optimization-section {
+            background: #e8f5e8;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .optimization-section h3 {
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .opt-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #27ae60;
+        }
+
+        .opt-title {
+            font-weight: 600;
+            color: #27ae60;
+            margin-bottom: 5px;
+        }
+
+        .opt-desc {
+            color: #7f8c8d;
+            font-size: 0.9em;
+        }
+
+        .legend {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 30px;
+        }
+
+        .legend h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .blue { background: #3498db; }
+        .green { background: #27ae60; }
+        .red { background: #e74c3c; }
+        .orange { background: #f39c12; }
+        .purple { background: #9b59b6; }
+
+        @media (max-width: 768px) {
+            .flow-diagram {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .diagram-container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Linh Programming Language</h1>
+            <p>Execution Flow Diagram - Kiến trúc và luồng thực thi</p>
+        </div>
+
+        <div class="diagram-container">
+            <div class="flow-diagram">
+                <!-- Phase 1: Input & Lexical Analysis -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">1</div>
+                        Input & Lexical Analysis
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📁 Main.cpp</div>
+                        <div class="component-desc">Entry point, handles command line arguments and file input</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📝 Source Code</div>
+                        <div class="component-desc">Linh source code (.li files) or REPL input</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔤 Lexer (Lexer.cpp)</div>
+                        <div class="component-desc">Tokenizes source code into tokens (keywords, identifiers, literals, operators)</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🏷️ Token Stream</div>
+                        <div class="component-desc">Sequence of tokens with type, lexeme, literal value, line, and column information</div>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Parsing & AST -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">2</div>
+                        Parsing & AST Generation
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🌳 Parser (Parser.cpp)</div>
+                        <div class="component-desc">Parses token stream into Abstract Syntax Tree (AST) using recursive descent</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📊 AST Nodes</div>
+                        <div class="component-desc">Expression, statement, and declaration nodes representing program structure</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔍 Semantic Analyzer</div>
+                        <div class="component-desc">Type checking, scope analysis, and semantic validation</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">✅ Validated AST</div>
+                        <div class="component-desc">Semantically correct AST ready for code generation</div>
+                    </div>
+                </div>
+
+                <!-- Phase 3: Code Generation -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">3</div>
+                        Bytecode Generation
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">⚡ BytecodeEmitter</div>
+                        <div class="component-desc">Traverses AST and generates bytecode instructions</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📦 BytecodeChunk</div>
+                        <div class="component-desc">Sequence of instructions, constants, and metadata</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔧 Function Table</div>
+                        <div class="component-desc">Mapping of function names to their bytecode and parameters</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📋 Import Resolution</div>
+                        <div class="component-desc">Handles package imports and merges function tables</div>
+                    </div>
+                </div>
+
+                <!-- Phase 4: Virtual Machine -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">4</div>
+                        Virtual Machine Execution
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🖥️ LiVM (Virtual Machine)</div>
+                        <div class="component-desc">Executes bytecode instructions with stack-based architecture</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📚 Value System</div>
+                        <div class="component-desc">Handles int, uint, float, bool, string, array, map, function, and sol types</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔄 Call Stack</div>
+                        <div class="component-desc">Manages function calls, local variables, and return addresses</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🎯 Instruction Execution</div>
+                        <div class="component-desc">Executes arithmetic, control flow, function calls, and I/O operations</div>
+                    </div>
+                </div>
+
+                <!-- Phase 5: Runtime & Output -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">5</div>
+                        Runtime & Output
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📤 I/O Operations</div>
+                        <div class="component-desc">Print statements, input handling, and console output</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🧮 Math Operations</div>
+                        <div class="component-desc">Built-in mathematical functions and operations</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔄 Loop Control</div>
+                        <div class="component-desc">While, do-while, for loops with break/continue</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🎭 Error Handling</div>
+                        <div class="component-desc">Try-catch blocks and exception management</div>
+                    </div>
+                </div>
+
+                <!-- Phase 6: Package Management -->
+                <div class="phase">
+                    <div class="phase-title">
+                        <div class="phase-icon">6</div>
+                        Package Management
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📦 LiPM (Package Manager)</div>
+                        <div class="component-desc">Manages package imports and dependencies</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">📁 Package Directory</div>
+                        <div class="component-desc">Stores built-in packages (math, time, etc.)</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">🔗 Import Resolution</div>
+                        <div class="component-desc">Resolves package imports and merges functions</div>
+                    </div>
+                    
+                    <div class="component">
+                        <div class="component-title">⚙️ Built-in Functions</div>
+                        <div class="component-desc">Provides standard library functions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Flow Section -->
+            <div class="data-flow">
+                <h3>📊 Data Flow Through the System</h3>
+                
+                <div class="data-item">
+                    <div class="data-icon">📝</div>
+                    <div class="data-info">
+                        <h4>Source Code</h4>
+                        <p>Raw Linh code (.li files) or REPL input</p>
+                    </div>
+                </div>
+                
+                <div class="data-item">
+                    <div class="data-icon">🔤</div>
+                    <div class="data-info">
+                        <h4>Token Stream</h4>
+                        <p>Lexical tokens with type, value, and position information</p>
+                    </div>
+                </div>
+                
+                <div class="data-item">
+                    <div class="data-icon">🌳</div>
+                    <div class="data-info">
+                        <h4>Abstract Syntax Tree</h4>
+                        <p>Hierarchical representation of program structure</p>
+                    </div>
+                </div>
+                
+                <div class="data-item">
+                    <div class="data-icon">⚡</div>
+                    <div class="data-info">
+                        <h4>Bytecode</h4>
+                        <p>Low-level instructions for virtual machine execution</p>
+                    </div>
+                </div>
+                
+                <div class="data-item">
+                    <div class="data-icon">🖥️</div>
+                    <div class="data-info">
+                        <h4>Execution Result</h4>
+                        <p>Program output, side effects, and return values</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Optimization Section -->
+            <div class="optimization-section">
+                <h3>🚀 Optimization Features</h3>
+                
+                <div class="opt-item">
+                    <div class="opt-title">Constant Folding</div>
+                    <div class="opt-desc">Evaluates constant expressions at compile time</div>
+                </div>
+                
+                <div class="opt-item">
+                    <div class="opt-title">Dead Code Elimination</div>
+                    <div class="opt-desc">Removes unreachable code during compilation</div>
+                </div>
+                
+                <div class="opt-item">
+                    <div class="opt-title">Instruction Caching</div>
+                    <div class="opt-desc">Caches frequently executed instructions for faster execution</div>
+                </div>
+                
+                <div class="opt-item">
+                    <div class="opt-title">Stack Optimization</div>
+                    <div class="opt-desc">Optimizes stack operations and memory usage</div>
+                </div>
+                
+                <div class="opt-item">
+                    <div class="opt-title">Hot Path Optimization</div>
+                    <div class="opt-desc">Identifies and optimizes frequently executed code paths</div>
+                </div>
+            </div>
+
+            <!-- Legend -->
+            <div class="legend">
+                <h3>📋 Component Legend</h3>
+                
+                <div class="legend-item">
+                    <div class="legend-color blue"></div>
+                    <span>Core Components</span>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-color green"></div>
+                    <span>Optimization Features</span>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-color red"></div>
+                    <span>Data Structures</span>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-color orange"></div>
+                    <span>Runtime Features</span>
+                </div>
+                
+                <div class="legend-item">
+                    <div class="legend-color purple"></div>
+                    <span>Package Management</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive effects
+        document.addEventListener('DOMContentLoaded', function() {
+            const components = document.querySelectorAll('.component');
+            
+            components.forEach(component => {
+                component.addEventListener('mouseenter', function() {
+                    this.style.transform = 'scale(1.02)';
+                });
+                
+                component.addEventListener('mouseleave', function() {
+                    this.style.transform = 'scale(1)';
+                });
+            });
+            
+            // Add smooth scrolling for better UX
+            const phases = document.querySelectorAll('.phase');
+            phases.forEach(phase => {
+                phase.addEventListener('click', function() {
+                    this.scrollIntoView({ behavior: 'smooth' });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

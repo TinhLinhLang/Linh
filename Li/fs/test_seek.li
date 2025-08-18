@@ -1,0 +1,21 @@
+import fs;
+
+// Tạo file test với nội dung dài hơn
+fs.open("test_seek.txt");
+fs.write("Hello World! This is a test file.");
+fs.close();
+
+// Test seek
+fs.open("test_seek.txt");
+print("Original content:");
+print(fs.read());
+
+fs.seek(6);
+print("After seek(6):");
+print(fs.read());
+
+fs.seek(0);
+print("After seek(0):");
+print(fs.read());
+
+fs.close();

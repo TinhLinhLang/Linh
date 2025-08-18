@@ -12,6 +12,12 @@ namespace Linh
         // Function type for math functions
         using MathFunction = std::function<Value(const Value&)>;
         
+        // Function type for time functions
+        using TimeFunction = std::function<Value(const Value&)>;
+        
+        // Function type for fs functions
+        using FsFunction = std::function<Value(const Value&)>;
+        
         // Initialize default packages
         void initialize_default_packages();
 
@@ -24,6 +30,12 @@ namespace Linh
         // Get a math function by name
         MathFunction get_math_function(const std::string& function_name);
 
+        // Get a time function by name
+        TimeFunction get_time_function(const std::string& function_name);
+
+        // Get a fs function by name
+        FsFunction get_fs_function(const std::string& function_name);
+
         // Check if a package exists
         bool package_exists(const std::string& package_name);
 
@@ -35,5 +47,11 @@ namespace Linh
 
         // Get all functions in math package
         std::vector<std::string> get_math_functions();
+
+        // Get all functions in time package
+        std::vector<std::string> get_time_functions();
+
+        // Get all functions in fs package
+        std::vector<std::string> get_fs_functions();
     }
 } 

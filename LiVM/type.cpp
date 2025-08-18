@@ -1,83 +1,131 @@
 #include "type.hpp"
 #include "Functional/Func.hpp"
 #include <fmt/core.h>
+#include <stdexcept>
+#include <cstdio>
 
 namespace Linh
 {
+    // Định nghĩa hàm type() cho LiVM (wrapper)
     void type(LiVM &vm)
     {
         vm.type();
     }
 
-    // Hàm riêng để format số thực theo quy tắc của Linh
+    // Chuyển string thành ByteArray (encoding: utf-8)
+    ByteArray string_bytes(const std::string& s, const std::string& encoding)
+    {
+        // Hiện tại chỉ hỗ trợ utf-8
+        ByteArray arr = make_bytearray();
+        if (encoding == "utf-8" || encoding == "UTF-8" || encoding.empty())
+        {
+            arr->reserve(s.size());
+            for (unsigned char c : s)
+                arr->push_back(c);
+        }
+        else
+        {
+            // Có thể bổ sung các encoding khác nếu cần
+            throw std::runtime_error("Only utf-8 encoding is supported");
+        }
+        return arr;
+    }
+
+    ByteArray string_bytes(const Value& v, const std::string& encoding)
+    {
+        if (std::holds_alternative<std::string>(v))
+        {
+            return string_bytes(std::get<std::string>(v), encoding);
+        }
+        throw std::runtime_error("Value is not a string");
+    }
+
+    // Hàm format số thực theo quy tắc của Linh
     std::string format_float_linh(double value)
     {
         // Bước 1: Chuyển thành string với độ chính xác cao bằng fmt
         std::string str = fmt::format("{:.17f}", value);
-        
+
         // Bước 2: Tìm vị trí dấu chấm thập phân
         size_t dot_pos = str.find('.');
-        if (dot_pos == std::string::npos) {
+        if (dot_pos == std::string::npos)
+        {
             return str; // Không có phần thập phân
         }
-        
+
         // Bước 3: Loại bỏ số 0 cuối từ phần thập phân, nhưng giữ lại ít nhất một số 0
         size_t end_pos = str.length() - 1;
-        while (end_pos > dot_pos + 1 && str[end_pos] == '0') {
+        while (end_pos > dot_pos + 1 && str[end_pos] == '0')
+        {
             end_pos--;
         }
-        
+
         // Bước 4: Nếu chỉ còn một số 0 sau dấu chấm, giữ lại
-        if (end_pos == dot_pos + 1 && str[end_pos] == '0') {
+        if (end_pos == dot_pos + 1 && str[end_pos] == '0')
+        {
             return str.substr(0, end_pos + 1); // Giữ lại "x.0"
         }
-        
+
         // Bước 5: Giới hạn tối đa 15 chữ số có nghĩa (bao gồm cả phần nguyên)
         std::string result = str.substr(0, end_pos + 1);
-        
+
         // Đếm số chữ số có nghĩa
         int significant_digits = 0;
         bool found_non_zero = false;
-        
-        for (char c : result) {
-            if (c == '.') continue;
-            if (c != '0') found_non_zero = true;
-            if (found_non_zero) significant_digits++;
+
+        for (char c : result)
+        {
+            if (c == '.')
+                continue;
+            if (c != '0')
+                found_non_zero = true;
+            if (found_non_zero)
+                significant_digits++;
         }
-        
+
         // Nếu có quá 15 chữ số có nghĩa, cắt bớt
-        if (significant_digits > 15) {
+        if (significant_digits > 15)
+        {
             // Tìm vị trí để cắt
             int digits_to_keep = 15;
             size_t cut_pos = 0;
             int current_digits = 0;
-            
-            for (size_t i = 0; i < result.length(); i++) {
-                if (result[i] == '.') continue;
-                if (result[i] != '0') {
+
+            for (size_t i = 0; i < result.length(); i++)
+            {
+                if (result[i] == '.')
+                    continue;
+                if (result[i] != '0')
+                {
                     current_digits++;
-                    if (current_digits > digits_to_keep) {
+                    if (current_digits > digits_to_keep)
+                    {
                         cut_pos = i;
                         break;
                     }
-                } else if (current_digits > 0) {
+                }
+                else if (current_digits > 0)
+                {
                     current_digits++;
-                    if (current_digits > digits_to_keep) {
+                    if (current_digits > digits_to_keep)
+                    {
                         cut_pos = i;
                         break;
                     }
                 }
             }
-            
-            if (cut_pos > 0) {
+
+            if (cut_pos > 0)
+            {
                 result = result.substr(0, cut_pos);
                 // Loại bỏ số 0 cuối sau khi cắt, nhưng giữ lại ít nhất một số 0
-                while (result.back() == '0' && result.length() > dot_pos + 2) {
+                while (result.back() == '0' && result.length() > dot_pos + 2)
+                {
                     result.pop_back();
                 }
             }
         }
-        
+
         return result;
     }
 
@@ -101,6 +149,10 @@ namespace Linh
             return "map";
         if (std::holds_alternative<FunctionPtr>(val))
             return "function";
+        if (std::holds_alternative<Byte>(val))
+            return "byte";
+        if (std::holds_alternative<ByteArray>(val))
+            return "bytearray";
         return "unknown";
     }
 
@@ -148,20 +200,41 @@ namespace Linh
         {
             const auto &fn = std::get<FunctionPtr>(val);
             std::string result = fmt::format("<function {}(", fn->name);
-            
-            // Hiển thị tham số
-            for (size_t i = 0; i < fn->params.size(); ++i) {
-                if (i > 0) result += ", ";
-                
-                const auto& param = fn->params[i];
-                if (param.is_static) result += "vas ";
+            for (size_t i = 0; i < fn->params.size(); ++i)
+            {
+                if (i > 0)
+                    result += ", ";
+                const auto &param = fn->params[i];
+                if (param.is_static)
+                    result += "vas ";
                 result += param.name;
-                if (param.type.has_value()) {
+                if (param.type.has_value())
+                {
                     result += ": " + param.type.value();
                 }
             }
-            
             result += ")>";
+            return result;
+        }
+        if (std::holds_alternative<Byte>(val))
+        {
+            char buf[5];
+            std::snprintf(buf, sizeof(buf), "%u", static_cast<unsigned>(std::get<Byte>(val)));
+            return std::string(buf);
+        }
+        if (std::holds_alternative<ByteArray>(val))
+        {
+            const auto &barr = std::get<ByteArray>(val);
+            std::string result = "[";
+            for (size_t i = 0; i < barr->size(); ++i)
+            {
+                if (i > 0)
+                    result += ", ";
+                char buf[5];
+                std::snprintf(buf, sizeof(buf), "%u", static_cast<unsigned>((*barr)[i]));
+                result += buf;
+            }
+            result += "]";
             return result;
         }
         return "<unknown>";
@@ -188,6 +261,8 @@ namespace Linh
         }
         if (std::holds_alternative<bool>(val))
             return std::get<bool>(val) ? 1 : 0;
+        if (std::holds_alternative<Byte>(val))
+            return static_cast<int64_t>(std::get<Byte>(val));
         return 0;
     }
 
@@ -212,6 +287,8 @@ namespace Linh
         }
         if (std::holds_alternative<bool>(val))
             return std::get<bool>(val) ? 1.0 : 0.0;
+        if (std::holds_alternative<Byte>(val))
+            return static_cast<double>(std::get<Byte>(val));
         return 0.0;
     }
 
@@ -237,6 +314,8 @@ namespace Linh
         }
         if (std::holds_alternative<bool>(val))
             return std::get<bool>(val) ? 1 : 0;
+        if (std::holds_alternative<Byte>(val))
+            return static_cast<uint64_t>(std::get<Byte>(val));
         return 0;
     }
 
@@ -250,6 +329,10 @@ namespace Linh
             return std::get<double>(val) != 0.0;
         if (std::holds_alternative<std::string>(val))
             return !std::get<std::string>(val).empty();
+        if (std::holds_alternative<Byte>(val))
+            return std::get<Byte>(val) != 0;
+        if (std::holds_alternative<ByteArray>(val))
+            return !std::get<ByteArray>(val)->empty();
         return false;
     }
 
@@ -268,6 +351,11 @@ namespace Linh
         if (std::holds_alternative<std::string>(val))
         {
             return static_cast<int64_t>(std::get<std::string>(val).size());
+        }
+        if (std::holds_alternative<ByteArray>(val))
+        {
+            const auto &barr = std::get<ByteArray>(val);
+            return barr ? static_cast<int64_t>(barr->size()) : 0;
         }
         return 0;
     }

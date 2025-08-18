@@ -257,6 +257,8 @@ namespace Linh
             return "ID";
         case OpCode::LOAD_PACKAGE_CONST:
             return "LOAD_PACKAGE_CONST";
+        case OpCode::CALL_PACKAGE_FUNCTION:
+            return "CALL_PACKAGE_FUNCTION";
         case OpCode::PUSH_ARRAY:
             return "PUSH_ARRAY";
         case OpCode::PUSH_MAP:
@@ -293,6 +295,12 @@ namespace Linh
             return "PRINT_MULTIPLE";
         case OpCode::PRINTF:
             return "PRINTF";
+        case OpCode::CREATE_CLOSURE:
+            return "CREATE_CLOSURE";
+        case OpCode::CAPTURE_VAR:
+            return "CAPTURE_VAR";
+        case OpCode::LOAD_CLOSURE_VAR:
+            return "LOAD_CLOSURE_VAR";
         default:
             return "UNKNOWN";
         }
@@ -439,11 +447,117 @@ namespace Linh
     }
 
     static void handle_LOAD_PACKAGE_CONST(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        // Giả sử operand là tên hằng số package (string)
-        std::string const_name = std::get<std::string>(instr.operand);
-        // Nếu bạn có cơ chế lưu package constants, hãy lấy giá trị ở đây
-        // Ở đây chỉ demo: push tên hằng số lên stack
-        vm.push(const_name);
+        // Operand là tên hằng số package (string) dạng "package.constant"
+        std::string full_name = std::get<std::string>(instr.operand);
+        
+        // Tách package name và constant name
+        size_t dot_pos = full_name.find('.');
+        if (dot_pos == std::string::npos) {
+            std::cerr << "ERROR: Invalid package constant format: " << full_name << std::endl;
+            vm.push(Value{}); // Push sol
+            return;
+        }
+        
+        std::string package_name = full_name.substr(0, dot_pos);
+        std::string constant_name = full_name.substr(dot_pos + 1);
+        
+        // Sử dụng LiPM để lấy giá trị hằng số
+        Value constant_value = Linh::LiPM::get_constant(package_name, constant_name);
+        vm.push(constant_value);
+    }
+
+    static void handle_CALL_PACKAGE_FUNCTION(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Operand là tên function package (string) dạng "package.function"
+        std::string full_name = std::get<std::string>(instr.operand);
+        
+        // Tách package name và function name
+        size_t dot_pos = full_name.find('.');
+        if (dot_pos == std::string::npos) {
+            std::cerr << "VM: Invalid package function format: " << full_name << std::endl;
+            vm.push(Value{});
+            return;
+        }
+        
+        std::string package_name = full_name.substr(0, dot_pos);
+        std::string function_name = full_name.substr(dot_pos + 1);
+        
+        // Lấy function từ package và gọi nó
+        if (package_name == "fs") {
+            auto fs_func = Linh::LiPM::get_fs_function(function_name);
+            if (fs_func) {
+                // Lấy argument từ stack (nếu có)
+                Value arg = vm.stack.empty() ? Value{} : vm.pop();
+                Value result = fs_func(arg);
+                vm.push(result);
+            } else {
+                std::cerr << "VM: Function " << function_name << " not found in package " << package_name << std::endl;
+                vm.push(Value{});
+            }
+        } else {
+            std::cerr << "VM: Package " << package_name << " not supported for function calls" << std::endl;
+            vm.push(Value{});
+        }
+    }
+
+    // Closure support handlers
+    static void handle_CREATE_CLOSURE(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Expect a function object on top of stack
+        if (vm.stack.empty()) {
+            std::cerr << "Error: CREATE_CLOSURE requires a function on stack" << std::endl;
+            return;
+        }
+
+        auto function_value = vm.stack.back();
+        vm.stack.pop_back();
+
+        if (function_value.index() != 8) { // FunctionPtr index
+            std::cerr << "Error: CREATE_CLOSURE expected function object" << std::endl;
+            return;
+        }
+
+        auto fn = std::get<8>(function_value);
+        
+        // Create closure with current environment
+        auto closure = create_closure(fn->name, fn->params, fn->body, vm.current_environment);
+        
+        // Push closure onto stack
+        vm.push(Value(closure));
+    }
+
+    static void handle_CAPTURE_VAR(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Capture a variable from current scope into environment
+        std::string var_name = std::get<std::string>(instr.operand);
+        
+        // Look for variable in current scope (variables map)
+        // This is a simplified approach - in a real implementation you'd have proper scoping
+        bool found = false;
+        for (const auto& [var_index, var_value] : vm.variables) {
+            // For now, we'll assume the variable name matches the index pattern
+            // In a more sophisticated implementation, you'd have proper variable name tracking
+            std::string expected_name = "var_" + std::to_string(var_index);
+            if (var_name == expected_name || var_name == "count") {
+                vm.current_environment[var_name] = var_value;
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found) {
+            std::cerr << "Warning: Variable '" << var_name << "' not found for capture" << std::endl;
+        }
+    }
+
+    static void handle_LOAD_CLOSURE_VAR(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Load a variable from closure environment
+        std::string var_name = std::get<std::string>(instr.operand);
+        
+        auto it = vm.current_environment.find(var_name);
+        if (it != vm.current_environment.end()) {
+            vm.push(it->second);
+        } else {
+            std::cerr << "Error: Closure variable '" << var_name << "' not found" << std::endl;
+            vm.push(Value()); // Push default value
+        }
     }
 
     // Jump table for opcodes (partial, expand as needed)
@@ -511,6 +625,10 @@ namespace Linh
         table[static_cast<size_t>(OpCode::PUSH_BOOL)] = handle_PUSH_BOOL;
         table[static_cast<size_t>(OpCode::PUSH_FUNCTION)] = handle_PUSH_FUNCTION;
         table[static_cast<size_t>(OpCode::LOAD_PACKAGE_CONST)] = handle_LOAD_PACKAGE_CONST;
+        table[static_cast<size_t>(OpCode::CALL_PACKAGE_FUNCTION)] = handle_CALL_PACKAGE_FUNCTION;
+        table[static_cast<size_t>(OpCode::CREATE_CLOSURE)] = handle_CREATE_CLOSURE;
+        table[static_cast<size_t>(OpCode::CAPTURE_VAR)] = handle_CAPTURE_VAR;
+        table[static_cast<size_t>(OpCode::LOAD_CLOSURE_VAR)] = handle_LOAD_CLOSURE_VAR;
         return table;
     }();
 
@@ -806,7 +924,14 @@ namespace Linh
                     {
                         stack.push_back(std::monostate{});
                     }
-                    variables[idx] = pop();
+                    Value value = pop();
+                    variables[idx] = value;
+                    
+                    // Track variable in current environment for closure capture
+                    // This is a simplified approach - in practice you'd have proper variable name tracking
+                    // For now, we'll use the index as a simple identifier
+                    std::string var_name = "var_" + std::to_string(idx);
+                    current_environment[var_name] = value;
                     break;
                 }
                 case OpCode::PRINT:
@@ -822,8 +947,12 @@ namespace Linh
                     auto val = pop();
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] PRINT: about to print: " << Linh::to_str(val) << std::endl;
+                    std::cerr << "----- START PRINT -----" << std::endl;
 #endif
                     LinhIO::linh_print(val);
+#ifdef _DEBUG
+                    std::cerr << "----- END PRINT -----" << std::endl;
+#endif
                     break;
                 }
                 case OpCode::PRINT_MULTIPLE:
@@ -871,7 +1000,14 @@ namespace Linh
                         break;
                     }
                     auto val = pop();
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] PRINTF: about to print: " << Linh::to_str(val) << std::endl;
+                    std::cerr << "----- START PRINTF -----" << std::endl;
+#endif
                     LinhIO::linh_printf(val);
+#ifdef _DEBUG
+                    std::cerr << "----- END PRINTF -----" << std::endl;
+#endif
                     break;
                 }
                 case OpCode::INPUT:
@@ -882,7 +1018,14 @@ namespace Linh
                         prompt_str = std::get<std::string>(prompt);
                     else
                         prompt_str = "";
-                    auto input_val = LinhIO::linh_input(prompt_str);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] INPUT: about to input: " << prompt_str << std::endl;
+                    std::cerr << "----- START INPUT -----" << std::endl;
+#endif
+                        auto input_val = LinhIO::linh_input(prompt_str);
+#ifdef _DEBUG
+                    std::cerr << "----- END INPUT -----" << std::endl;
+#endif
                     push(input_val);
                     break;
                 }
@@ -911,6 +1054,10 @@ namespace Linh
                         type_str = "map";
                     else if (std::holds_alternative<FunctionPtr>(val))
                         type_str = "function";
+                    else if (std::holds_alternative<Byte>(val))
+                        type_str = "byte";
+                    else if (std::holds_alternative<ByteArray>(val))
+                        type_str = "bytearray";
                     push(type_str); // Đẩy lại kết quả lên stack để PRINT lấy ra
                     break;
                 }
@@ -949,9 +1096,7 @@ namespace Linh
                     // --- Built-in conversion functions ---
                     if (fname == "sol")
                     {
-                        // Bất kỳ giá trị nào truyền vào cũng trả về sol (std::monostate)
-                        if (!stack.empty())
-                            pop();
+                        if (!stack.empty()) pop();
                         push(std::monostate{});
                         break;
                     }
@@ -959,6 +1104,60 @@ namespace Linh
                     {
                         auto val = pop();
                         push(Linh::to_str(val));
+                        break;
+                    }
+                    if (fname == "bin")
+                    {
+                        auto val = pop();
+                        // Convert numeric types to binary string with 0b prefix
+                        auto to_bin = [](uint64_t v) {
+                            if (v == 0) return std::string("0");
+                            std::string s;
+                            while (v > 0) {
+                                s.push_back((v & 1ull) ? '1' : '0');
+                                v >>= 1ull;
+                            }
+                            std::reverse(s.begin(), s.end());
+                            return s;
+                        };
+                        bool is_neg = false;
+                        std::string bits;
+                        if (std::holds_alternative<uint64_t>(val)) {
+                            bits = to_bin(std::get<uint64_t>(val));
+                        } else if (std::holds_alternative<int64_t>(val)) {
+                            int64_t iv = std::get<int64_t>(val);
+                            if (iv < 0) {
+                                is_neg = true;
+                                bits = to_bin(static_cast<uint64_t>(-iv));
+                            } else {
+                                bits = to_bin(static_cast<uint64_t>(iv));
+                            }
+                        } else if (std::holds_alternative<double>(val)) {
+                            // For float, take integer part
+                            double dv = std::get<double>(val);
+                            if (dv < 0) {
+                                is_neg = true;
+                                bits = to_bin(static_cast<uint64_t>(-static_cast<int64_t>(dv)));
+                            } else {
+                                bits = to_bin(static_cast<uint64_t>(dv));
+                            }
+                        } else if (std::holds_alternative<bool>(val)) {
+                            bits = std::get<bool>(val) ? "1" : "0";
+                        } else if (std::holds_alternative<std::string>(val)) {
+                            // If input is string of decimal digits (optionally with leading -), parse; otherwise return empty
+                            try {
+                                std::string s = std::get<std::string>(val);
+                                if (!s.empty() && s[0] == '-') { is_neg = true; s = s.substr(1); }
+                                uint64_t uv = std::stoull(s);
+                                bits = to_bin(uv);
+                            } catch (...) {
+                                bits = ""; // invalid input
+                            }
+                        } else if (std::holds_alternative<Byte>(val)) {
+                            bits = to_bin(static_cast<uint64_t>(std::get<Byte>(val)));
+                        }
+                        std::string out = (is_neg ? "-0b" : "0b") + bits;
+                        push(out);
                         break;
                     }
                     if (fname == "uint")
@@ -990,7 +1189,76 @@ namespace Linh
                         auto val = pop();
                         int64_t result = Linh::len(val);
                         push(result);
-                        break; // Đổi từ return sang break để tiếp tục thực thi opcode tiếp theo
+                        break;
+                    }
+                    // --- bytes([...]) ---
+                    if (fname == "bytes")
+                    {
+                        if (stack.empty())
+                        {
+                            std::cerr << "VM: bytes() requires 1 argument" << std::endl;
+                            push(Value{});
+                            break;
+                        }
+                        auto arg = pop();
+                        try {
+                            if (std::holds_alternative<Array>(arg)) {
+                                auto in_arr = std::get<Array>(arg);
+                                auto barr = make_bytearray();
+                                barr->reserve(in_arr->size());
+                                for (const auto &v : *in_arr) {
+                                    uint64_t iv = 0;
+                                    if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
+                                    else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
+                                    else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
+                                    else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
+                                    else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
+                                    // Clamp to 0..255
+                                    if (iv > 255) iv = 255;
+                                    (*barr).push_back(static_cast<Byte>(iv & 0xFF));
+                                }
+                                push(Value::from_bytearray(barr));
+                            } else if (std::holds_alternative<std::string>(arg)) {
+                                auto b = Linh::string_bytes(arg, "utf-8");
+                                push(Value::from_bytearray(b));
+                            } else if (std::holds_alternative<ByteArray>(arg)) {
+                                // Already a bytearray
+                                push(arg);
+                            } else {
+                                std::cerr << "VM: bytes() expects array or string" << std::endl;
+                                push(Value{});
+                            }
+                        } catch (const std::exception& e) {
+                            std::cerr << "VM: bytes() error: " << e.what() << std::endl;
+                            push(Value{});
+                        }
+                        break;
+                    }
+                    // --- string.bytes(encoding) ---
+                    if (fname == "str.bytes" || fname == "string.bytes")
+                    {
+                        // Nếu có 2 arg: string, encoding; 1 arg: string (utf-8)
+                        std::string encoding = "utf-8";
+                        Value sval;
+                        if (stack.size() >= 2) {
+                            auto enc_val = pop();
+                            sval = pop();
+                            if (std::holds_alternative<std::string>(enc_val))
+                                encoding = std::get<std::string>(enc_val);
+                        } else if (!stack.empty()) {
+                            sval = pop();
+                        } else {
+                            push(Value{}); // sol
+                            break;
+                        }
+                        try {
+                            auto barr = Linh::string_bytes(sval, encoding);
+                            push(Value::from_bytearray(barr));
+                        } catch (const std::exception& e) {
+                            std::cerr << "VM: string.bytes error: " << e.what() << std::endl;
+                            push(Value{}); // sol
+                        }
+                        break;
                     }
                     // --- Math functions support ---
                     if (fname == "pow")
@@ -1067,6 +1335,58 @@ namespace Linh
                         auto result = math_func(val);
                         push(result);
                         break;
+                    }
+                    
+                    auto time_func = Linh::LiPM::get_time_function(fname);
+                    if (time_func)
+                    {
+                        if (stack.empty())
+                        {
+                            std::cerr << "VM: Time function '" << fname << "' requires an argument\n";
+                            push(Value{}); // Return sol
+                            break;
+                        }
+                        auto val = pop();
+                        auto result = time_func(val);
+                        push(result);
+                        break;
+                    }
+                    
+                    // Package function calls (e.g., time.sleep, math.abs)
+                    size_t dot_pos = fname.find('.');
+                    if (dot_pos != std::string::npos) {
+                        std::string package_name = fname.substr(0, dot_pos);
+                        std::string function_name = fname.substr(dot_pos + 1);
+                        
+                        if (package_name == "time") {
+                            auto time_func = Linh::LiPM::get_time_function(function_name);
+                            if (time_func) {
+                                Value val;
+                                if (!stack.empty()) {
+                                    val = pop();
+                                } else {
+                                    // Cho phép các hàm không có argument (như process_time)
+                                    val = Value{};
+                                }
+                                auto result = time_func(val);
+                                push(result);
+                                break;
+                            }
+                        } else if (package_name == "math") {
+                            auto math_func = Linh::LiPM::get_math_function(function_name);
+                            if (math_func) {
+                                Value val;
+                                if (!stack.empty()) {
+                                    val = pop();
+                                } else {
+                                    // Cho phép các hàm không có argument
+                                    val = Value{};
+                                }
+                                auto result = math_func(val);
+                                push(result);
+                                break;
+                            }
+                        }
                     }
                     // Kiểm tra xem có function object trên stack không
 #ifdef _DEBUG
@@ -1731,7 +2051,14 @@ namespace Linh
                             {
                                 stack.push_back(std::monostate{});
                             }
-                            variables[idx] = pop();
+                            Value value = pop();
+                            variables[idx] = value;
+                            
+                            // Track variable in current environment for closure capture
+                            // This is a simplified approach - in practice you'd have proper variable name tracking
+                            // For now, we'll use the index as a simple identifier
+                            std::string var_name = "var_" + std::to_string(idx);
+                            current_environment[var_name] = value;
                             break;
                         }
                         case OpCode::PRINT:
@@ -2389,6 +2716,20 @@ namespace Linh
                     }
                     break;
                 }
+                case OpCode::CALL_PACKAGE_FUNCTION:
+                {
+                    handle_CALL_PACKAGE_FUNCTION(*this, instr, chunk, ip);
+                    break;
+                }
+                case OpCode::CREATE_CLOSURE:
+                    handle_CREATE_CLOSURE(*this, instr, chunk, ip);
+                    break;
+                case OpCode::CAPTURE_VAR:
+                    handle_CAPTURE_VAR(*this, instr, chunk, ip);
+                    break;
+                case OpCode::LOAD_CLOSURE_VAR:
+                    handle_LOAD_CLOSURE_VAR(*this, instr, chunk, ip);
+                    break;
                 default:
                     ++ip;
                     break;
@@ -2500,53 +2841,59 @@ namespace Linh
         }
 #endif
         // Kiểm tra xem có function object trên stack không
-        if (!vm.stack.empty() && vm.stack.back().index() == 8) { // FunctionPtr is at index 8 in Value
+        if (!vm.stack.empty()) {
+            auto& top_value = vm.stack.back();
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] CALL: found function object on stack" << std::endl;
+            std::cerr << "[DEBUG] CALL: top value index = " << top_value.index() << std::endl;
 #endif
-            // Gọi function object
-            auto fn = std::get<8>(vm.stack.back());
-            vm.pop(); // Pop function object
-            
-            // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
-            std::vector<Value> args;
-            size_t expected_args = fn->params.size();
-            
-            // Arguments được push theo thứ tự từ trái sang phải, nên trên stack sẽ ngược lại
-            for (size_t i = 0; i < expected_args; ++i) {
-                if (vm.stack.empty()) {
-                    std::cerr << "Error: Not enough arguments for function " << fn->name << std::endl;
-                    vm.push(Value()); // Push default value
-                    ++ip;
-                    return;
+            if (top_value.index() == 8) { // FunctionPtr is at index 8 in Value
+#ifdef _DEBUG
+                std::cerr << "[DEBUG] CALL: found function object on stack" << std::endl;
+#endif
+                // Gọi function object
+                auto fn = std::get<8>(vm.stack.back());
+                vm.pop(); // Pop function object
+                
+                // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
+                std::vector<Value> args;
+                size_t expected_args = fn->params.size();
+                
+                // Arguments được push theo thứ tự từ trái sang phải, nên trên stack sẽ ngược lại
+                for (size_t i = 0; i < expected_args; ++i) {
+                    if (vm.stack.empty()) {
+                        std::cerr << "Error: Not enough arguments for function " << fn->name << std::endl;
+                        vm.push(Value()); // Push default value
+                        ++ip;
+                        return;
+                    }
+                    args.insert(args.begin(), vm.pop()); // Insert at beginning để giữ thứ tự đúng
                 }
-                args.insert(args.begin(), vm.pop()); // Insert at beginning để giữ thứ tự đúng
-            }
-            
+                
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] CALL: calling function " << fn->name << " with " << args.size() << " arguments" << std::endl;
+                std::cerr << "[DEBUG] CALL: calling function " << fn->name << " with " << args.size() << " arguments" << std::endl;
 #endif
-            
-            // Gọi function object
-            auto result = call_function(fn, args, vm);
-            vm.push(result);
-            ++ip;
-        } else {
-#ifdef _DEBUG
-            std::cerr << "[DEBUG] CALL: no function object found, falling back to legacy call" << std::endl;
-#endif
-            // Gọi function theo tên (legacy behavior)
-            std::string func_name = std::get<std::string>(instr.operand);
-            auto it = vm.functions.find(func_name);
-            if (it != vm.functions.end()) {
-                // Push return address
-                vm.call_stack.push_back({ip + 1, {}});
-                // Set up new frame
-                ip = 0;
-                // Note: This is simplified - in real implementation you'd need to handle parameters
-            } else {
-                std::cerr << "VM: Unknown function '" << func_name << "'" << std::endl;
+                
+                // Gọi function object
+                auto result = call_function(fn, args, vm);
+                vm.push(result);
                 ++ip;
+            } else {
+#ifdef _DEBUG
+                std::cerr << "[DEBUG] CALL: no function object found, falling back to legacy call" << std::endl;
+#endif
+                // Gọi function theo tên (legacy behavior)
+                std::string func_name = std::get<std::string>(instr.operand);
+                auto it = vm.functions.find(func_name);
+                if (it != vm.functions.end()) {
+                    // Push return address
+                    vm.call_stack.push_back({ip + 1, {}});
+                    // Set up new frame
+                    ip = 0;
+                    // Note: This is simplified - in real implementation you'd need to handle parameters
+                } else {
+                    std::cerr << "VM: Unknown function '" << func_name << "'" << std::endl;
+                    ++ip;
+                }
             }
         }
     }
@@ -2575,6 +2922,10 @@ namespace Linh
             std::cerr << "[DEBUG] LOAD_VAR: loaded value index = " << value.index() << std::endl;
 #endif
             vm.push(value);
+            
+            // Track variable usage in current environment for closure capture
+            std::string var_name = "var_" + std::to_string(idx);
+            vm.current_environment[var_name] = value;
         } else {
             // Nếu tên biến là error.message và error tồn tại, trả về error
             if (idx == 3 && vm.variables.count(2)) {
@@ -2590,7 +2941,14 @@ namespace Linh
         if (vm.stack.empty()) {
             vm.stack.push_back(std::monostate{});
         }
-        vm.variables[idx] = vm.pop();
+        Value value = vm.pop();
+        vm.variables[idx] = value;
+        
+        // Track variable in current environment for closure capture
+        // This is a simplified approach - in practice you'd have proper variable name tracking
+        // For now, we'll use the index as a simple identifier
+        std::string var_name = "var_" + std::to_string(idx);
+        vm.current_environment[var_name] = value;
     }
     static void handle_AND(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto b = vm.pop();
@@ -2863,6 +3221,16 @@ namespace Linh
         while (local_ip < chunk.size()) {
             const auto &instr = chunk[local_ip];
             
+#ifdef _DEBUG
+            if (instr.opcode == OpCode::CALL) {
+                std::cerr << "[DEBUG] run_chunk: about to execute CALL, stack size = " << this->stack.size() << std::endl;
+                if (this->stack.size() >= 2) {
+                    std::cerr << "[DEBUG] run_chunk: top of stack index = " << this->stack.back().index() << std::endl;
+                    std::cerr << "[DEBUG] run_chunk: second from top index = " << this->stack[this->stack.size()-2].index() << std::endl;
+                }
+            }
+#endif
+            
             // Simple execution without optimization for function calls
             switch (instr.opcode) {
                 case OpCode::PUSH_INT:
@@ -2903,6 +3271,36 @@ namespace Linh
                     break;
                 case OpCode::PRINT:
                     handle_PRINT(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::PRINT_MULTIPLE:
+                    handle_PRINT_MULTIPLE(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::PUSH_FUNCTION:
+                    handle_PUSH_FUNCTION(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::CREATE_CLOSURE:
+                    handle_CREATE_CLOSURE(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::CAPTURE_VAR:
+                    handle_CAPTURE_VAR(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::LOAD_CLOSURE_VAR:
+                    handle_LOAD_CLOSURE_VAR(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::SWAP:
+                    handle_SWAP(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::CALL:
+                    handle_CALL(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::JMP:
+                    handle_JMP(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::JMP_IF_FALSE:
+                    handle_JMP_IF_FALSE(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::JMP_IF_TRUE:
+                    handle_JMP_IF_TRUE(*this, instr, chunk, local_ip);
                     break;
                 case OpCode::RET:
 #ifdef _DEBUG

@@ -1,0 +1,5 @@
+import fs;
+fs.open("demo.txt");
+var a = fs.readlines();
+print(a);
+fs.close(); 

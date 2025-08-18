@@ -134,7 +134,9 @@ namespace Linh
         ERROR,
         END_OF_FILE,
         INTERP_START, // &{ mở nội suy
-        INTERP_END    // } đóng nội suy
+        INTERP_END,    // } đóng nội suy
+        BYTE_KW,      // byte
+        BYTEARRAY_KW, // bytearray
     };
 
     std::string token_type_to_string(TokenType type);

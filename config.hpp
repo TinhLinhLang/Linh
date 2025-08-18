@@ -27,4 +27,4 @@ extern const std::array<int, 2> float_bit_options;
 extern std::string default_utf;
 extern const std::array<std::string, 5> sp_os;
 extern const std::array<std::string, 10> linh_types;
-extern const std::array<std::string, 2> linh_packages; // Số 2 đổi thành số package thực tế
+extern const std::array<std::string, 3> linh_packages; // Số 3 cho math, time và package thứ 3

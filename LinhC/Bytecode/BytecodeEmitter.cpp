@@ -437,9 +437,9 @@ namespace Linh
         if (call)
         {
             auto id = dynamic_cast<AST::IdentifierExpr *>(call->callee.get());
-            if (id && id->name.lexeme == "print")
+            if (id && (id->name.lexeme == "print" || id->name.lexeme == "printil"))
             {
-                // Không sinh POP cho print(...)
+                // Không sinh POP cho print/printil(...)
                 return;
             }
         }
@@ -591,6 +591,20 @@ namespace Linh
                     }
                 }
             }
+            
+            // Thêm SWAP instruction nếu có CALL và stack có 2 elements
+            // Điều này đảm bảo function object ở trên cùng trước khi gọi CALL
+            if (!body_emitter.chunk.empty()) {
+                for (size_t i = 0; i < body_emitter.chunk.size(); ++i) {
+                    if (body_emitter.chunk[i].opcode == OpCode::CALL) {
+                        // Thêm SWAP trước CALL để đảm bảo function object ở trên cùng
+                        body_emitter.chunk.insert(body_emitter.chunk.begin() + i, 
+                            Instruction{OpCode::SWAP, {}, stmt->getLine(), stmt->getCol()});
+                        break;
+                    }
+                }
+            }
+            
             // Thêm RET instruction nếu không có return statement
             if (body_emitter.chunk.empty() || body_emitter.chunk.back().opcode != OpCode::RET) {
                 body_emitter.emit_instr(OpCode::RET, {}, stmt->getLine(), stmt->getCol());
@@ -601,6 +615,9 @@ namespace Linh
         // Tạo FunctionObject với thân hàm
 #ifdef _DEBUG
         std::cerr << "[DEBUG] visitFunctionDeclStmt: function body has " << function_body.size() << " instructions" << std::endl;
+        for (size_t i = 0; i < function_body.size(); ++i) {
+            std::cerr << "[DEBUG] Function " << stmt->name.lexeme << " body[" << i << "]: " << static_cast<int>(function_body[i].opcode) << std::endl;
+        }
 #endif
         auto fn = create_function(stmt->name.lexeme, function_params, function_body);
         
@@ -788,7 +805,7 @@ namespace Linh
 
     std::any BytecodeEmitter::visitCallExpr(AST::CallExpr *expr)
     {
-        // Special case: input(...), type(...), id(...), printf(...)
+        // Special case: input(...), type(...), id(...), printil(...)
         if (auto id = dynamic_cast<AST::IdentifierExpr *>(expr->callee.get()))
         {
             if (id->name.lexeme == "input")
@@ -818,13 +835,40 @@ namespace Linh
                 emit_instr(OpCode::ID, {}, expr->getLine(), expr->getCol());
                 return {};
             }
-            if (id->name.lexeme == "printf")
+            if (id->name.lexeme == "printil")
             {
                 if (!expr->arguments.empty())
                     expr->arguments[0]->accept(this);
                 else
                     emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
                 emit_instr(OpCode::PRINTF, {}, expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "bytes")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("bytes"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "len")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("len"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "bin")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_INT, 0, expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("bin"), expr->getLine(), expr->getCol());
                 return {};
             }
             // --- User-defined function call ---
@@ -843,6 +887,24 @@ namespace Linh
         // Đơn giản: Nếu callee là dạng a.append hoặc a.remove
         if (auto member = dynamic_cast<AST::MemberExpr *>(expr->callee.get()))
         {
+            // Fs package methods: open, read, readline, readlines, write, append, close
+            if (auto id = dynamic_cast<AST::IdentifierExpr *>(member->object.get()))
+            {
+                           if (id->name.lexeme == "fs" &&
+               (member->property == "open" || member->property == "read" || member->property == "readline" || member->property == "readlines" || member->property == "write" || member->property == "append" || member->property == "close" || member->property == "encoding" || member->property == "seek" || member->property == "size" || member->property == "exists" || member->property == "bRead" || member->property == "bWrite" || member->property == "bAppend"))
+                {
+                    // Emit arguments first (if any)
+                    for (const auto &arg : expr->arguments)
+                        if (arg)
+                            arg->accept(this);
+                    
+                    // Then emit the package function call
+                    std::string full_name = "fs." + member->property;
+                    emit_instr(OpCode::CALL_PACKAGE_FUNCTION, full_name, expr->getLine(), expr->getCol());
+                    return {};
+                }
+            }
+            
             // member->object: biểu thức array, member->property: tên phương thức
             if (member->property == "append" && expr->arguments.size() == 1)
             {
@@ -919,6 +981,47 @@ namespace Linh
                 emit_instr(OpCode::MAP_KEYS, {}, expr->getLine(), expr->getCol());
                 return {};
             }
+            
+            // Package function calls (e.g., time.sleep, math.abs)
+            auto id = dynamic_cast<AST::IdentifierExpr *>(member->object.get());
+            if (id) {
+                std::string package_name = id->name.lexeme;
+                std::string function_name = member->property_token.lexeme;
+                
+                // Check if it's a known package
+                if (package_name == "time" || package_name == "math") {
+                    // Emit arguments first
+                    for (auto &arg : expr->arguments)
+                        if (arg)
+                            arg->accept(this);
+                    
+                    // Emit CALL with package.function name
+                    std::string full_name = package_name + "." + function_name;
+                    emit_instr(OpCode::CALL, full_name, expr->getLine(), expr->getCol());
+                    return {};
+                }
+            }
+            
+            // Package function calls (e.g., time.sleep, math.abs)
+            auto package_id = dynamic_cast<AST::IdentifierExpr *>(member->object.get());
+            if (package_id) {
+                std::string package_name = package_id->name.lexeme;
+                std::string function_name = member->property_token.lexeme;
+                
+                // Check if it's a known package
+                if (package_name == "time" || package_name == "math") {
+                    // Emit arguments first
+                    for (auto &arg : expr->arguments)
+                        if (arg)
+                            arg->accept(this);
+                    
+                    // Emit CALL with package.function name
+                    std::string full_name = package_name + "." + function_name;
+                    emit_instr(OpCode::CALL, full_name, expr->getLine(), expr->getCol());
+                    return {};
+                }
+            }
+            
             if (member->property == "values" && expr->arguments.empty())
             {
                 if (member->object)
@@ -1105,8 +1208,8 @@ namespace Linh
         // Fallback: Nếu object là IdentifierExpr và là package mặc định, sinh LOAD_PACKAGE_CONST
         auto id = dynamic_cast<AST::IdentifierExpr *>(expr->object.get());
         if (id) {
-            // Luôn xử lý math.* như package constant
-            if (id->name.lexeme == "math") {
+            // Luôn xử lý math.* và fs.* như package constant
+            if (id->name.lexeme == "math" || id->name.lexeme == "fs") {
                 // Sinh opcode LOAD_PACKAGE_CONST với operand "package.property"
                 std::string full_name = id->name.lexeme + "." + expr->property_token.lexeme;
 #ifdef _DEBUG
@@ -1169,6 +1272,24 @@ namespace Linh
             }
         }
         
+        // Fs package methods: open, read, close
+        if (id && id->name.lexeme == "fs")
+        {
+            // Check if it's a fs function
+            if ((expr->method_name == "open" || expr->method_name == "read" || expr->method_name == "close" || expr->method_name == "bRead" || expr->method_name == "bWrite" || expr->method_name == "bAppend"))
+            {
+                // Emit arguments first (if any)
+                for (const auto &arg : expr->arguments)
+                    if (arg)
+                        arg->accept(this);
+                
+                // Then emit the package function call
+                std::string full_name = "fs." + expr->method_name;
+                emit_instr(OpCode::CALL_PACKAGE_FUNCTION, full_name, expr->getLine(), expr->getCol());
+                return {};
+            }
+        }
+        
         // Map methods: delete, clear, keys, values
         if (expr->method_name == "delete" && expr->arguments.size() == 1)
         {
@@ -1220,14 +1341,81 @@ namespace Linh
             }
             function_params.emplace_back(param.name.lexeme, param_type, param.is_static);
         }
+        
         BytecodeChunk function_body;
         BytecodeEmitter body_emitter;
-        body_emitter.var_table = var_table; // inherit outer var table for closure (tạm thời)
-        if (expr->body) expr->body->accept(&body_emitter);
+        body_emitter.var_table = var_table; // inherit outer var table for closure
+        
+        // Check if function body uses variables from outer scope
+        bool needs_closure = false;
+        std::unordered_set<std::string> captured_vars;
+        
+        // Simple heuristic: if function body references variables not in its own scope
+        // and those variables exist in the outer scope, we need a closure
+        // This is a simplified approach - a more sophisticated implementation would
+        // do proper static analysis of variable usage
+        
+        if (expr->body) {
+            expr->body->accept(&body_emitter);
+            
+            // Check if any variables from outer scope are used
+            for (const auto& [var_name, var_index] : var_table) {
+                // If variable exists in outer scope and might be used in function
+                // (This is a simplified check - in practice you'd do proper analysis)
+                if (var_index < next_var_index) {
+                    captured_vars.insert(var_name);
+                    needs_closure = true;
+                }
+            }
+        }
+        
         function_body = body_emitter.chunk;
+        
         // Tên hàm rỗng cho anonymous
         auto fn = create_function("", function_params, function_body);
         emit_instr(OpCode::PUSH_FUNCTION, fn, expr->getLine(), expr->getCol());
+        
+        // If closure is needed, create it
+        if (needs_closure) {
+            // Emit CAPTURE_VAR for each captured variable
+            for (const auto& var_name : captured_vars) {
+                emit_instr(OpCode::CAPTURE_VAR, var_name, expr->getLine(), expr->getCol());
+            }
+            
+            // Create closure from the function
+            emit_instr(OpCode::CREATE_CLOSURE, {}, expr->getLine(), expr->getCol());
+        }
+        
         return {};
+    }
+    
+    // Closure support methods
+    std::unordered_set<std::string> BytecodeEmitter::get_used_variables_in_scope(const AST::StmtList& stmts) {
+        std::unordered_set<std::string> used_vars;
+        
+        // Simple implementation: collect all variable names that are accessed
+        // In a more sophisticated implementation, you'd do proper static analysis
+        for (const auto& stmt : stmts) {
+            if (stmt) {
+                // This is a simplified approach - in practice you'd traverse the AST
+                // to find all variable references
+                // For now, we'll return an empty set and rely on the heuristic in visitFunctionExpr
+            }
+        }
+        
+        return used_vars;
+    }
+    
+    bool BytecodeEmitter::needs_closure_for_function(const AST::FunctionExpr* expr) {
+        if (!expr || !expr->body) {
+            return false;
+        }
+        
+        // Simple heuristic: if the function body contains any statements,
+        // assume it might need closure (this is a very basic approach)
+        // In a real implementation, you'd do proper static analysis to detect
+        // variable usage from outer scopes
+        
+        return true; // For now, always assume closure might be needed
     }
 }

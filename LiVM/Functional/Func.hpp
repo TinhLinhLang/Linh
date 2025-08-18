@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include "LiVM/Value/Value.hpp"
 
 // Forward declarations
@@ -23,17 +24,34 @@ namespace Linh {
             : name(n), type(t), is_static(static_) {}
     };
 
+    // Environment for closures - maps variable names to values
+    using ClosureEnvironment = std::unordered_map<std::string, Value>;
+
     struct FunctionObject {
         std::string name;
         std::vector<FunctionParameter> params;
         BytecodeChunk body; // Thân hàm dưới dạng bytecode
-        // TODO: Thêm trường cho closure/environment nếu cần
+        ClosureEnvironment environment; // Environment for closures - captured variables
+        bool is_closure = false; // Flag to indicate if this is a closure
+        
+        // Constructor for regular functions
+        FunctionObject() = default;
+        
+        // Constructor for closures
+        FunctionObject(const std::string& n, const std::vector<FunctionParameter>& p, 
+                      const BytecodeChunk& b, const ClosureEnvironment& env)
+            : name(n), params(p), body(b), environment(env), is_closure(true) {}
     };
 
     using FunctionPtr = std::shared_ptr<FunctionObject>;
 
     // Tạo function object
     FunctionPtr create_function(const std::string& name, const std::vector<FunctionParameter>& params, const BytecodeChunk& body);
+    
+    // Tạo closure object
+    FunctionPtr create_closure(const std::string& name, const std::vector<FunctionParameter>& params, 
+                              const BytecodeChunk& body, const ClosureEnvironment& environment);
+    
     // Gọi function object
     Value call_function(FunctionPtr fn, const std::vector<Value>& args, LiVM& vm);
 } 

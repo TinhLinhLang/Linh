@@ -92,6 +92,10 @@ namespace Linh
 
         int get_var_index(const std::string &name);
         void emit_instr(OpCode op, BytecodeValue val = {}, int line = 0, int col = 0);
+        
+        // Closure support
+        std::unordered_set<std::string> get_used_variables_in_scope(const AST::StmtList& stmts);
+        bool needs_closure_for_function(const AST::FunctionExpr* expr);
     };
 }
 

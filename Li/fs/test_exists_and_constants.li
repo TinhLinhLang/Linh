@@ -1,0 +1,27 @@
+import fs;
+
+// Test fs.exists
+print("Testing fs.exists:");
+print("demo.txt exists:", fs.exists("demo.txt"));
+print("nonexistent.txt exists:", fs.exists("nonexistent.txt"));
+
+// Test fs constants
+print("Testing fs constants:");
+print("SEEK_SET:", fs.SEEK_SET);
+print("SEEK_CUR:", fs.SEEK_CUR);
+print("SEEK_END:", fs.SEEK_END);
+
+// Test seek with constants
+fs.open("demo.txt");
+print("Original content:");
+print(fs.read());
+
+fs.seek(fs.SEEK_SET);
+print("After seek(SEEK_SET):");
+print(fs.read());
+
+fs.seek(2);
+print("After seek(2):");
+print(fs.read());
+
+fs.close();

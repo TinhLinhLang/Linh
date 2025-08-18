@@ -393,6 +393,88 @@ namespace Linh
                 break;
             }
         }
+        else if ((std::holds_alternative<int64_t>(a) && std::holds_alternative<uint64_t>(b)) ||
+                 (std::holds_alternative<uint64_t>(a) && std::holds_alternative<int64_t>(b)))
+        {
+            // Trộn int và uint: thăng cấp sang double để thực hiện số học và so sánh an toàn
+            double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) : static_cast<double>(std::get<uint64_t>(a));
+            double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) : static_cast<double>(std::get<uint64_t>(b));
+            switch (instr.opcode)
+            {
+            case OpCode::ADD:
+                vm.push(av + bv);
+                break;
+            case OpCode::SUB:
+                vm.push(av - bv);
+                break;
+            case OpCode::MUL:
+                vm.push(av * bv);
+                break;
+            case OpCode::DIV:
+                if (bv == 0.0)
+                {
+                    std::string err_msg = "Division by zero (int/uint)";
+#ifdef _DEBUG
+                    std::cerr << err_msg << std::endl;
+#endif
+                    throw std::runtime_error(err_msg);
+                }
+                else
+                {
+                    vm.push(av / bv);
+                }
+                break;
+            case OpCode::MOD:
+                if (bv == 0.0)
+                {
+                    std::string err_msg = "Modulo by zero (int/uint)";
+#ifdef _DEBUG
+                    std::cerr << err_msg << std::endl;
+#endif
+                    throw std::runtime_error(err_msg);
+                }
+                else
+                {
+                    vm.push(std::fmod(av, bv));
+                }
+                break;
+            case OpCode::HASH:
+                if (bv == 0.0)
+                {
+                    std::string err_msg = "Floor division by zero (int/uint)";
+#ifdef _DEBUG
+                    std::cerr << err_msg << std::endl;
+#endif
+                    throw std::runtime_error(err_msg);
+                }
+                else
+                {
+                    vm.push(std::floor(av / bv));
+                }
+                break;
+            // --- So sánh ---
+            case OpCode::LT:
+                vm.push(av < bv);
+                break;
+            case OpCode::LTE:
+                vm.push(av <= bv);
+                break;
+            case OpCode::GT:
+                vm.push(av > bv);
+                break;
+            case OpCode::GTE:
+                vm.push(av >= bv);
+                break;
+            case OpCode::EQ:
+                vm.push(av == bv);
+                break;
+            case OpCode::NEQ:
+                vm.push(av != bv);
+                break;
+            default:
+                break;
+            }
+        }
         else if ((std::holds_alternative<uint64_t>(a) || std::holds_alternative<double>(a)) &&
                  (std::holds_alternative<uint64_t>(b) || std::holds_alternative<double>(b)))
         {

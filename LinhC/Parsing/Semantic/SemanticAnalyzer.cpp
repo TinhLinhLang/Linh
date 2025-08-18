@@ -207,10 +207,10 @@ namespace Linh
         void SemanticAnalyzer::begin_scope()
         {
             var_scopes.push_back({});
-            // Đăng ký built-in function printf (1 tham số)
-            if (global_functions.count("printf") == 0)
+            // Đăng ký built-in function printil (1 tham số)
+            if (global_functions.count("printil") == 0)
             {
-                declare_function("printf", 1);
+                declare_function("printil", 1);
             }
         }
         void SemanticAnalyzer::end_scope()
@@ -247,7 +247,7 @@ namespace Linh
 
         // Danh sách các hàm built-in hợp lệ
         static const std::unordered_set<std::string> builtin_functions = {
-            "print", "input", "str", "int", "float", "bool", "len", "id", "type", "uint", "pow", "printf"};
+            "print", "input", "str", "int", "float", "bool", "len", "id", "type", "uint", "pow", "printil", "bytes", "bin"};
 
         bool SemanticAnalyzer::is_function_declared(const std::string &name)
         {
@@ -409,6 +409,21 @@ namespace Linh
                 {
                     type = "function";
                     var_func_param_counts[stmt->name.lexeme] = fnexpr->params.size();
+                }
+                // Nếu initializer là function call (CallExpr)
+                else if (auto callexpr = dynamic_cast<AST::CallExpr *>(stmt->initializer.get()))
+                {
+                    // Check if the call is to a function that returns a function
+                    if (auto id = dynamic_cast<AST::IdentifierExpr *>(callexpr->callee.get()))
+                    {
+                        if (is_function_declared(id->name.lexeme)) {
+                            // Assume function calls return functions for now
+                            // In a more sophisticated implementation, you'd track return types
+                            type = "function";
+                            // We don't know the exact parameter count, so we'll leave it undefined
+                            // The runtime will handle the actual call
+                        }
+                    }
                 }
             }
             else
@@ -777,9 +792,9 @@ namespace Linh
         {
             // Allow built-in functions and packages as identifiers without declaration
             static const std::unordered_set<std::string> builtin_funcs = {
-                "input", "type", "str", "int", "float", "bool", "uint", "id"}; // Thêm "id"
+                "input", "type", "str", "int", "float", "bool", "uint", "id", "bytes", "bin"}; // Thêm "id", bytes
             static const std::unordered_set<std::string> builtin_packages = {
-                "math"}; // Built-in packages
+                "math", "fs"}; // Built-in packages
             if (builtin_funcs.count(expr->name.lexeme) || builtin_packages.count(expr->name.lexeme))
             {
                 return {};
@@ -793,7 +808,7 @@ namespace Linh
                 std::string member = lex.substr(dot_pos + 1);
                 
                 // Check if this is a package constant (e.g., math.pi)
-                if (imported_packages.count(base) || base == "math")
+                if (imported_packages.count(base) || base == "math" || base == "fs")
                 {
                     // This is a package constant, check if it exists
                     if (Linh::LiPM::get_constant(base, member).index() != 0) // Not sol
@@ -968,8 +983,8 @@ namespace Linh
             // Nếu callee là IdentifierExpr thì kiểm tra tên hàm
             if (auto id = dynamic_cast<AST::IdentifierExpr *>(expr->callee.get()))
             {
-                // --- BẮT LỖI printf('...') ---
-                if (id->name.lexeme == "printf" && !expr->arguments.empty())
+                // --- BẮT LỖI printil('...') ---
+                if (id->name.lexeme == "printil" && !expr->arguments.empty())
                 {
                     auto *arg0 = expr->arguments[0].get();
                     if (auto lit = dynamic_cast<AST::LiteralExpr *>(arg0))
@@ -978,7 +993,7 @@ namespace Linh
                         const std::string &tok_lex = lit->token.lexeme;
                         if (tok_lex.size() >= 2 && tok_lex.front() == '\'' && tok_lex.back() == '\'')
                         {
-                            push_semantic_error(errors, lit->getLine(), lit->getCol(), "printf() argument must use double quotes (\"...\") not single quotes (\'...\').");
+                            push_semantic_error(errors, lit->getLine(), lit->getCol(), "printil() argument must use double quotes (\"...\") not single quotes (\'...\').");
                         }
                     }
                 }
@@ -1002,7 +1017,7 @@ namespace Linh
                 }
                 // Allow built-in conversion functions without declaration
                 static const std::unordered_set<std::string> builtin_funcs = {
-                    "input", "type", "str", "int", "float", "bool", "uint", "id"}; // Thêm "id"
+                    "input", "type", "str", "int", "float", "bool", "uint", "id", "bytes", "bin"}; // Thêm "id", bytes
                 if (!builtin_funcs.count(id->name.lexeme))
                 {
                     // Nếu là function đã khai báo thì kiểm tra như cũ
@@ -1029,8 +1044,14 @@ namespace Linh
                                 }
                             }
                         } else {
-                            // Không phải function object, báo lỗi như cũ
-                            push_semantic_error(errors, id->name.line, id->name.column_start, "Function '" + id->name.lexeme + "' called but not declared.");
+                            // Kiểm tra xem có phải là variable đã khai báo không (bao gồm parameters)
+                            if (is_var_declared(id->name.lexeme)) {
+                                // Variable đã khai báo, có thể là function object hoặc parameter
+                                // Cho phép gọi như function
+                            } else {
+                                // Không phải function object, không phải variable đã khai báo, báo lỗi
+                                push_semantic_error(errors, id->name.line, id->name.column_start, "Function '" + id->name.lexeme + "' called but not declared.");
+                            }
                         }
                     }
                 }
@@ -1112,7 +1133,7 @@ namespace Linh
                 std::string property_name = expr->property_token.lexeme;
                 
                 // Kiểm tra xem package có được import không hoặc là built-in package
-                if (imported_packages.count(package_name) > 0 || package_name == "math")
+                if (imported_packages.count(package_name) > 0 || package_name == "math" || package_name == "fs")
                 {
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] Found package: " << package_name << "." << property_name << std::endl;

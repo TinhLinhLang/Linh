@@ -4,11 +4,15 @@
 #include <stdexcept>
 #include <cctype>
 #include <string>
+#include <limits>
 
 namespace Linh
 {
     const std::unordered_map<std::string, TokenType> Lexer::s_keywords = {
-        {"var", TokenType::VAR_KW}, {"vas", TokenType::VAS_KW}, {"const", TokenType::CONST_KW}, {"if", TokenType::IF_KW}, {"else", TokenType::ELSE_KW}, {"for", TokenType::FOR_KW}, {"while", TokenType::WHILE_KW}, {"func", TokenType::FUNC_KW}, {"return", TokenType::RETURN_KW}, {"true", TokenType::TRUE_KW}, {"false", TokenType::FALSE_KW}, {"int", TokenType::INT_KW}, {"uint", TokenType::UINT_KW}, {"str", TokenType::STR_KW}, {"bool", TokenType::BOOL_KW}, {"float", TokenType::FLOAT_KW}, {"map", TokenType::MAP_KW}, {"array", TokenType::ARRAY_KW}, {"void", TokenType::VOID_KW}, {"any", TokenType::ANY_KW}, {"print", TokenType::PRINT_KW}, {"break", TokenType::BREAK_KW}, {"continue", TokenType::CONTINUE_KW}, {"skip", TokenType::SKIP_KW}, {"switch", TokenType::SWITCH_KW}, {"case", TokenType::CASE_KW}, {"default", TokenType::DEFAULT_KW}, {"other", TokenType::OTHER_KW}, {"type", TokenType::TYPE_KW}, {"sol", TokenType::SOL_KW}, {"is", TokenType::IS_KW}, {"not", TokenType::NOT_KW}, {"and", TokenType::AND_KW}, {"or", TokenType::OR_KW}, {"do", TokenType::DO_KW}, {"new", TokenType::NEW_KW}, {"delete", TokenType::DELETE_KW}, {"this", TokenType::THIS_KW}, {"throw", TokenType::THROW_KW}, {"try", TokenType::TRY_KW}, {"catch", TokenType::CATCH_KW}, {"finally", TokenType::FINALLY_KW}, {"import", TokenType::IMPORT_KW}, {"from", TokenType::FROM_KW}, {"id", TokenType::IDENTIFIER} // Thêm dòng này để id luôn là identifier (không phải keyword, nhưng nhận diện được)
+        {"var", TokenType::VAR_KW}, {"vas", TokenType::VAS_KW}, {"const", TokenType::CONST_KW}, {"if", TokenType::IF_KW}, {"else", TokenType::ELSE_KW}, {"for", TokenType::FOR_KW}, {"while", TokenType::WHILE_KW}, {"func", TokenType::FUNC_KW}, {"return", TokenType::RETURN_KW}, {"true", TokenType::TRUE_KW}, {"false", TokenType::FALSE_KW}, {"int", TokenType::INT_KW}, {"uint", TokenType::UINT_KW}, {"str", TokenType::STR_KW}, {"bool", TokenType::BOOL_KW}, {"float", TokenType::FLOAT_KW}, {"map", TokenType::MAP_KW}, {"array", TokenType::ARRAY_KW}, {"void", TokenType::VOID_KW}, {"any", TokenType::ANY_KW}, {"print", TokenType::PRINT_KW}, {"break", TokenType::BREAK_KW}, {"continue", TokenType::CONTINUE_KW}, {"skip", TokenType::SKIP_KW}, {"switch", TokenType::SWITCH_KW}, {"case", TokenType::CASE_KW}, {"default", TokenType::DEFAULT_KW}, {"other", TokenType::OTHER_KW}, {"type", TokenType::TYPE_KW}, {"sol", TokenType::SOL_KW}, {"is", TokenType::IS_KW}, {"not", TokenType::NOT_KW}, {"and", TokenType::AND_KW}, {"or", TokenType::OR_KW}, {"do", TokenType::DO_KW}, {"new", TokenType::NEW_KW}, {"delete", TokenType::DELETE_KW}, {"this", TokenType::THIS_KW}, {"throw", TokenType::THROW_KW}, {"try", TokenType::TRY_KW}, {"catch", TokenType::CATCH_KW}, {"finally", TokenType::FINALLY_KW}, {"import", TokenType::IMPORT_KW}, {"from", TokenType::FROM_KW},
+        {"byte", TokenType::BYTE_KW},
+        {"bytearray", TokenType::BYTEARRAY_KW},
+        {"id", TokenType::IDENTIFIER} // Thêm dòng này để id luôn là identifier (không phải keyword, nhưng nhận diện được)
     };
 
     Token::Token(TokenType type, std::string lexeme, LiteralValue literal, int line, int column_start)
@@ -112,6 +116,8 @@ namespace Linh
             return "STR";
         case TokenType::INT:
             return "INT";
+        case TokenType::UINT:
+            return "UINT";
         case TokenType::FLOAT_NUM:
             return "FLOAT_NUM";
         case TokenType::ARRAY_KW:
@@ -393,6 +399,88 @@ namespace Linh
     }
     void Lexer::handle_number_literal(int start_line, int start_col)
     {
+        // Hỗ trợ literal hệ 16: 0x... hoặc 0X... (có thể thêm hậu tố u/U cho uint)
+        if (m_source[m_start_lexeme] == '0' && (peek() == 'x' || peek() == 'X'))
+        {
+            advance(); // consume 'x' or 'X'
+            int digits_start = m_current_pos;
+            while (std::isxdigit(peek()))
+                advance();
+            int digits_end = m_current_pos;
+            bool is_uint_hex = false;
+            if (peek() == 'u' || peek() == 'U')
+            {
+                is_uint_hex = true;
+                advance();
+            }
+            std::string hex_str = m_source.substr(digits_start, digits_end - digits_start);
+            if (hex_str.empty())
+            {
+                m_tokens.emplace_back(TokenType::ERROR, "0x", "Invalid hexadecimal literal.", start_line, start_col);
+                return;
+            }
+            try
+            {
+                unsigned long long v = std::stoull(hex_str, nullptr, 16);
+                if (is_uint_hex)
+                {
+                    create_and_add_token(TokenType::UINT, static_cast<uint64_t>(v), start_line, start_col);
+                }
+                else
+                {
+                    if (v <= static_cast<unsigned long long>(std::numeric_limits<int64_t>::max()))
+                        create_and_add_token(TokenType::INT, static_cast<int64_t>(v), start_line, start_col);
+                    else
+                        create_and_add_token(TokenType::UINT, static_cast<uint64_t>(v), start_line, start_col);
+                }
+            }
+            catch (const std::exception &e)
+            {
+                m_tokens.emplace_back(TokenType::ERROR, hex_str, std::string("Invalid hexadecimal literal: ") + e.what(), start_line, start_col);
+            }
+            return;
+        }
+        // Hỗ trợ literal hệ 2: 0b... hoặc 0B... (có thể thêm hậu tố u/U cho uint)
+        if (m_source[m_start_lexeme] == '0' && (peek() == 'b' || peek() == 'B'))
+        {
+            advance(); // consume 'b' or 'B'
+            int digits_start = m_current_pos;
+            while (peek() == '0' || peek() == '1')
+                advance();
+            int digits_end = m_current_pos;
+            bool is_uint_bin = false;
+            if (peek() == 'u' || peek() == 'U')
+            {
+                is_uint_bin = true;
+                advance();
+            }
+            std::string bin_str = m_source.substr(digits_start, digits_end - digits_start);
+            if (bin_str.empty())
+            {
+                m_tokens.emplace_back(TokenType::ERROR, "0b", "Invalid binary literal.", start_line, start_col);
+                return;
+            }
+            try
+            {
+                unsigned long long v = std::stoull(bin_str, nullptr, 2);
+                if (is_uint_bin)
+                {
+                    create_and_add_token(TokenType::UINT, static_cast<uint64_t>(v), start_line, start_col);
+                }
+                else
+                {
+                    if (v <= static_cast<unsigned long long>(std::numeric_limits<int64_t>::max()))
+                        create_and_add_token(TokenType::INT, static_cast<int64_t>(v), start_line, start_col);
+                    else
+                        create_and_add_token(TokenType::UINT, static_cast<uint64_t>(v), start_line, start_col);
+                }
+            }
+            catch (const std::exception &e)
+            {
+                m_tokens.emplace_back(TokenType::ERROR, bin_str, std::string("Invalid binary literal: ") + e.what(), start_line, start_col);
+            }
+            return;
+        }
         while (isdigit(peek()))
             advance();
         bool is_float = false;

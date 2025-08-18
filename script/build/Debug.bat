@@ -20,8 +20,8 @@ if not exist "%BUILD_DIR%" (
 REM Change to build directory
 cd "%BUILD_DIR%"
 
-REM Configure CMake (not using vcpkg toolchain)
-cmake ..
+REM Configure CMake with Visual Studio Community generator
+cmake .. -G "Visual Studio 17 2022" -A x64
 if %errorlevel% neq 0 (
     echo [ERROR] CMake configuration failed!
     cd "%ROOT_DIR%"

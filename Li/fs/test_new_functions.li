@@ -1,0 +1,24 @@
+import fs;
+
+// Test fs.size
+print("File size of demo.txt:");
+print(fs.size("demo.txt"));
+
+// Test fs.open, fs.encoding, fs.seek
+fs.open("demo.txt");
+fs.encoding("utf-8");
+fs.seek(0);
+print("Reading from beginning:");
+print(fs.read());
+
+// Test seek to middle
+fs.seek(5);
+print("Reading from position 5:");
+print(fs.read());
+
+// Test seek to end
+fs.seek(100);
+print("Reading from position 100:");
+print(fs.read());
+
+fs.close();

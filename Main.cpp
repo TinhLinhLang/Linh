@@ -68,10 +68,12 @@ void runFile(const std::string &filename)
 }
 
 // Đặt biến này vào đúng namespace Linh::Semantic để tránh lỗi linker
-namespace Linh {
-namespace Semantic {
-    Linh::BytecodeEmitter *g_main_emitter = nullptr;
-}
+namespace Linh
+{
+    namespace Semantic
+    {
+        Linh::BytecodeEmitter *g_main_emitter = nullptr;
+    }
 }
 
 void runSource(const std::string &source_code,
@@ -161,7 +163,8 @@ int main(int argc, char **argv)
     if (argc > 1)
     {
         std::string arg1 = argv[1];
-        if (arg1 == "-v" || arg1 == "--version") {
+        if (arg1 == "-v" || arg1 == "--version")
+        {
             std::cout << name << " (" << engine << ") version " << version << " [" << version_number << "]\n";
             std::cout << "Copyright (c) 2025 Sao Tin Developer Team\n";
             std::cout << "Author: " << author << "\n";

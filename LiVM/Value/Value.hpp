@@ -20,6 +20,8 @@ namespace Linh
     struct Value; // Forward declaration
     using Array = std::shared_ptr<std::vector<Value>>;
     using Map = std::shared_ptr<std::unordered_map<std::string, Value>>;
+    using Byte = uint8_t;
+    using ByteArray = std::shared_ptr<std::vector<Byte>>;
 
     using VariantType = std::variant<
         std::monostate,
@@ -30,7 +32,9 @@ namespace Linh
         std::string,
         Array,
         Map,
-        std::shared_ptr<FunctionObject> // Thêm dòng này
+        std::shared_ptr<FunctionObject>,
+        Byte,
+        ByteArray
     >;
 
     // String interning singleton
@@ -84,7 +88,7 @@ namespace Linh
         ObjectPool& operator=(const ObjectPool&) = delete;
     };
 
-    // Factory cho Array/Map
+    // Factory cho Array/Map/ByteArray
     inline Array make_array() {
         auto arr = ObjectPool<std::vector<Value>>::instance().acquire();
         // Custom deleter: trả về pool khi refcount = 0
@@ -98,6 +102,12 @@ namespace Linh
             ObjectPool<std::unordered_map<std::string, Value>>::instance().release(map);
         });
     }
+    inline ByteArray make_bytearray() {
+        auto arr = ObjectPool<std::vector<Byte>>::instance().acquire();
+        return ByteArray(arr.get(), [arr](std::vector<Byte>*) mutable {
+            ObjectPool<std::vector<Byte>>::instance().release(arr);
+        });
+    }
 
     // Helper functions để tương tác với StringInterning
     inline std::string intern_string(const std::string& s) {
@@ -109,8 +119,9 @@ namespace Linh
         Value() : VariantType() {}
         Value(const VariantType &v) : VariantType(v) {}
         Value(const std::string& s) : VariantType(std::in_place_index<5>, StringInterner::instance().intern(s)) {}
-        // Tạo Value từ array/map mới (dùng pool)
-        static Value new_array() { return Value(make_array()); }
-        static Value new_map() { return Value(make_map()); }
+    // Tạo Value từ array/map mới (dùng pool)
+    static Value new_array() { return Value(make_array()); }
+    static Value new_map() { return Value(make_map()); }
+    static Value from_bytearray(const ByteArray& arr) { return Value(arr); }
     };
 }

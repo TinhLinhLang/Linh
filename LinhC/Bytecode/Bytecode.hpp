@@ -65,13 +65,18 @@ namespace Linh
         RET,
         PUSH_FUNCTION, // Push function object lên stack
 
+        // Closure support
+        CREATE_CLOSURE, // Create a closure from a function
+        CAPTURE_VAR,    // Capture a variable in the current scope
+        LOAD_CLOSURE_VAR, // Load a variable from closure environment
+
         // Special
         PRINT,
         PRINT_MULTIPLE, // <--- Thêm opcode này để xử lý print nhiều giá trị
         INPUT,
         TYPEOF,
         HALT,
-        PRINTF, // Thêm opcode PRINTF cho hàm printf của LinhC
+        PRINTF, // Thêm opcode PRINTF cho hàm printil của LinhC
         PUSH_ARRAY,
         PUSH_MAP,
         ARRAY_GET,
@@ -95,7 +100,8 @@ namespace Linh
         ID, // <--- Thêm opcode này cho hàm id()
         
         // --- LiPM Package Management ---
-        LOAD_PACKAGE_CONST // <--- Thêm opcode này cho package constants
+        LOAD_PACKAGE_CONST, // <--- Thêm opcode này cho package constants
+        CALL_PACKAGE_FUNCTION // <--- Thêm opcode này cho package functions
     };
 
     using BytecodeValue = std::variant<

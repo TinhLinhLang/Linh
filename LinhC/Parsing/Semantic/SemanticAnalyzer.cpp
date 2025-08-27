@@ -711,10 +711,10 @@ namespace Linh
             {
                 std::string module_name = stmt->module_name.lexeme;
                 
-                // Check if it's a LiPM package first
-                if (Linh::LiPM::package_exists(module_name))
+                // Check if it's a Std package first
+                if (Linh::Std::package_exists(module_name))
                 {
-                    // This is a LiPM package, mark it as imported
+                    // This is a Std package, mark it as imported
                     imported_packages.insert(module_name);
                     return;
                 }
@@ -790,11 +790,22 @@ namespace Linh
         }
         std::any SemanticAnalyzer::visitIdentifierExpr(AST::IdentifierExpr *expr)
         {
+            // In index context (map[key] or array[index]), allow bare identifiers as string keys/index names.
+            // e.g., var_map[ten] should treat 'ten' as "ten" rather than a variable.
+            if (in_index_context) {
+                const std::string &nm = expr->name.lexeme;
+                // Allow bare identifier as string key only if it's not a declared variable or function
+                if (!is_var_declared(nm) && !is_function_declared(nm)) {
+                    return {};
+                }
+                // Otherwise, continue normal checks for declared identifiers
+            }
+            
             // Allow built-in functions and packages as identifiers without declaration
             static const std::unordered_set<std::string> builtin_funcs = {
                 "input", "type", "str", "int", "float", "bool", "uint", "id", "bytes", "bin"}; // Thêm "id", bytes
             static const std::unordered_set<std::string> builtin_packages = {
-                "math", "fs"}; // Built-in packages
+                "math", "fs", "json", "os"}; // Built-in packages
             if (builtin_funcs.count(expr->name.lexeme) || builtin_packages.count(expr->name.lexeme))
             {
                 return {};
@@ -808,10 +819,10 @@ namespace Linh
                 std::string member = lex.substr(dot_pos + 1);
                 
                 // Check if this is a package constant (e.g., math.pi)
-                if (imported_packages.count(base) || base == "math" || base == "fs")
+                if (imported_packages.count(base) || base == "math" || base == "fs" || base == "json" || base == "os")
                 {
                     // This is a package constant, check if it exists
-                    if (Linh::LiPM::get_constant(base, member).index() != 0) // Not sol
+                    if (Linh::Std::get_constant(base, member).index() != 0) // Not sol
                     {
                         return {}; // Package constant exists, allow it
                     }
@@ -1099,7 +1110,16 @@ namespace Linh
                 if (entry.key)
                     entry.key->accept(this);
                 if (entry.value)
+                {
+                    // Check if value is a LiteralExpr (string, number, bool, etc.)
+                    // If so, don't perform variable declaration checks
+                    if (dynamic_cast<AST::LiteralExpr *>(entry.value.get()))
+                    {
+                        // Skip semantic analysis for literal values in map
+                        continue;
+                    }
                     entry.value->accept(this);
+                }
             }
             return {};
         }
@@ -1107,8 +1127,13 @@ namespace Linh
         {
             if (expr->object)
                 expr->object->accept(this);
-            if (expr->index)
+            if (expr->index) {
+                // Set index context to allow identifier-as-string behavior
+                bool prev = in_index_context;
+                in_index_context = true;
                 expr->index->accept(this);
+                in_index_context = prev;
+            }
             return {};
         }
         std::any SemanticAnalyzer::visitInterpolatedStringExpr(AST::InterpolatedStringExpr *expr)
@@ -1133,7 +1158,7 @@ namespace Linh
                 std::string property_name = expr->property_token.lexeme;
                 
                 // Kiểm tra xem package có được import không hoặc là built-in package
-                if (imported_packages.count(package_name) > 0 || package_name == "math" || package_name == "fs")
+                if (imported_packages.count(package_name) > 0 || package_name == "math" || package_name == "fs" || package_name == "json" || package_name == "os")
                 {
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] Found package: " << package_name << "." << property_name << std::endl;

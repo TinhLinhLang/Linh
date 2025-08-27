@@ -228,6 +228,7 @@ namespace Linh
 
     std::any BytecodeEmitter::visitIdentifierExpr(AST::IdentifierExpr *expr)
     {
+        // Default behavior: load variable. Special handling is done in visitSubscriptExpr for index identifiers.
         emit_instr(OpCode::LOAD_VAR, get_var_index(expr->name.lexeme), expr->getLine(), expr->getCol());
         return {};
     }
@@ -890,8 +891,8 @@ namespace Linh
             // Fs package methods: open, read, readline, readlines, write, append, close
             if (auto id = dynamic_cast<AST::IdentifierExpr *>(member->object.get()))
             {
-                           if (id->name.lexeme == "fs" &&
-               (member->property == "open" || member->property == "read" || member->property == "readline" || member->property == "readlines" || member->property == "write" || member->property == "append" || member->property == "close" || member->property == "encoding" || member->property == "seek" || member->property == "size" || member->property == "exists" || member->property == "bRead" || member->property == "bWrite" || member->property == "bAppend"))
+                if (id->name.lexeme == "fs" && 
+                    (member->property == "open" || member->property == "read" || member->property == "readline" || member->property == "readlines" || member->property == "write" || member->property == "append" || member->property == "close" || member->property == "encoding" || member->property == "seek" || member->property == "size" || member->property == "exists" || member->property == "bRead" || member->property == "bWrite" || member->property == "bAppend" || member->property == "listdir" || member->property == "mkdir" || member->property == "remove" || member->property == "rmdir" || member->property == "rename" || member->property == "copy" || member->property == "move" || member->property == "stat" || member->property == "isdir" || member->property == "isfile" || member->property == "isempty" || member->property == "isopen" || member->property == "rmall"))
                 {
                     // Emit arguments first (if any)
                     for (const auto &arg : expr->arguments)
@@ -900,6 +901,24 @@ namespace Linh
                     
                     // Then emit the package function call
                     std::string full_name = "fs." + member->property;
+                    emit_instr(OpCode::CALL_PACKAGE_FUNCTION, full_name, expr->getLine(), expr->getCol());
+                    return {};
+                }
+                if (id->name.lexeme == "json" && (member->property == "decode" || member->property == "encode"))
+                {
+                    for (const auto &arg : expr->arguments)
+                        if (arg)
+                            arg->accept(this);
+                    std::string full_name = "json." + member->property;
+                    emit_instr(OpCode::CALL_PACKAGE_FUNCTION, full_name, expr->getLine(), expr->getCol());
+                    return {};
+                }
+                if (id->name.lexeme == "os" && (member->property == "getcwd" || member->property == "chdir"))
+                {
+                    for (const auto &arg : expr->arguments)
+                        if (arg)
+                            arg->accept(this);
+                    std::string full_name = "os." + member->property;
                     emit_instr(OpCode::CALL_PACKAGE_FUNCTION, full_name, expr->getLine(), expr->getCol());
                     return {};
                 }
@@ -1059,7 +1078,10 @@ namespace Linh
 
     std::any BytecodeEmitter::visitUninitLiteralExpr(AST::UninitLiteralExpr *expr)
     {
-        // Not implemented yet
+        // Emit a neutral placeholder then convert it to 'sol' via builtin call.
+        // This avoids consuming any previously pushed values (e.g., map keys).
+        emit_instr(OpCode::PUSH_INT, int64_t(0), expr->keyword.line, expr->keyword.column_start);
+        emit_instr(OpCode::CALL, std::string("sol"), expr->keyword.line, expr->keyword.column_start);
         return {};
     }
 
@@ -1105,14 +1127,35 @@ namespace Linh
 
     std::any BytecodeEmitter::visitSubscriptExpr(AST::SubscriptExpr *expr)
     {
-        // Đánh giá object và index
+        // Evaluate object first
         if (expr->object)
             expr->object->accept(this);
-        if (expr->index)
-            expr->index->accept(this);
-        // Sau khi object và index đã lên stack, quyết định loại truy cập ở runtime
-        // Để đơn giản, luôn emit ARRAY_GET (VM sẽ tự kiểm tra type object)
-        emit_instr(OpCode::ARRAY_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
+        
+        bool use_map_get = false;
+        // Evaluate index: if it's an identifier, treat it as a string key (for maps)
+        if (expr->index) {
+            if (auto id = dynamic_cast<AST::IdentifierExpr*>(expr->index.get())) {
+                emit_instr(OpCode::PUSH_STR, id->name.lexeme, id->getLine(), id->getCol());
+                use_map_get = true;
+            } else if (auto lit = dynamic_cast<AST::LiteralExpr*>(expr->index.get())) {
+                // If index is a string literal, prefer MAP_GET
+                if (std::holds_alternative<std::string>(lit->value)) {
+                    lit->accept(this);
+                    use_map_get = true;
+                } else {
+                    lit->accept(this);
+                }
+            } else {
+                expr->index->accept(this);
+            }
+        }
+        
+        // Choose opcode based on index form: string or identifier -> MAP_GET, otherwise ARRAY_GET
+        if (use_map_get) {
+            emit_instr(OpCode::MAP_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
+        } else {
+            emit_instr(OpCode::ARRAY_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
+        }
         return {};
     }
 
@@ -1197,6 +1240,12 @@ namespace Linh
         
         // Kiểm tra xem có phải package constant không
         if (expr->is_package_constant) {
+            // Allow os.name and os.arch as constants, but treat other os.* as functions
+            if (expr->package_name == "os" && 
+                expr->constant_name != "name" && 
+                expr->constant_name != "arch") {
+                return {};
+            }
             std::string full_name = expr->package_name + "." + expr->constant_name;
 #ifdef _DEBUG
             std::cerr << "[DEBUG] Emitting LOAD_PACKAGE_CONST: " << full_name << std::endl;
@@ -1216,6 +1265,10 @@ namespace Linh
                 std::cerr << "[DEBUG] Emitting LOAD_PACKAGE_CONST (fallback): " << full_name << std::endl;
 #endif
                 emit_instr(OpCode::LOAD_PACKAGE_CONST, full_name, expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "json") {
+                // json không có constant, chỉ functions; tránh phát sinh LOAD_PACKAGE_CONST
                 return {};
             }
         }

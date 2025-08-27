@@ -30,7 +30,7 @@ namespace Linh
             bool statement_complete = false;
             do
             {
-                std::cout << "\n" << prompt;
+                std::cout << prompt;
                 if (!std::getline(std::cin, line))
                     return;
                 if (first_line && (line == ".exit" || line == ".quit"))

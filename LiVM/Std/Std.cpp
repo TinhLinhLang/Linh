@@ -3,12 +3,14 @@
 #include <memory>
 #include <cmath>
 #include <functional>
-#include "LiVM/Value/Value.hpp"
-#include "LiVM/LiVM.hpp"
-#include "../config.hpp"
+#include "../Value/Value.hpp"
+#include "../LiVM.hpp"
+#include "../../config.hpp"
 #include "Package/time.hpp"
 #include "Package/math.hpp"
 #include "Package/fs.hpp"
+#include "Package/json.hpp"
+#include "Package/os.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -16,11 +18,13 @@
 
 namespace Linh
 {
-    namespace LiPM
+    namespace Std
     {
         using MathFunction = std::function<Value(const Value&)>;
         using TimeFunction = std::function<Value(const Value&)>;
         using FsFunction = std::function<Value(const Value&)>;
+        using JsonFunction = std::function<Value(const Value&)>;
+        using OsFunction = std::function<Value(const Value&)>;
         static std::unordered_map<std::string, std::unordered_map<std::string, Value>> default_packages;
 
         void initialize_default_packages()
@@ -34,6 +38,11 @@ namespace Linh
             // Initialize fs package
             initialize_fs_functions();
             initialize_fs_constants();
+            
+            // Initialize json package
+            initialize_json_functions();
+            // Initialize os package
+            initialize_os_functions();
         }
 
         const std::unordered_map<std::string, Value>* get_package(const std::string& package_name)
@@ -52,16 +61,30 @@ namespace Linh
 
         Value get_constant(const std::string& package_name, const std::string& constant_name) {
             if (package_name == "fs") {
-                return Linh::LiPM::get_fs_constant(constant_name);
+                return Linh::Std::get_fs_constant(constant_name);
             }
-            // Có thể mở rộng cho các package khác
+            else if (package_name == "math") {
+                double math_const = get_math_constant(constant_name);
+                if (math_const != 0.0 || constant_name == "zero") {
+                    return Value(math_const);
+                }
+            }
+            else if (package_name == "os") {
+                return get_os_constant(constant_name);
+            }
+            else if (package_name == "time") {
+                double time_const = get_time_constant(constant_name);
+                if (time_const != 0.0 || constant_name == "zero") {
+                    return Value(time_const);
+                }
+            }
             return Value{};
         }
 
         bool package_exists(const std::string& package_name)
         {
             // Built-in packages
-            if (package_name == "math" || package_name == "time" || package_name == "fs") {
+            if (package_name == "math" || package_name == "time" || package_name == "fs" || package_name == "json" || package_name == "os") {
                 return true;
             }
             

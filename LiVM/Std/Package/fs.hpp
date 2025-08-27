@@ -4,10 +4,10 @@
 #include <functional>
 #include <fstream>
 #include <memory>
-#include "../../LiVM/Value/Value.hpp"
+#include "../../Value/Value.hpp"
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
     using FsFunction = std::function<Value(const Value&)>;
     
     // Khai báo các hàm fs
@@ -25,6 +25,19 @@ namespace LiPM {
     Value fs_bWrite(const Value& v);
     Value fs_bAppend(const Value& v);
     Value fs_bRead(const Value& v);
+    Value fs_listdir(const Value& v);
+    Value fs_mkdir(const Value& v);
+    Value fs_remove(const Value& v);
+    Value fs_rmdir(const Value& v);
+    Value fs_rename(const Value& v);
+    Value fs_copy(const Value& v);
+    Value fs_move(const Value& v);
+    Value fs_stat(const Value& v);
+    Value fs_isdir(const Value& v);
+    Value fs_isfile(const Value& v);
+    Value fs_isempty(const Value& v);
+    Value fs_isopen(const Value& v);
+    Value fs_rmall(const Value& v);
     
     // Global variables
     extern std::unordered_map<std::string, FsFunction> fs_functions;

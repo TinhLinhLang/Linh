@@ -2,9 +2,11 @@
 #include <iostream>
 #include <sstream>
 #include <mutex>
+#include <filesystem>
+#include <vector>
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
 
     FileManager& FileManager::instance() {
         static FileManager instance;
@@ -362,6 +364,282 @@ namespace LiPM {
         return Value(data);
     }
 
+    Value fs_listdir(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value::new_array();
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value::new_array();
+        
+        Array array = make_array();
+        try {
+            std::filesystem::path fs_path(path);
+            if (!std::filesystem::exists(fs_path) || !std::filesystem::is_directory(fs_path)) {
+                return Value(array);
+            }
+            
+            for (const auto& entry : std::filesystem::directory_iterator(fs_path)) {
+                array->push_back(Value(entry.path().filename().string()));
+            }
+        } catch (const std::exception&) {
+            // Return empty array on error
+        }
+        return Value(array);
+    }
+
+    Value fs_mkdir(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            bool success = std::filesystem::create_directories(fs_path);
+            return Value(success || std::filesystem::exists(fs_path));
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_remove(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            bool success = std::filesystem::remove(fs_path);
+            return Value(success);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_rmdir(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            if (!std::filesystem::exists(fs_path) || !std::filesystem::is_directory(fs_path)) {
+                return Value(false);
+            }
+            bool success = std::filesystem::remove_all(fs_path) > 0;
+            return Value(success);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_rename(const Value& v) {
+        // fs_rename expects the second argument (dst) to be passed as v
+        // and the first argument (src) should be on the stack
+        // But since VM only passes one argument, we need to handle this differently
+        // For now, let's expect an array with 2 elements as a workaround
+        if (std::holds_alternative<Array>(v)) {
+            const auto& array = std::get<Array>(v);
+            if (array->size() != 2) return Value(false);
+            
+            if (!std::holds_alternative<std::string>((*array)[0]) || 
+                !std::holds_alternative<std::string>((*array)[1])) {
+                return Value(false);
+            }
+            
+            std::string src = std::get<std::string>((*array)[0]);
+            std::string dst = std::get<std::string>((*array)[1]);
+            
+            if (src.empty() || dst.empty()) return Value(false);
+            
+            try {
+                std::filesystem::path src_path(src);
+                std::filesystem::path dst_path(dst);
+                std::filesystem::rename(src_path, dst_path);
+                return Value(true);
+            } catch (const std::exception&) {
+                return Value(false);
+            }
+        }
+        
+        // If not an array, treat as dst and expect src to be handled by VM
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string dst = std::get<std::string>(v);
+        
+        // This is a temporary solution - we need VM to handle multiple args properly
+        return Value(false);
+    }
+
+    Value fs_copy(const Value& v) {
+        if (std::holds_alternative<Array>(v)) {
+            const auto& array = std::get<Array>(v);
+            if (array->size() != 2) return Value(false);
+            
+            if (!std::holds_alternative<std::string>((*array)[0]) || 
+                !std::holds_alternative<std::string>((*array)[1])) {
+                return Value(false);
+            }
+            
+            std::string src = std::get<std::string>((*array)[0]);
+            std::string dst = std::get<std::string>((*array)[1]);
+            
+            if (src.empty() || dst.empty()) return Value(false);
+            
+            try {
+                std::filesystem::path src_path(src);
+                std::filesystem::path dst_path(dst);
+                
+                if (!std::filesystem::exists(src_path)) return Value(false);
+                
+                std::filesystem::copy(src_path, dst_path, 
+                    std::filesystem::copy_options::recursive | 
+                    std::filesystem::copy_options::overwrite_existing);
+                return Value(true);
+            } catch (const std::exception&) {
+                return Value(false);
+            }
+        }
+        return Value(false);
+    }
+
+    Value fs_move(const Value& v) {
+        if (std::holds_alternative<Array>(v)) {
+            const auto& array = std::get<Array>(v);
+            if (array->size() != 2) return Value(false);
+            
+            if (!std::holds_alternative<std::string>((*array)[0]) || 
+                !std::holds_alternative<std::string>((*array)[1])) {
+                return Value(false);
+            }
+            
+            std::string src = std::get<std::string>((*array)[0]);
+            std::string dst = std::get<std::string>((*array)[1]);
+            
+            if (src.empty() || dst.empty()) return Value(false);
+            
+            try {
+                std::filesystem::path src_path(src);
+                std::filesystem::path dst_path(dst);
+                
+                if (!std::filesystem::exists(src_path)) return Value(false);
+                
+                // Move is essentially copy + remove source
+                std::filesystem::rename(src_path, dst_path);
+                return Value(true);
+            } catch (const std::exception&) {
+                return Value(false);
+            }
+        }
+        return Value(false);
+    }
+
+    Value fs_stat(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value::new_map();
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value::new_map();
+        
+        Map stat_map = make_map();
+        try {
+            std::filesystem::path fs_path(path);
+            if (!std::filesystem::exists(fs_path)) {
+                return Value(stat_map);
+            }
+            
+            auto status = std::filesystem::status(fs_path);
+            auto file_size = std::filesystem::is_regular_file(fs_path) ? 
+                std::filesystem::file_size(fs_path) : 0;
+            auto last_write = std::filesystem::last_write_time(fs_path);
+            
+            // Convert to time_t for easier handling
+            auto sctp = std::chrono::time_point_cast<std::chrono::system_clock::duration>(
+                last_write - std::filesystem::file_time_type::clock::now() + 
+                std::chrono::system_clock::now());
+            auto time_t_value = std::chrono::system_clock::to_time_t(sctp);
+            
+            (*stat_map)["size"] = Value(static_cast<double>(file_size));
+            (*stat_map)["is_file"] = Value(std::filesystem::is_regular_file(fs_path));
+            (*stat_map)["is_directory"] = Value(std::filesystem::is_directory(fs_path));
+            (*stat_map)["last_modified"] = Value(static_cast<double>(time_t_value));
+            
+        } catch (const std::exception&) {
+            // Return empty map on error
+        }
+        return Value(stat_map);
+    }
+
+    Value fs_isdir(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            bool is_dir = std::filesystem::exists(fs_path) && 
+                         std::filesystem::is_directory(fs_path);
+            return Value(is_dir);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_isfile(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            bool is_file = std::filesystem::exists(fs_path) && 
+                          std::filesystem::is_regular_file(fs_path);
+            return Value(is_file);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_isempty(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            if (!std::filesystem::exists(fs_path)) return Value(false);
+            
+            if (std::filesystem::is_directory(fs_path)) {
+                bool is_empty = std::filesystem::is_empty(fs_path);
+                return Value(is_empty);
+            } else if (std::filesystem::is_regular_file(fs_path)) {
+                auto size = std::filesystem::file_size(fs_path);
+                return Value(size == 0);
+            }
+            return Value(false);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
+    Value fs_isopen(const Value& v) {
+        // Check if the current file handle is open
+        if (current_file_handle == -1) return Value(false);
+        FileManager& fm = FileManager::instance();
+        return Value(fm.is_file_open(current_file_handle));
+    }
+
+    Value fs_rmall(const Value& v) {
+        if (!std::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = std::get<std::string>(v);
+        if (path.empty()) return Value(false);
+        
+        try {
+            std::filesystem::path fs_path(path);
+            if (!std::filesystem::exists(fs_path)) return Value(false);
+            
+            // Remove directory and all its contents recursively
+            std::uintmax_t removed_count = std::filesystem::remove_all(fs_path);
+            return Value(removed_count > 0);
+        } catch (const std::exception&) {
+            return Value(false);
+        }
+    }
+
     void initialize_fs_functions() {
         if (fs_functions_initialized) return;
         fs_functions["open"] = fs_open;
@@ -379,6 +657,20 @@ namespace LiPM {
         fs_functions["bWrite"] = fs_bWrite;
         fs_functions["bAppend"] = fs_bAppend;
         fs_functions["bRead"] = fs_bRead;
+        // Directory and file management functions
+        fs_functions["listdir"] = fs_listdir;
+        fs_functions["mkdir"] = fs_mkdir;
+        fs_functions["remove"] = fs_remove;
+        fs_functions["rmdir"] = fs_rmdir;
+        fs_functions["rename"] = fs_rename;
+        fs_functions["copy"] = fs_copy;
+        fs_functions["move"] = fs_move;
+        fs_functions["stat"] = fs_stat;
+        fs_functions["isdir"] = fs_isdir;
+        fs_functions["isfile"] = fs_isfile;
+        fs_functions["isempty"] = fs_isempty;
+        fs_functions["isopen"] = fs_isopen;
+        fs_functions["rmall"] = fs_rmall;
         fs_functions_initialized = true;
     }
 
@@ -412,5 +704,5 @@ namespace LiPM {
         return fs_constants;
     }
 
-} // namespace LiPM
+} // namespace Std
 } // namespace Linh

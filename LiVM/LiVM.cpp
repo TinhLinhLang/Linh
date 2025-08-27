@@ -7,7 +7,8 @@
 #include <iomanip>
 #include "type.hpp"
 #include <variant>
-#include "../LiPM/LiPM.hpp" // Thêm dòng này cho LiPM support
+#include "Std/Std.cpp" // Thêm dòng này cho LiPM support
+#include "Std/Package/json.hpp" // Ensure inline json functions are visible
 #include <functional>
 #include <array>
 #include <fmt/format.h>
@@ -461,8 +462,8 @@ namespace Linh
         std::string package_name = full_name.substr(0, dot_pos);
         std::string constant_name = full_name.substr(dot_pos + 1);
         
-        // Sử dụng LiPM để lấy giá trị hằng số
-        Value constant_value = Linh::LiPM::get_constant(package_name, constant_name);
+        // Sử dụng Std để lấy giá trị hằng số
+        Value constant_value = Linh::Std::get_constant(package_name, constant_name);
         vm.push(constant_value);
     }
 
@@ -483,20 +484,51 @@ namespace Linh
         
         // Lấy function từ package và gọi nó
         if (package_name == "fs") {
-            auto fs_func = Linh::LiPM::get_fs_function(function_name);
+            auto fs_func = Linh::Std::get_fs_function(function_name);
             if (fs_func) {
-                // Lấy argument từ stack (nếu có)
-                Value arg = vm.stack.empty() ? Value{} : vm.pop();
-                Value result = fs_func(arg);
-                vm.push(result);
-            } else {
-                std::cerr << "VM: Function " << function_name << " not found in package " << package_name << std::endl;
-                vm.push(Value{});
+                // Special handling for fs functions that need 2 arguments
+                if (function_name == "rename" || function_name == "copy" || function_name == "move") {
+                    if (vm.stack.size() >= 2) {
+                        Value dst = vm.pop();  // Second argument (destination)
+                        Value src = vm.pop();  // First argument (source)
+                        
+                        // Create array with both arguments
+                        Array args = make_array();
+                        args->push_back(src);
+                        args->push_back(dst);
+                        Value result = fs_func(Value(args));
+                        vm.push(result);
+                        return;
+                    } else {
+                        vm.push(Value(false));
+                        return;
+                    }
+                } else {
+                    Value arg = vm.stack.empty() ? Value{} : vm.pop();
+                    Value result = fs_func(arg);
+                    vm.push(result);
+                    return;
+                }
             }
-        } else {
-            std::cerr << "VM: Package " << package_name << " not supported for function calls" << std::endl;
-            vm.push(Value{});
+        } else if (package_name == "json") {
+            auto json_func = Linh::Std::get_json_function(function_name);
+            if (json_func) {
+                Value arg = vm.stack.empty() ? Value{} : vm.pop();
+                Value result = json_func(arg);
+                vm.push(result);
+                return;
+            }
+        } else if (package_name == "os") {
+            auto os_func = Linh::Std::get_os_function(function_name);
+            if (os_func) {
+                Value arg = vm.stack.empty() ? Value{} : vm.pop();
+                Value result = os_func(arg);
+                vm.push(result);
+                return;
+            }
         }
+        std::cerr << "VM: Package " << package_name << " not supported or function not found: " << full_name << std::endl;
+        vm.push(Value{});
     }
 
     // Closure support handlers
@@ -988,8 +1020,12 @@ namespace Linh
                     }
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] PRINT_MULTIPLE: final result: '" << result << "'" << std::endl;
+                    std::cerr << "----- START PRINT -----" << std::endl;
 #endif
                     LinhIO::linh_print(Value(result));
+#ifdef _DEBUG
+                    std::cerr << "----- END PRINT -----" << std::endl;
+#endif
                     break;
                 }
                 case OpCode::PRINTF:
@@ -1322,7 +1358,7 @@ namespace Linh
                         break;
                     }
                     
-                    auto math_func = Linh::LiPM::get_math_function(fname);
+                    auto math_func = Linh::Std::get_math_function(fname);
                     if (math_func)
                     {
                         if (stack.empty())
@@ -1337,7 +1373,7 @@ namespace Linh
                         break;
                     }
                     
-                    auto time_func = Linh::LiPM::get_time_function(fname);
+                    auto time_func = Linh::Std::get_time_function(fname);
                     if (time_func)
                     {
                         if (stack.empty())
@@ -1359,7 +1395,7 @@ namespace Linh
                         std::string function_name = fname.substr(dot_pos + 1);
                         
                         if (package_name == "time") {
-                            auto time_func = Linh::LiPM::get_time_function(function_name);
+                            auto time_func = Linh::Std::get_time_function(function_name);
                             if (time_func) {
                                 Value val;
                                 if (!stack.empty()) {
@@ -1373,7 +1409,7 @@ namespace Linh
                                 break;
                             }
                         } else if (package_name == "math") {
-                            auto math_func = Linh::LiPM::get_math_function(function_name);
+                            auto math_func = Linh::Std::get_math_function(function_name);
                             if (math_func) {
                                 Value val;
                                 if (!stack.empty()) {
@@ -2244,7 +2280,7 @@ namespace Linh
                         else if (std::holds_alternative<int64_t>(key))
                             key_str = std::to_string(std::get<int64_t>(key));
                         else if (std::holds_alternative<double>(key))
-                            key_str = std::to_string(std::get<double>(key));
+                            key_str = Linh::format_float(std::get<double>(key));
                         else if (std::holds_alternative<bool>(key))
                             key_str = std::get<bool>(key) ? "true" : "false";
                         else
@@ -2707,7 +2743,7 @@ namespace Linh
                     {
                         std::string package = full_name.substr(0, dot_pos);
                         std::string constant = full_name.substr(dot_pos + 1);
-                        auto val = Linh::LiPM::get_constant(package, constant);
+                        auto val = Linh::Std::get_constant(package, constant);
                         push(val);
                     }
                     else

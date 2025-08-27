@@ -7,12 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # --- CPM.cmake (package manager) ---
-include(FETCHCONTENT)
+include(FetchContent)
 if(NOT (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CPM.cmake"))
     message(STATUS "Downloading CPM.cmake...")
     file(DOWNLOAD https://github.com/cpm-cmake/CPM.cmake/releases/latest/download/CPM.cmake
         ${CMAKE_CURRENT_SOURCE_DIR}/CPM.cmake
-        EXPECTED_HASH ANY)
+        TLS_VERIFY ON)
 endif()
 include(${CMAKE_CURRENT_SOURCE_DIR}/CPM.cmake)
 
@@ -20,10 +20,21 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/CPM.cmake)
 CPMAddPackage(
     NAME fmt
     GITHUB_REPOSITORY fmtlib/fmt
-    GIT_TAG 11.2.0
+    GIT_TAG 11.0.2
+    OPTIONS "FMT_DOC=OFF" "FMT_TEST=OFF"
 )
 if(fmt_ADDED)
-    message(STATUS "fmt library added via CPM")
+    message(STATUS "fmt library added via CPM (archive, no git required)")
+endif()
+
+# --- Thêm thư viện simdjson bằng CPM ---
+CPMAddPackage(
+    NAME simdjson
+    GITHUB_REPOSITORY simdjson/simdjson
+    GIT_TAG v3.9.5
+)
+if(simdjson_ADDED)
+    message(STATUS "simdjson library added via CPM")
 endif()
 
 # --- Định nghĩa thư viện Lexer ---
@@ -76,18 +87,23 @@ add_library(LiVMLib STATIC
 target_include_directories(LiVMLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
-target_link_libraries(LiVMLib PUBLIC fmt::fmt)
+target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson)
 
-# --- LiPM Package Manager ---
-add_library(LiPMLib STATIC
-    LiPM/LiPM.cpp
-    LiPM/Package/math.cpp
-    LiPM/Package/time.cpp
-    LiPM/Package/fs.cpp
+# --- Std Package ---
+add_library(StdLib STATIC
+    LiVM/Std/Std.cpp
+    LiVM/Std/Package/math.cpp
+    LiVM/Std/Package/time.cpp
+    LiVM/Std/Package/fs.cpp
+    LiVM/Std/Package/json.hpp
+    LiVM/Std/Package/os.cpp
+    LiVM/Std/Package/os.hpp
 )
-target_include_directories(LiPMLib PUBLIC
+target_include_directories(StdLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
 )
+# Cần include path của simdjson khi compile StdLib
+target_link_libraries(StdLib PUBLIC simdjson::simdjson)
 
 # --- Định nghĩa file thực thi chính ---
 add_executable(LinhApp
@@ -108,8 +124,9 @@ target_link_libraries(LinhApp PRIVATE
     LinhParserLib
     LinhSemanticLib
     LiVMLib
-    LiPMLib
+    StdLib
     fmt::fmt # Link fmt vào executable
+    simdjson::simdjson # Link simdjson vào executable
 )
 
 if(WIN32)

@@ -3,11 +3,11 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
-#include "../LiVM/Value/Value.hpp"
+#include "../Value/Value.hpp"
 
 namespace Linh
 {
-    namespace LiPM
+    namespace Std
     {
         // Function type for math functions
         using MathFunction = std::function<Value(const Value&)>;
@@ -17,6 +17,8 @@ namespace Linh
         
         // Function type for fs functions
         using FsFunction = std::function<Value(const Value&)>;
+        using JsonFunction = std::function<Value(const Value&)>;
+        using OsFunction = std::function<Value(const Value&)>;
         
         // Initialize default packages
         void initialize_default_packages();
@@ -35,6 +37,26 @@ namespace Linh
 
         // Get a fs function by name
         FsFunction get_fs_function(const std::string& function_name);
+        
+        // Get a json function by name
+        JsonFunction get_json_function(const std::string& function_name);
+        
+        // Get an os function by name
+        OsFunction get_os_function(const std::string& function_name);
+
+        // Get constants from packages
+        double get_math_constant(const std::string& constant_name);
+        double get_time_constant(const std::string& constant_name);
+        Value get_os_constant(const std::string& constant_name);
+        Value get_fs_constant(const std::string& constant_name);
+
+        // Initialize functions
+        void initialize_math_functions();
+        void initialize_time_functions();
+        void initialize_fs_functions();
+        void initialize_fs_constants();
+        void initialize_json_functions();
+        void initialize_os_functions();
 
         // Check if a package exists
         bool package_exists(const std::string& package_name);
@@ -53,5 +75,11 @@ namespace Linh
 
         // Get all functions in fs package
         std::vector<std::string> get_fs_functions();
+        
+        // Get all functions in json package
+        std::vector<std::string> get_json_functions();
+        
+        // Get all functions in os package
+        std::vector<std::string> get_os_functions();
     }
 } 

@@ -2,8 +2,8 @@
 
 std::string name = "Linh";
 std::string engine = "Linh.cpp";
-std::string version = "Beta 0.015 - File System Support and Binary Support";
-std::string version_number = "0.015";
+std::string version = "Beta 0.016 - JSON, OS, FS Support";
+std::string version_number = "0.016";
 std::string language = "C++";
 
 std::string author = "Jkar / Sao Tin Developer Team";
@@ -29,6 +29,6 @@ const std::array<std::string, 10> linh_types = {
     "int", "uint", "float", "str", "bool",
     "array", "map", "any", "sol", "void"
 }; 
-const std::array<std::string, 3> linh_packages = {
-    "math", "time", "fs"
+const std::array<std::string, 5> linh_packages = {
+    "math", "time", "fs", "json", "os"
 };

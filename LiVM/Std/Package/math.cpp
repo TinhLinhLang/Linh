@@ -5,10 +5,10 @@
 #include <vector>
 #include <functional>
 #include <variant>
-#include "LiVM/Value/Value.hpp"
+#include "../../Value/Value.hpp"
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
     static std::unordered_map<std::string, MathFunction> math_functions;
     static std::unordered_map<std::string, double> math_constants = {
         {"pi", 3.141592653589793},

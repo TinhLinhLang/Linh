@@ -2,10 +2,10 @@
 #include <string>
 #include <functional>
 #include <vector>
-#include "../../LiVM/Value/Value.hpp"
+#include "../../Value/Value.hpp"
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
     using MathFunction = std::function<Value(const Value&)>;
     // Khai báo các hàm toán học
     Value math_abs(const Value& v);

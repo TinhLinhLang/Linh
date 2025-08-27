@@ -2,10 +2,10 @@
 #include <string>
 #include <vector>
 #include <functional>
-#include "../../LiVM/Value/Value.hpp"
+#include "../../Value/Value.hpp"
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
     using TimeFunction = std::function<Value(const Value&)>;
     
     // Khai báo hàm time

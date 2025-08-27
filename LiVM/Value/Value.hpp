@@ -90,23 +90,14 @@ namespace Linh
 
     // Factory cho Array/Map/ByteArray
     inline Array make_array() {
-        auto arr = ObjectPool<std::vector<Value>>::instance().acquire();
-        // Custom deleter: trả về pool khi refcount = 0
-        return Array(arr.get(), [arr](std::vector<Value>*) mutable {
-            ObjectPool<std::vector<Value>>::instance().release(arr);
-        });
+        // Simpler and safer lifetime management: standard shared_ptr
+        return std::make_shared<std::vector<Value>>();
     }
     inline Map make_map() {
-        auto map = ObjectPool<std::unordered_map<std::string, Value>>::instance().acquire();
-        return Map(map.get(), [map](std::unordered_map<std::string, Value>*) mutable {
-            ObjectPool<std::unordered_map<std::string, Value>>::instance().release(map);
-        });
+        return std::make_shared<std::unordered_map<std::string, Value>>();
     }
     inline ByteArray make_bytearray() {
-        auto arr = ObjectPool<std::vector<Byte>>::instance().acquire();
-        return ByteArray(arr.get(), [arr](std::vector<Byte>*) mutable {
-            ObjectPool<std::vector<Byte>>::instance().release(arr);
-        });
+        return std::make_shared<std::vector<Byte>>();
     }
 
     // Helper functions để tương tác với StringInterning

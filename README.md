@@ -111,5 +111,8 @@ All new contributions and distributions from this date forward are governed by t
 **Third-party libraries used:**
 
 - [fmt](https://github.com/fmtlib/fmt) - [(MIT License)](https://github.com/fmtlib/fmt/blob/master/LICENSE)
+- [simdjson](https://github.com/simdjson/simdjson) - [(MIT License)](https://github.com/simdjson/simdjson/blob/master/LICENSE-MIT)
+
+Notice: This project uses simdjson under the MIT License. The MIT license text for simdjson is available here: https://github.com/simdjson/simdjson/blob/master/LICENSE-MIT
 
 © 2025 Sao Tin Developer Team. See [LICENSE](LICENSE.md) for license details.

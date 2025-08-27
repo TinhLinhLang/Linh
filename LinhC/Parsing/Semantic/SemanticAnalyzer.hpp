@@ -1,7 +1,7 @@
 #pragma once
 #include "../AST/ASTNode.hpp"
 #include "../../Error.hpp"
-#include "../../../LiPM/LiPM.hpp"
+#include "../../../LiVM/Std/Std.hpp"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -91,6 +91,9 @@ namespace Linh
             
             // Early exit tracking
             bool should_early_exit = false;
+            
+            // Context flags
+            bool in_index_context = false; // true when visiting the index expression of a subscript (e.g., map[key])
             
             // Helper methods for optimization
             std::string get_expression_hash(AST::Expr* expr);

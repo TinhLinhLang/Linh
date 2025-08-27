@@ -7,7 +7,7 @@
 #include <ctime>
 
 namespace Linh {
-namespace LiPM {
+namespace Std {
     // Map chứa các hằng số thời gian (đơn vị chuẩn: millisecond)
     static std::unordered_map<std::string, double> time_constants = {
         {"nanosecond", 0.000001},    // 1 nanosecond = 0.000001 millisecond

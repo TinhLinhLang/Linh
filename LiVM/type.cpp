@@ -40,8 +40,9 @@ namespace Linh
         throw std::runtime_error("Value is not a string");
     }
 
-    // Hàm format số thực theo quy tắc của Linh
-    std::string format_float_linh(double value)
+    /* Khung vực định nghĩa format của Linh */
+    // 1. format số thực
+    std::string format_float(double value)
     {
         // Bước 1: Chuyển thành string với độ chính xác cao bằng fmt
         std::string str = fmt::format("{:.17f}", value);
@@ -129,6 +130,72 @@ namespace Linh
         return result;
     }
 
+    // 2. format Array
+    std::string format_array(const Array &arr)
+    {
+        std::string result = "[";
+        for (size_t i = 0; i < arr->size(); ++i)
+        {
+            if (i > 0)
+                result += ", ";
+            
+            const Value& val = (*arr)[i];
+            
+            // Xử lý chuỗi: thêm dấu ngoặc kép
+            if (std::holds_alternative<std::string>(val))
+            {
+                result += "\"" + std::get<std::string>(val) + "\"";
+            }
+            // Xử lý số thực: sử dụng format_float
+            else if (std::holds_alternative<double>(val))
+            {
+                result += format_float(std::get<double>(val));
+            }
+            // Các loại khác: sử dụng to_str như cũ
+            else
+            {
+                result += to_str(val);
+            }
+        }
+        result += "]";
+        return result;
+    }
+
+    // 3. format Map
+    std::string format_map(const Map &map)
+    {
+        std::string result = "{";
+        bool first = true;
+        for (const auto &[key, value] : *map)
+        {
+            if (!first)
+                result += ", ";
+            
+            // Format key (luôn là string trong Map)
+            std::string key_str = "\"" + key + "\"";
+            
+            // Format value
+            std::string value_str;
+            if (std::holds_alternative<std::string>(value))
+            {
+                value_str = "\"" + std::get<std::string>(value) + "\"";
+            }
+            else if (std::holds_alternative<double>(value))
+            {
+                value_str = format_float(std::get<double>(value));
+            }
+            else
+            {
+                value_str = to_str(value);
+            }
+            
+            result += key_str + ": " + value_str;
+            first = false;
+        }
+        result += "}";
+        return result;
+    }
+
     std::string type_of(const Value &val)
     {
         if (std::holds_alternative<std::monostate>(val))
@@ -158,44 +225,22 @@ namespace Linh
 
     std::string to_str(const Value &val)
     {
+        if (std::holds_alternative<std::monostate>(val))
+            return std::string("sol");
         if (std::holds_alternative<int64_t>(val))
             return std::to_string(std::get<int64_t>(val));
         if (std::holds_alternative<uint64_t>(val))
             return std::to_string(std::get<uint64_t>(val));
         if (std::holds_alternative<double>(val))
-            return fmt::format("{:.6g}", std::get<double>(val));
+            return format_float(std::get<double>(val));
         if (std::holds_alternative<std::string>(val))
             return std::get<std::string>(val);
         if (std::holds_alternative<bool>(val))
             return std::get<bool>(val) ? "true" : "false";
         if (std::holds_alternative<Array>(val))
-        {
-            const auto &arr = std::get<Array>(val);
-            std::string result = "[";
-            for (size_t i = 0; i < arr->size(); ++i)
-            {
-                if (i > 0)
-                    result += ", ";
-                result += to_str((*arr)[i]);
-            }
-            result += "]";
-            return result;
-        }
+            return format_array(std::get<Array>(val));
         if (std::holds_alternative<Map>(val))
-        {
-            const auto &map = std::get<Map>(val);
-            std::string result = "{";
-            bool first = true;
-            for (const auto &[key, value] : *map)
-            {
-                if (!first)
-                    result += ", ";
-                result += to_str(key) + ": " + to_str(value);
-                first = false;
-            }
-            result += "}";
-            return result;
-        }
+            return format_map(std::get<Map>(val));
         if (std::holds_alternative<FunctionPtr>(val))
         {
             const auto &fn = std::get<FunctionPtr>(val);

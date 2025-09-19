@@ -136,7 +136,18 @@ namespace Linh
         INTERP_START, // &{ mở nội suy
         INTERP_END,    // } đóng nội suy
         BYTE_KW,      // byte
-        BYTEARRAY_KW, // bytearray
+        
+        // Specific sized type keywords
+        INT8_KW,      // int8
+        INT16_KW,     // int16
+        INT32_KW,     // int32
+        INT64_KW,     // int64
+        UINT8_KW,     // uint8
+        UINT16_KW,    // uint16
+        UINT32_KW,    // uint32
+        UINT64_KW,    // uint64
+        FLOAT32_KW,   // float32
+        FLOAT64_KW,   // float64
     };
 
     std::string token_type_to_string(TokenType type);

@@ -153,7 +153,7 @@ namespace Std {
         return open_files_.count(handle) > 0;
     }
 
-    bool FileManager::bWrite_file(int handle, const ByteArray& data) {
+    bool FileManager::bWrite_file(int handle, const Array& data) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
         if (it == open_files_.end()) return false;
@@ -169,7 +169,28 @@ namespace Std {
             it->second = std::make_unique<std::fstream>(filename, std::ios::in | std::ios::out | std::ios::app);
             return false;
         }
-        file.write(reinterpret_cast<const char*>(data->data()), data->size());
+
+        // Convert Array of Values to raw bytes
+        std::vector<unsigned char> buffer;
+        buffer.reserve(data ? data->size() : 0);
+        if (data) {
+            for (const auto& v : *data) {
+                uint64_t iv = 0;
+                if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
+                else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
+                else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
+                else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
+                else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
+                else if (std::holds_alternative<uint32_t>(v)) iv = std::get<uint32_t>(v);
+                else if (std::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(std::get<int32_t>(v));
+                // Clamp to 0..255
+                if (iv > 255) iv = 255;
+                buffer.push_back(static_cast<unsigned char>(iv & 0xFF));
+            }
+        }
+
+        if (!buffer.empty())
+            file.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
         file.flush();
         file.close();
         
@@ -177,36 +198,60 @@ namespace Std {
         return it->second->is_open();
     }
 
-    bool FileManager::bAppend_file(int handle, const ByteArray& data) {
+    bool FileManager::bAppend_file(int handle, const Array& data) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
         if (it == open_files_.end()) return false;
         
+        // Convert Array of Values to raw bytes
+        std::vector<unsigned char> buffer;
+        buffer.reserve(data ? data->size() : 0);
+        if (data) {
+            for (const auto& v : *data) {
+                uint64_t iv = 0;
+                if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
+                else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
+                else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
+                else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
+                else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
+                else if (std::holds_alternative<uint32_t>(v)) iv = std::get<uint32_t>(v);
+                else if (std::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(std::get<int32_t>(v));
+                if (iv > 255) iv = 255;
+                buffer.push_back(static_cast<unsigned char>(iv & 0xFF));
+            }
+        }
+
         it->second->seekp(0, std::ios::end);
-        it->second->write(reinterpret_cast<const char*>(data->data()), data->size());
+        if (!buffer.empty())
+            it->second->write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
         it->second->flush();
         return true;
     }
 
-    ByteArray FileManager::bRead_file(int handle) {
+    Array FileManager::bRead_file(int handle) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
-        if (it == open_files_.end()) return make_bytearray();
+        if (it == open_files_.end()) return make_array();
         std::fstream& file = *(it->second);
-        if (!file.is_open()) return make_bytearray();
-
+        if (!file.is_open()) return make_array();
+    
         std::streampos current_pos = file.tellg();
         file.seekg(0, std::ios::end);
         std::streampos end_pos = file.tellg();
         file.seekg(current_pos);
+    
+        if (end_pos <= current_pos) return make_array();
+    
+        size_t size_to_read = static_cast<size_t>(end_pos - current_pos);
+        std::vector<unsigned char> buf(size_to_read);
+        file.read(reinterpret_cast<char*>(buf.data()), size_to_read);
 
-        if (end_pos <= current_pos) return make_bytearray();
-
-        size_t size_to_read = end_pos - current_pos;
-        auto buffer = make_bytearray();
-        buffer->resize(size_to_read);
-        file.read(reinterpret_cast<char*>(buffer->data()), size_to_read);
-        return buffer;
+        auto arr = make_array();
+        arr->reserve(buf.size());
+        for (unsigned char c : buf) {
+            arr->push_back(Value(static_cast<Byte>(c)));
+        }
+        return arr;
     }
 
     // Global variables
@@ -341,8 +386,8 @@ namespace Std {
 
     Value fs_bWrite(const Value& v) {
         if (current_file_handle == -1) return Value(false);
-        if (!std::holds_alternative<ByteArray>(v)) return Value(false);
-        const auto& data = std::get<ByteArray>(v);
+        if (!std::holds_alternative<Array>(v)) return Value(false);
+        const auto& data = std::get<Array>(v);
         FileManager& fm = FileManager::instance();
         bool ok = fm.bWrite_file(current_file_handle, data);
         return Value(ok);
@@ -350,8 +395,8 @@ namespace Std {
 
     Value fs_bAppend(const Value& v) {
         if (current_file_handle == -1) return Value(false);
-        if (!std::holds_alternative<ByteArray>(v)) return Value(false);
-        const auto& data = std::get<ByteArray>(v);
+        if (!std::holds_alternative<Array>(v)) return Value(false);
+        const auto& data = std::get<Array>(v);
         FileManager& fm = FileManager::instance();
         bool ok = fm.bAppend_file(current_file_handle, data);
         return Value(ok);
@@ -360,7 +405,7 @@ namespace Std {
     Value fs_bRead(const Value& v) {
         if (current_file_handle == -1) return Value{}; // Return nil
         FileManager& fm = FileManager::instance();
-        ByteArray data = fm.bRead_file(current_file_handle);
+        Array data = fm.bRead_file(current_file_handle);
         return Value(data);
     }
 

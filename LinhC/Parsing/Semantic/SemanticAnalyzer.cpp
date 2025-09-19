@@ -431,10 +431,13 @@ namespace Linh
                 type = "";
             }
 
-            // Chỉ cho phép <...> với int, uint, float, map, array, str
+            // Chỉ cho phép <...> với int, uint, float, map, array, str và các kiểu cụ thể
             if (has_template)
             {
-                if (type != "int" && type != "uint" && type != "float" && type != "map" && type != "array" && type != "str")
+                if (type != "int" && type != "uint" && type != "float" && type != "map" && type != "array" && type != "str" &&
+                    type != "int8" && type != "int16" && type != "int32" && type != "int64" &&
+                    type != "uint8" && type != "uint16" && type != "uint32" && type != "uint64" &&
+                    type != "float32" && type != "float64")
                 {
                     push_semantic_error(errors, stmt->name.line, stmt->name.column_start, "Type '" + type + "' does not support template specification (e.g. '<...>').");
                 }
@@ -511,7 +514,10 @@ namespace Linh
                 }
             }
             // Kiểm tra kiểu không phải số/map/array/str mà lại có template/bit_width
-            if (!type.empty() && type != "int" && type != "uint" && type != "float" && type != "map" && type != "array" && type != "str" && has_template)
+            if (!type.empty() && type != "int" && type != "uint" && type != "float" && type != "map" && type != "array" && type != "str" &&
+                type != "int8" && type != "int16" && type != "int32" && type != "int64" &&
+                type != "uint8" && type != "uint16" && type != "uint32" && type != "uint64" &&
+                type != "float32" && type != "float64" && has_template)
             {
                 push_semantic_error(errors, stmt->name.line, stmt->name.column_start, "Type '" + type + "' does not support template specification (e.g. '<...>').");
             }

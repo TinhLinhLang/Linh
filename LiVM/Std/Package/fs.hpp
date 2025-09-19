@@ -70,10 +70,10 @@ namespace Std {
         void close_file(int handle);
         bool is_file_open(int handle);
 
-        // Binary file operations
-        bool bWrite_file(int handle, const ByteArray& data);
-        bool bAppend_file(int handle, const ByteArray& data);
-        ByteArray bRead_file(int handle);
+        // Binary file operations (use array<byte>)
+        bool bWrite_file(int handle, const Array& data);
+        bool bAppend_file(int handle, const Array& data);
+        Array bRead_file(int handle);
 
     private:
         FileManager() = default;

@@ -22,13 +22,6 @@ int number_bit_max = 128;
 const std::array<int, 4> int_and_uint_bit_options = {8, 16, 32, 64};
 const std::array<int, 2> float_bit_options = {32, 64};
 std::string default_utf = "utf-8";
-const std::array<std::string, 5> sp_os = {
-    "windows", "linux", "macos", "android", "ios"
-};
-const std::array<std::string, 10> linh_types = {
-    "int", "uint", "float", "str", "bool",
-    "array", "map", "any", "sol", "void"
-}; 
 const std::array<std::string, 5> linh_packages = {
     "math", "time", "fs", "json", "os"
 };

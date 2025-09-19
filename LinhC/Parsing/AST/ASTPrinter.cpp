@@ -531,11 +531,9 @@ namespace Linh
                  type_node->type_keyword_token.type == TokenType::FLOAT_KW) &&
                 type_node->template_arg.has_value())
                 return type_node->type_keyword_token.lexeme + "<" + std::to_string(type_node->template_arg.value()) + ">";
-            // Hiển thị byte, bytearray đúng tên
+            // Hiển thị byte đúng tên
             if (type_node->type_keyword_token.type == TokenType::BYTE_KW)
                 return "byte";
-            if (type_node->type_keyword_token.type == TokenType::BYTEARRAY_KW)
-                return "bytearray";
             return type_node->type_keyword_token.lexeme;
         }
 

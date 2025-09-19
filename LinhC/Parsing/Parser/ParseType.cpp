@@ -107,11 +107,67 @@ namespace Linh
             return std::make_unique<AST::BaseTypeNode>(base_keyword_token);
         }
 
-        // Xử lý các từ khóa kiểu cơ bản khác không có kích thước <N>
-        if (match({TokenType::STR_KW, TokenType::BOOL_KW, TokenType::VOID_KW,
-                   TokenType::ANY_KW, TokenType::SOL_KW, TokenType::BYTE_KW, TokenType::BYTEARRAY_KW}))
+        // Xử lý các kiểu cụ thể mới (int8, int16, int32, int64, uint8, uint16, uint32, uint64, float32, float64)
+        if (match({TokenType::INT8_KW, TokenType::INT16_KW, TokenType::INT32_KW, TokenType::INT64_KW,
+                   TokenType::UINT8_KW, TokenType::UINT16_KW, TokenType::UINT32_KW, TokenType::UINT64_KW,
+                   TokenType::FLOAT32_KW, TokenType::FLOAT64_KW}))
         {
             return std::make_unique<AST::BaseTypeNode>(previous());
+        }
+
+        // Xử lý các từ khóa kiểu cơ bản khác không có kích thước <N>
+        if (match({TokenType::STR_KW, TokenType::BOOL_KW, TokenType::VOID_KW,
+                   TokenType::ANY_KW, TokenType::SOL_KW, TokenType::BYTE_KW}))
+        {
+            Token kw = previous();
+            return std::make_unique<AST::BaseTypeNode>(kw);
+        }
+
+        // --- Hỗ trợ type aliases ---
+        // int -> int32, float -> float32, uint -> uint32
+        if (check(TokenType::IDENTIFIER))
+        {
+            const std::string& lexeme = peek().lexeme;
+            if (lexeme == "int")
+            {
+                Token int_token = advance();
+                // Create an int32 token from the int token
+                Token int32_token(TokenType::INT32_KW, "int32", std::monostate{}, int_token.line, int_token.column_start);
+                return std::make_unique<AST::BaseTypeNode>(int32_token);
+            }
+            else if (lexeme == "float")
+            {
+                Token float_token = advance();
+                // Create a float32 token from the float token
+                Token float32_token(TokenType::FLOAT32_KW, "float32", std::monostate{}, float_token.line, float_token.column_start);
+                return std::make_unique<AST::BaseTypeNode>(float32_token);
+            }
+            else if (lexeme == "uint")
+            {
+                Token uint_token = advance();
+                // Create a uint32 token from the uint token
+                Token uint32_token(TokenType::UINT32_KW, "uint32", std::monostate{}, uint_token.line, uint_token.column_start);
+                return std::make_unique<AST::BaseTypeNode>(uint32_token);
+            }
+            else if (lexeme == "bytes")
+            {
+                // Alias: bytes -> array<byte>
+                Token bytes_token = advance();
+
+                // Create synthetic tokens for 'array' and 'byte'
+                Token array_kw_token(TokenType::ARRAY_KW, "array", std::monostate{}, bytes_token.line, bytes_token.column_start);
+                Token byte_kw_token(TokenType::BYTE_KW, "byte", std::monostate{}, bytes_token.line, bytes_token.column_start);
+
+                // Build element type node 'byte'
+                auto byte_type_node = std::make_unique<AST::BaseTypeNode>(byte_kw_token);
+
+                // Create a dummy RBRACKET token to satisfy ArrayTypeNode constructor that relies on a closing bracket
+                // We position it right after 'array' keyword for simplicity
+                Token dummy_rbracket(TokenType::RBRACKET, "]", std::monostate{}, array_kw_token.line, array_kw_token.column_start + static_cast<int>(array_kw_token.lexeme.length()));
+
+                // Return array<byte> as ArrayTypeNode
+                return std::make_unique<AST::ArrayTypeNode>(array_kw_token, std::move(byte_type_node), dummy_rbracket);
+            }
         }
 
         // --- Hỗ trợ string như một alias của str ---

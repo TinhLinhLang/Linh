@@ -456,10 +456,97 @@ namespace Linh
     void BytecodeEmitter::visitVarDeclStmt(AST::VarDeclStmt *stmt)
     {
         int idx = get_var_index(stmt->name.lexeme);
+        
+        // Handle initializer
         if (stmt->initializer)
             stmt->initializer->accept(this);
         else
             emit_instr(OpCode::PUSH_INT, 0, stmt->getLine(), stmt->getCol()); // default 0
+        
+        // Handle explicit type conversion if declared_type is present
+        if (stmt->declared_type.has_value()) {
+            auto type_node = stmt->declared_type.value().get();
+            
+            // Check if it's a sized integer type (int8, int16, int32, int64, uint8, uint16, uint32, uint64)
+            if (auto sized_int = dynamic_cast<AST::SizedIntegerTypeNode*>(type_node)) {
+                std::string base_type = sized_int->base_type_keyword_token.lexeme;
+                int size = sized_int->template_arg.value_or(32); // default to 32 if parsing failed
+                
+                if (base_type == "int") {
+                    switch (size) {
+                        case 8:
+                            emit_instr(OpCode::CALL, std::string("to_int8"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 16:
+                            emit_instr(OpCode::CALL, std::string("to_int16"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 32:
+                            emit_instr(OpCode::CALL, std::string("to_int32"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 64:
+                            emit_instr(OpCode::CALL, std::string("to_int64"), stmt->getLine(), stmt->getCol());
+                            break;
+                    }
+                } else if (base_type == "uint") {
+                    switch (size) {
+                        case 8:
+                            emit_instr(OpCode::CALL, std::string("to_uint8"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 16:
+                            emit_instr(OpCode::CALL, std::string("to_uint16"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 32:
+                            emit_instr(OpCode::CALL, std::string("to_uint32"), stmt->getLine(), stmt->getCol());
+                            break;
+                        case 64:
+                            emit_instr(OpCode::CALL, std::string("to_uint64"), stmt->getLine(), stmt->getCol());
+                            break;
+                    }
+                }
+            }
+            // Check if it's a sized float type (float32, float64)
+            else if (auto sized_float = dynamic_cast<AST::SizedFloatTypeNode*>(type_node)) {
+                int size = sized_float->template_arg.value_or(32);
+                switch (size) {
+                    case 32:
+                        emit_instr(OpCode::CALL, std::string("to_float32"), stmt->getLine(), stmt->getCol());
+                        break;
+                    case 64:
+                        emit_instr(OpCode::CALL, std::string("to_float64"), stmt->getLine(), stmt->getCol());
+                        break;
+                }
+            }
+            // Check if it's a base type (bool, str, int8/16/32/64, uint8/16/32/64, float32/64)
+            else if (auto base_type = dynamic_cast<AST::BaseTypeNode*>(type_node)) {
+                std::string type_name = base_type->type_keyword_token.lexeme;
+                if (type_name == "bool") {
+                    emit_instr(OpCode::CALL, std::string("to_bool"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "str") {
+                    emit_instr(OpCode::CALL, std::string("to_string"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "int8") {
+                    emit_instr(OpCode::CALL, std::string("to_int8"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "int16") {
+                    emit_instr(OpCode::CALL, std::string("to_int16"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "int32") {
+                    emit_instr(OpCode::CALL, std::string("to_int32"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "int64") {
+                    emit_instr(OpCode::CALL, std::string("to_int64"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "uint8") {
+                    emit_instr(OpCode::CALL, std::string("to_uint8"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "uint16") {
+                    emit_instr(OpCode::CALL, std::string("to_uint16"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "uint32") {
+                    emit_instr(OpCode::CALL, std::string("to_uint32"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "uint64") {
+                    emit_instr(OpCode::CALL, std::string("to_uint64"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "float32") {
+                    emit_instr(OpCode::CALL, std::string("to_float32"), stmt->getLine(), stmt->getCol());
+                } else if (type_name == "float64") {
+                    emit_instr(OpCode::CALL, std::string("to_float64"), stmt->getLine(), stmt->getCol());
+                }
+            }
+        }
+        
         emit_instr(OpCode::STORE_VAR, idx, stmt->getLine(), stmt->getCol());
     }
 

@@ -100,41 +100,44 @@ namespace Std {
         out.push_back('"');
     }
 
-    // Helper: encode Value -> JSON recursively
+    // Helper: encode Value -> JSON recursively (use std::visit to avoid index fragility)
     inline void encode_value(std::string& out, const Value& v) {
-        switch (v.index()) {
-            case 0: // sol/null
-                out += "null"; break;
-            case 1: // bool
-                out += (std::get<bool>(v) ? "true" : "false"); break;
-            case 2: { // int64
-                out += std::to_string(std::get<int64_t>(v)); break; }
-            case 3: { // uint64
-                out += std::to_string(std::get<uint64_t>(v)); break; }
-            case 4: { // double
+        const VariantType& var = static_cast<const VariantType&>(v);
+        std::visit([&](const auto& x) {
+            using T = std::decay_t<decltype(x)>;
+            if constexpr (std::is_same_v<T, std::monostate>) {
+                out += "null";
+            } else if constexpr (std::is_same_v<T, bool>) {
+                out += (x ? "true" : "false");
+            } else if constexpr (std::is_same_v<T, int8_t> ||
+                                 std::is_same_v<T, int16_t> ||
+                                 std::is_same_v<T, int32_t> ||
+                                 std::is_same_v<T, int64_t>) {
+                out += std::to_string(static_cast<long long>(x));
+            } else if constexpr (std::is_same_v<T, uint8_t> ||
+                                 std::is_same_v<T, uint16_t> ||
+                                 std::is_same_v<T, uint32_t> ||
+                                 std::is_same_v<T, uint64_t>) {
+                out += std::to_string(static_cast<unsigned long long>(x));
+            } else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
                 std::ostringstream oss; oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
-                oss << std::setprecision(15) << std::get<double>(v);
-                out += oss.str(); break; }
-            case 5: { // string
-                const auto& s = std::get<std::string>(v);
-                escape_json_string(s, out);
-                break; }
-            case 6: { // Array
-                const auto& a = std::get<Array>(v);
+                oss << std::setprecision(15) << static_cast<double>(x);
+                out += oss.str();
+            } else if constexpr (std::is_same_v<T, std::string>) {
+                escape_json_string(x, out);
+            } else if constexpr (std::is_same_v<T, Array>) {
                 out.push_back('[');
                 bool first = true;
-                for (const auto& item : *a) {
+                for (const auto& item : *x) {
                     if (!first) out.push_back(',');
                     first = false;
                     encode_value(out, item);
                 }
                 out.push_back(']');
-                break; }
-            case 7: { // Map
-                const auto& m = std::get<Map>(v);
+            } else if constexpr (std::is_same_v<T, Map>) {
                 out.push_back('{');
                 bool first = true;
-                for (const auto& kv : *m) {
+                for (const auto& kv : *x) {
                     if (!first) out.push_back(',');
                     first = false;
                     escape_json_string(kv.first, out);
@@ -142,23 +145,13 @@ namespace Std {
                     encode_value(out, kv.second);
                 }
                 out.push_back('}');
-                break; }
-            case 8: // FunctionPtr -> null
-                out += "null"; break;
-            case 9: { // Byte
-                out += std::to_string(static_cast<uint64_t>(std::get<Byte>(v))); break; }
-            case 10: { // ByteArray -> JSON array of numbers
-                const auto& ba = std::get<ByteArray>(v);
-                out.push_back('[');
-                for (size_t i = 0; i < ba->size(); ++i) {
-                    if (i) out.push_back(',');
-                    out += std::to_string(static_cast<uint64_t>((*ba)[i]));
-                }
-                out.push_back(']');
-                break; }
-            default:
-                out += "null"; break;
-        }
+            } else if constexpr (std::is_same_v<T, std::shared_ptr<FunctionObject>>) {
+                // Functions are not serializable, emit null
+                out += "null";
+            } else {
+                out += "null";
+            }
+        }, var);
     }
 
     // json.decode(string) -> any (map/array/primitive)

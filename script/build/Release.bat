@@ -1,5 +1,5 @@
 @echo off
-setlocal enabledelayedexpansion
+setlocal
 
 REM Detect number of CPU cores for parallel build
 for /f "skip=2 tokens=2 delims== " %%A in ('wmic cpu get NumberOfLogicalProcessors /value') do set NUM_CORES=%%A
@@ -18,6 +18,21 @@ if not exist "%BUILD_DIR%" (
 
 REM Change to build directory
 cd "%BUILD_DIR%"
+
+REM Ensure the CMake generator matches Visual Studio 17 2022
+set "TARGET_GENERATOR=Visual Studio 17 2022"
+set "CACHE_GEN="
+if exist CMakeCache.txt (
+    for /f "tokens=2 delims==" %%G in ('findstr /B /C:"CMAKE_GENERATOR:INTERNAL=" CMakeCache.txt') do set "CACHE_GEN=%%G"
+)
+if defined CACHE_GEN (
+    if /I not "%CACHE_GEN%"=="%TARGET_GENERATOR%" (
+        echo [INFO] Generator mismatch detected (found: "%CACHE_GEN%", expected: "%TARGET_GENERATOR%")
+        echo [INFO] Cleaning CMake cache...
+        if exist CMakeFiles rmdir /s /q CMakeFiles
+        if exist CMakeCache.txt del /f /q CMakeCache.txt
+    )
+)
 
 REM Configure CMake for Release with Visual Studio Community generator
 cmake -DCMAKE_BUILD_TYPE=Release .. -G "Visual Studio 17 2022" -A x64

@@ -21,20 +21,24 @@ namespace Linh
     using Array = std::shared_ptr<std::vector<Value>>;
     using Map = std::shared_ptr<std::unordered_map<std::string, Value>>;
     using Byte = uint8_t;
-    using ByteArray = std::shared_ptr<std::vector<Byte>>;
 
     using VariantType = std::variant<
         std::monostate,
         bool,
+        int8_t,
+        int16_t,
+        int32_t,
         int64_t,
+        uint8_t,
+        uint16_t,
+        uint32_t,
         uint64_t,
-        double,
+        float,      // float32
+        double,     // float64
         std::string,
         Array,
         Map,
-        std::shared_ptr<FunctionObject>,
-        Byte,
-        ByteArray
+        std::shared_ptr<FunctionObject>
     >;
 
     // String interning singleton
@@ -96,9 +100,6 @@ namespace Linh
     inline Map make_map() {
         return std::make_shared<std::unordered_map<std::string, Value>>();
     }
-    inline ByteArray make_bytearray() {
-        return std::make_shared<std::vector<Byte>>();
-    }
 
     // Helper functions để tương tác với StringInterning
     inline std::string intern_string(const std::string& s) {
@@ -109,10 +110,9 @@ namespace Linh
         using VariantType::VariantType;
         Value() : VariantType() {}
         Value(const VariantType &v) : VariantType(v) {}
-        Value(const std::string& s) : VariantType(std::in_place_index<5>, StringInterner::instance().intern(s)) {}
+        Value(const std::string& s) : VariantType(std::in_place_type<std::string>, StringInterner::instance().intern(s)) {}
     // Tạo Value từ array/map mới (dùng pool)
     static Value new_array() { return Value(make_array()); }
     static Value new_map() { return Value(make_map()); }
-    static Value from_bytearray(const ByteArray& arr) { return Value(arr); }
     };
 }

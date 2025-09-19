@@ -81,9 +81,10 @@ void runSource(const std::string &source_code,
                Linh::BytecodeEmitter *emitter_ptr,
                Linh::LiVM *vm_ptr)
 {
+#ifdef _DEBUG
     std::cout << "--- Source Code Being Parsed ---\n"
               << source_code << "\n--------------------------------\n";
-
+#endif
     Linh::Lexer lexer(source_code);
     std::vector<Linh::Token> tokens = lexer.scan_tokens();
     Linh::Parser parser(tokens);
@@ -145,9 +146,9 @@ void runSource(const std::string &source_code,
     // --- Debug: print VM stack and variables after execution (optional)
 #ifdef _DEBUG
     // (You can add methods to LiVM to expose stack/vars for debugging if needed)
-#endif
 
     std::cout << "\nParse succeeded!" << std::endl;
+#endif
 }
 
 void runSource(const std::string &source_code)
@@ -163,7 +164,7 @@ int main(int argc, char **argv)
     if (argc > 1)
     {
         std::string arg1 = argv[1];
-        if (arg1 == "-v" || arg1 == "--version")
+        if (arg1 == "-v" || arg1 == "--version" || arg1 == "-V")
         {
             std::cout << name << " (" << engine << ") version " << version << " [" << version_number << "]\n";
             std::cout << "Copyright (c) 2025 Sao Tin Developer Team\n";

@@ -32,6 +32,24 @@ namespace Linh
         debug_print_value(b);
         std::cerr << std::endl;
 #endif
+
+        // Chuẩn hoá toàn bộ kiểu số về 64-bit:
+        // - int8/16/32  -> int64_t
+        // - uint8/16/32 -> uint64_t
+        // - float32     -> float64 (double)
+        auto normalize_number = [](const Value& x) -> Value {
+            if (std::holds_alternative<int8_t>(x))   return Value(static_cast<int64_t>(std::get<int8_t>(x)));
+            if (std::holds_alternative<int16_t>(x))  return Value(static_cast<int64_t>(std::get<int16_t>(x)));
+            if (std::holds_alternative<int32_t>(x))  return Value(static_cast<int64_t>(std::get<int32_t>(x)));
+            if (std::holds_alternative<uint8_t>(x))  return Value(static_cast<uint64_t>(std::get<uint8_t>(x)));
+            if (std::holds_alternative<uint16_t>(x)) return Value(static_cast<uint64_t>(std::get<uint16_t>(x)));
+            if (std::holds_alternative<uint32_t>(x)) return Value(static_cast<uint64_t>(std::get<uint32_t>(x)));
+            if (std::holds_alternative<float>(x))    return Value(static_cast<double>(std::get<float>(x)));
+            return x;
+        };
+        a = normalize_number(a);
+        b = normalize_number(b);
+
         // --- CHẶN CỘNG SAI KIỂU DỮ LIỆU ---
         if (instr.opcode == OpCode::ADD)
         {

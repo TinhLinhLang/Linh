@@ -69,10 +69,10 @@ namespace Linh
             // Execute the instruction directly without lookup
             switch (instr.opcode) {
                 case OpCode::PUSH_INT:
-                    push(Value(std::get<int64_t>(instr.operand)));
+                    push(Value(static_cast<int32_t>(std::get<int64_t>(instr.operand))));
                     break;
                 case OpCode::PUSH_FLOAT:
-                    push(Value(std::get<double>(instr.operand)));
+                    push(Value(static_cast<float>(std::get<double>(instr.operand))));
                     break;
                 case OpCode::PUSH_BOOL:
                     push(Value(std::get<bool>(instr.operand)));
@@ -312,10 +312,10 @@ namespace Linh
 
     // Handler functions for basic opcodes
     static void handle_PUSH_INT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        vm.push(std::get<int64_t>(instr.operand));
+        vm.push(Value(static_cast<int32_t>(std::get<int64_t>(instr.operand))));
     }
     static void handle_PUSH_FLOAT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        vm.push(std::get<double>(instr.operand));
+        vm.push(Value(static_cast<float>(std::get<double>(instr.operand))));
     }
     static void handle_ADD(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         Linh::math_binary_op(vm, instr);
@@ -351,13 +351,13 @@ namespace Linh
         Linh::math_binary_op(vm, instr);
     }
     static void handle_JMP(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t& ip) {
-        ip = std::get<int64_t>(instr.operand);
+        ip = static_cast<size_t>(std::get<int64_t>(instr.operand));
     }
     static void handle_JMP_IF_FALSE(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t& ip) {
         auto cond = vm.pop();
         bool cond_val = eval_condition(cond);
         if (!cond_val)
-            ip = std::get<int64_t>(instr.operand);
+            ip = static_cast<size_t>(std::get<int64_t>(instr.operand));
         else
             ++ip;
     }
@@ -369,7 +369,7 @@ namespace Linh
     static void handle_NOP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&) {}
 
     static void handle_PRINT_MULTIPLE(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        int64_t count = std::get<int64_t>(instr.operand);
+        int32_t count = static_cast<int32_t>(std::get<int64_t>(instr.operand));
         if (vm.stack.size() < static_cast<size_t>(count)) {
             std::cerr << "ERROR [Line " << instr.line << ", Col " << instr.col << "] RuntimeError : VM stack underflow for PRINT_MULTIPLE" << std::endl;
             return;
@@ -414,13 +414,13 @@ namespace Linh
         vm.stack.push_back(vm.stack.back());
     }
     static void handle_PUSH_UINT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        vm.push(std::get<uint64_t>(instr.operand));
+        vm.push(Value(static_cast<uint32_t>(std::get<uint64_t>(instr.operand))));
     }
     static void handle_PUSH_STR(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        vm.push(std::get<std::string>(instr.operand));
+        vm.push(Value(std::get<std::string>(instr.operand)));
     }
     static void handle_PUSH_BOOL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        vm.push(std::get<bool>(instr.operand));
+        vm.push(Value(std::get<bool>(instr.operand)));
     }
     static void handle_PUSH_FUNCTION(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         try {
@@ -542,15 +542,15 @@ namespace Linh
         auto function_value = vm.stack.back();
         vm.stack.pop_back();
 
-        if (function_value.index() != 8) { // FunctionPtr index
+        if (function_value.index() != 15) { // FunctionPtr index
             std::cerr << "Error: CREATE_CLOSURE expected function object" << std::endl;
             return;
         }
 
-        auto fn = std::get<8>(function_value);
+        auto fn = std::get<15>(function_value);
         
         // Create closure with current environment
-        auto closure = create_closure(fn->name, fn->params, fn->body, vm.current_environment);
+        auto closure = Linh::create_closure(fn->name, fn->params, fn->body, ClosureEnvironment{});
         
         // Push closure onto stack
         vm.push(Value(closure));
@@ -755,25 +755,25 @@ namespace Linh
                 std::cerr << "[DEBUG] Entering switch case for opcode: " << opcode_name(instr.opcode) << std::endl;
 #endif
                 case OpCode::PUSH_INT:
-                    push(std::get<int64_t>(instr.operand));
+                    push(Value(static_cast<int32_t>(std::get<int64_t>(instr.operand))));
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] PUSH_INT: stack size = " << stack.size() << ", top index = " << stack.back().index() << std::endl;
 #endif
                     break;
                 case OpCode::PUSH_UINT:
-                    // Hỗ trợ uint64_t
-                    push(std::get<uint64_t>(instr.operand));
+                    // Hỗ trợ uint32_t
+                    push(Value(static_cast<uint32_t>(std::get<uint64_t>(instr.operand))));
                     break;
                 case OpCode::PUSH_FLOAT:
                     // If you want to support float128, check here
-                    // For now, always push double
-                    push(std::get<double>(instr.operand));
+                    // For now, always push float
+                    push(Value(static_cast<float>(std::get<double>(instr.operand))));
                     break;
                 case OpCode::PUSH_STR:
-                    push(std::get<std::string>(instr.operand));
+                    push(Value(std::get<std::string>(instr.operand)));
                     break;
                 case OpCode::PUSH_BOOL:
-                    push(std::get<bool>(instr.operand));
+                    push(Value(std::get<bool>(instr.operand)));
                     break;
                 case OpCode::PUSH_FUNCTION:
 #ifdef _DEBUG
@@ -831,8 +831,8 @@ namespace Linh
                     auto a = pop();
                     if (std::holds_alternative<bool>(a))
                         push(!std::get<bool>(a));
-                    else if (std::holds_alternative<int64_t>(a))
-                        push(~std::get<int64_t>(a)); // bitwise NOT
+                    else if (std::holds_alternative<int32_t>(a))
+                        push(~std::get<int32_t>(a)); // bitwise NOT
                     else {
                         std::cerr << "VM: NOT only supports bool or int" << std::endl;
                         push(false);
@@ -888,13 +888,21 @@ namespace Linh
                         push(result);
                         break;
                     }
-                    // If both are numbers (int/double/uint)
-                    if ((std::holds_alternative<int64_t>(a) || std::holds_alternative<double>(a) || std::holds_alternative<uint64_t>(a)) &&
-                        (std::holds_alternative<int64_t>(b) || std::holds_alternative<double>(b) || std::holds_alternative<uint64_t>(b))) {
-                        double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) :
-                                    (std::holds_alternative<uint64_t>(a) ? static_cast<double>(std::get<uint64_t>(a)) : std::get<double>(a));
-                        double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) :
-                                    (std::holds_alternative<uint64_t>(b) ? static_cast<double>(std::get<uint64_t>(b)) : std::get<double>(b));
+                    // If both are numbers (int/float/uint)
+                    if ((std::holds_alternative<int32_t>(a) || std::holds_alternative<int64_t>(a) || std::holds_alternative<float>(a) || std::holds_alternative<uint32_t>(a) || std::holds_alternative<uint64_t>(a)) &&
+                        (std::holds_alternative<int32_t>(b) || std::holds_alternative<int64_t>(b) || std::holds_alternative<float>(b) || std::holds_alternative<uint32_t>(b) || std::holds_alternative<uint64_t>(b))) {
+                        long double av = 0.0;
+                        long double bv = 0.0;
+                        if (std::holds_alternative<int32_t>(a))        av = static_cast<long double>(std::get<int32_t>(a));
+                        else if (std::holds_alternative<int64_t>(a))   av = static_cast<long double>(std::get<int64_t>(a));
+                        else if (std::holds_alternative<uint32_t>(a))  av = static_cast<long double>(std::get<uint32_t>(a));
+                        else if (std::holds_alternative<uint64_t>(a))  av = static_cast<long double>(std::get<uint64_t>(a));
+                        else if (std::holds_alternative<float>(a))     av = static_cast<long double>(std::get<float>(a));
+                        if (std::holds_alternative<int32_t>(b))        bv = static_cast<long double>(std::get<int32_t>(b));
+                        else if (std::holds_alternative<int64_t>(b))   bv = static_cast<long double>(std::get<int64_t>(b));
+                        else if (std::holds_alternative<uint32_t>(b))  bv = static_cast<long double>(std::get<uint32_t>(b));
+                        else if (std::holds_alternative<uint64_t>(b))  bv = static_cast<long double>(std::get<uint64_t>(b));
+                        else if (std::holds_alternative<float>(b))     bv = static_cast<long double>(std::get<float>(b));
                         switch (instr.opcode) {
                             case OpCode::EQ: result = (av == bv); break;
                             case OpCode::NEQ: result = (av != bv); break;
@@ -924,7 +932,7 @@ namespace Linh
                 }
                 case OpCode::LOAD_VAR:
                 {
-                    int idx = std::get<int64_t>(instr.operand);
+                    int idx = static_cast<int>(std::get<int64_t>(instr.operand));
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] LOAD_VAR: loading variable index " << idx << std::endl;
                     std::cerr << "[DEBUG] LOAD_VAR: variables.size() = " << variables.size() << std::endl;
@@ -944,14 +952,14 @@ namespace Linh
                             push(variables[2]);
                         } else {
                             std::cerr << "VM: LOAD_VAR unknown variable index " << idx << std::endl;
-                            push(int64_t(0));
+                            push(int32_t(0));
                         }
                     }
                     break;
                 }
                 case OpCode::STORE_VAR:
                 {
-                    int idx = std::get<int64_t>(instr.operand);
+                    int idx = static_cast<int>(std::get<int64_t>(instr.operand));
                     if (stack.empty())
                     {
                         stack.push_back(std::monostate{});
@@ -992,7 +1000,7 @@ namespace Linh
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] PRINT_MULTIPLE in second switch case" << std::endl;
 #endif
-                    int64_t count = std::get<int64_t>(instr.operand);
+                    int32_t count = static_cast<int32_t>(std::get<int64_t>(instr.operand));
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] PRINT_MULTIPLE: count=" << count << ", stack_size=" << stack.size() << std::endl;
 #endif
@@ -1073,27 +1081,7 @@ namespace Linh
                         break;
                     }
                     auto val = pop();
-                    std::string type_str = "sol";
-                    if (std::holds_alternative<int64_t>(val))
-                        type_str = "int";
-                    else if (std::holds_alternative<uint64_t>(val))
-                        type_str = "uint";
-                    else if (std::holds_alternative<double>(val))
-                        type_str = "float";
-                    else if (std::holds_alternative<std::string>(val))
-                        type_str = "str";
-                    else if (std::holds_alternative<bool>(val))
-                        type_str = "bool";
-                    else if (std::holds_alternative<Array>(val))
-                        type_str = "array";
-                    else if (std::holds_alternative<Map>(val))
-                        type_str = "map";
-                    else if (std::holds_alternative<FunctionPtr>(val))
-                        type_str = "function";
-                    else if (std::holds_alternative<Byte>(val))
-                        type_str = "byte";
-                    else if (std::holds_alternative<ByteArray>(val))
-                        type_str = "bytearray";
+                    std::string type_str = type_of(val);
                     push(type_str); // Đẩy lại kết quả lên stack để PRINT lấy ra
                     break;
                 }
@@ -1227,6 +1215,80 @@ namespace Linh
                         push(result);
                         break;
                     }
+                    // --- explicit typed conversions for declared types ---
+                    if (fname == "to_int8")
+                    {
+                        auto val = pop();
+                        push(static_cast<int8_t>(Linh::to_int8(val)));
+                        break;
+                    }
+                    if (fname == "to_int16")
+                    {
+                        auto val = pop();
+                        push(static_cast<int16_t>(Linh::to_int16(val)));
+                        break;
+                    }
+                    if (fname == "to_int32")
+                    {
+                        auto val = pop();
+                        push(static_cast<int32_t>(Linh::to_int32(val)));
+                        break;
+                    }
+                    if (fname == "to_int64")
+                    {
+                        auto val = pop();
+                        push(static_cast<int64_t>(Linh::to_int64(val)));
+                        break;
+                    }
+                    if (fname == "to_uint8")
+                    {
+                        auto val = pop();
+                        push(static_cast<uint8_t>(Linh::to_uint8(val)));
+                        break;
+                    }
+                    if (fname == "to_uint16")
+                    {
+                        auto val = pop();
+                        push(static_cast<uint16_t>(Linh::to_uint16(val)));
+                        break;
+                    }
+                    if (fname == "to_uint32")
+                    {
+                        auto val = pop();
+                        push(static_cast<uint32_t>(Linh::to_uint32(val)));
+                        break;
+                    }
+                    if (fname == "to_uint64")
+                    {
+                        auto val = pop();
+                        push(static_cast<uint64_t>(Linh::to_uint64(val)));
+                        break;
+                    }
+                    if (fname == "to_float32")
+                    {
+                        auto val = pop();
+                        push(Linh::to_float32(val));
+                        break;
+                    }
+                    if (fname == "to_float64")
+                    {
+                        auto val = pop();
+                        push(Linh::to_float64(val));
+                        break;
+                    }
+                    if (fname == "to_bool")
+                    {
+                        auto val = pop();
+                        push(Linh::to_bool(val));
+                        break;
+                    }
+                    if (fname == "to_string")
+                    {
+                        auto val = pop();
+                        // Use to_str, since to_string helper isn't declared in the header
+                        push(Linh::to_str(val));
+                        break;
+                    }
                     // --- bytes([...]) ---
                     if (fname == "bytes")
                     {
@@ -1240,8 +1302,8 @@ namespace Linh
                         try {
                             if (std::holds_alternative<Array>(arg)) {
                                 auto in_arr = std::get<Array>(arg);
-                                auto barr = make_bytearray();
-                                barr->reserve(in_arr->size());
+                                auto bArr = make_array();
+                                bArr->reserve(in_arr->size());
                                 for (const auto &v : *in_arr) {
                                     uint64_t iv = 0;
                                     if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
@@ -1251,15 +1313,12 @@ namespace Linh
                                     else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
                                     // Clamp to 0..255
                                     if (iv > 255) iv = 255;
-                                    (*barr).push_back(static_cast<Byte>(iv & 0xFF));
+                                    bArr->push_back(Value(static_cast<Byte>(iv & 0xFF)));
                                 }
-                                push(Value::from_bytearray(barr));
+                                push(Value(bArr));
                             } else if (std::holds_alternative<std::string>(arg)) {
                                 auto b = Linh::string_bytes(arg, "utf-8");
-                                push(Value::from_bytearray(b));
-                            } else if (std::holds_alternative<ByteArray>(arg)) {
-                                // Already a bytearray
-                                push(arg);
+                                push(Value(b));
                             } else {
                                 std::cerr << "VM: bytes() expects array or string" << std::endl;
                                 push(Value{});
@@ -1289,7 +1348,7 @@ namespace Linh
                         }
                         try {
                             auto barr = Linh::string_bytes(sval, encoding);
-                            push(Value::from_bytearray(barr));
+                            push(Value(barr));
                         } catch (const std::exception& e) {
                             std::cerr << "VM: string.bytes error: " << e.what() << std::endl;
                             push(Value{}); // sol
@@ -1431,12 +1490,12 @@ namespace Linh
                         std::cerr << "[DEBUG] CALL: top of stack index = " << stack.back().index() << std::endl;
                     }
 #endif
-                    if (!stack.empty() && stack.back().index() == 8) { // FunctionPtr is at index 8 in Value
+                    if (!stack.empty() && stack.back().index() == 15) { // FunctionPtr is at index 15 in Value
 #ifdef _DEBUG
                         std::cerr << "[DEBUG] CALL: found function object, calling it" << std::endl;
 #endif
                         // Gọi function object
-                        auto fn = std::get<8>(stack.back());
+                        auto fn = std::get<15>(stack.back());
                         pop(); // Pop function object
                         
                         // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
@@ -2157,20 +2216,7 @@ namespace Linh
                         case OpCode::TYPEOF:
                         {
                             auto val = pop();
-                            if (std::holds_alternative<int64_t>(val))
-                                std::cout << "int" << std::endl;
-                            else if (std::holds_alternative<double>(val))
-                                std::cout << "float" << std::endl;
-                            else if (std::holds_alternative<std::string>(val))
-                                std::cout << "str" << std::endl;
-                            else if (std::holds_alternative<bool>(val))
-                                std::cout << "bool" << std::endl;
-                            else if (std::holds_alternative<Array>(val))
-                                std::cout << "array" << std::endl;
-                            else if (std::holds_alternative<Map>(val))
-                                std::cout << "map" << std::endl;
-                            else
-                                std::cout << "unknown" << std::endl;
+                            std::cout << type_of(val) << std::endl;
                             break;
                         }
                         case OpCode::RET:
@@ -2876,18 +2922,41 @@ namespace Linh
             std::cerr << "[DEBUG] CALL: top of stack index = " << vm.stack.back().index() << std::endl;
         }
 #endif
+        // Built-in explicit conversions used by declared types inside functions
+        if (std::holds_alternative<std::string>(instr.operand)) {
+            const std::string& fname = std::get<std::string>(instr.operand);
+            auto convert_and_advance = [&](auto conv) {
+                if (vm.stack.empty()) { vm.push(std::monostate{}); ++ip; return true; }
+                auto v = vm.pop();
+                vm.push(conv(v));
+                ++ip;
+                return true;
+            };
+            if (fname == "to_int8") { convert_and_advance([](const Value& v){ return Value(static_cast<int8_t>(Linh::to_int8(v))); }); return; }
+            if (fname == "to_int16"){ convert_and_advance([](const Value& v){ return Value(static_cast<int16_t>(Linh::to_int16(v))); }); return; }
+            if (fname == "to_int32"){ convert_and_advance([](const Value& v){ return Value(static_cast<int32_t>(Linh::to_int32(v))); }); return; }
+            if (fname == "to_int64"){ convert_and_advance([](const Value& v){ return Value(static_cast<int64_t>(Linh::to_int64(v))); }); return; }
+            if (fname == "to_uint8"){ convert_and_advance([](const Value& v){ return Value(static_cast<uint8_t>(Linh::to_uint8(v))); }); return; }
+            if (fname == "to_uint16"){ convert_and_advance([](const Value& v){ return Value(static_cast<uint16_t>(Linh::to_uint16(v))); }); return; }
+            if (fname == "to_uint32"){ convert_and_advance([](const Value& v){ return Value(static_cast<uint32_t>(Linh::to_uint32(v))); }); return; }
+            if (fname == "to_uint64"){ convert_and_advance([](const Value& v){ return Value(static_cast<uint64_t>(Linh::to_uint64(v))); }); return; }
+            if (fname == "to_float32"){ convert_and_advance([](const Value& v){ return Value(Linh::to_float32(v)); }); return; }
+            if (fname == "to_float64"){ convert_and_advance([](const Value& v){ return Value(Linh::to_float64(v)); }); return; }
+            if (fname == "to_bool"){ convert_and_advance([](const Value& v){ return Value(Linh::to_bool(v)); }); return; }
+            if (fname == "to_string"){ convert_and_advance([](const Value& v){ return Value(Linh::to_str(v)); }); return; }
+        }
         // Kiểm tra xem có function object trên stack không
         if (!vm.stack.empty()) {
             auto& top_value = vm.stack.back();
 #ifdef _DEBUG
             std::cerr << "[DEBUG] CALL: top value index = " << top_value.index() << std::endl;
 #endif
-            if (top_value.index() == 8) { // FunctionPtr is at index 8 in Value
+            if (top_value.index() == 15) { // FunctionPtr is at index 15 in Value
 #ifdef _DEBUG
                 std::cerr << "[DEBUG] CALL: found function object on stack" << std::endl;
 #endif
                 // Gọi function object
-                auto fn = std::get<8>(vm.stack.back());
+                auto fn = std::get<15>(vm.stack.back());
                 vm.pop(); // Pop function object
                 
                 // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
@@ -3042,23 +3111,7 @@ namespace Linh
 #ifdef _DEBUG
             std::cerr << "[DEBUG] TYPEOF: value index = " << val.index() << std::endl;
 #endif
-            std::string type_str = "sol";
-            if (std::holds_alternative<int64_t>(val))
-                type_str = "int";
-            else if (std::holds_alternative<uint64_t>(val))
-                type_str = "uint";
-            else if (std::holds_alternative<double>(val))
-                type_str = "float";
-            else if (std::holds_alternative<std::string>(val))
-                type_str = "string";
-            else if (std::holds_alternative<bool>(val))
-                type_str = "bool";
-            else if (std::holds_alternative<Array>(val))
-                type_str = "array";
-            else if (std::holds_alternative<Map>(val))
-                type_str = "map";
-            else if (std::holds_alternative<FunctionPtr>(val))
-                type_str = "function";
+            std::string type_str = type_of(val);
 #ifdef _DEBUG
             std::cerr << "[DEBUG] TYPEOF: returning " << type_str << std::endl;
 #endif

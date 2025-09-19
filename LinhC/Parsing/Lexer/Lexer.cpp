@@ -11,7 +11,16 @@ namespace Linh
     const std::unordered_map<std::string, TokenType> Lexer::s_keywords = {
         {"var", TokenType::VAR_KW}, {"vas", TokenType::VAS_KW}, {"const", TokenType::CONST_KW}, {"if", TokenType::IF_KW}, {"else", TokenType::ELSE_KW}, {"for", TokenType::FOR_KW}, {"while", TokenType::WHILE_KW}, {"func", TokenType::FUNC_KW}, {"return", TokenType::RETURN_KW}, {"true", TokenType::TRUE_KW}, {"false", TokenType::FALSE_KW}, {"int", TokenType::INT_KW}, {"uint", TokenType::UINT_KW}, {"str", TokenType::STR_KW}, {"bool", TokenType::BOOL_KW}, {"float", TokenType::FLOAT_KW}, {"map", TokenType::MAP_KW}, {"array", TokenType::ARRAY_KW}, {"void", TokenType::VOID_KW}, {"any", TokenType::ANY_KW}, {"print", TokenType::PRINT_KW}, {"break", TokenType::BREAK_KW}, {"continue", TokenType::CONTINUE_KW}, {"skip", TokenType::SKIP_KW}, {"switch", TokenType::SWITCH_KW}, {"case", TokenType::CASE_KW}, {"default", TokenType::DEFAULT_KW}, {"other", TokenType::OTHER_KW}, {"type", TokenType::TYPE_KW}, {"sol", TokenType::SOL_KW}, {"is", TokenType::IS_KW}, {"not", TokenType::NOT_KW}, {"and", TokenType::AND_KW}, {"or", TokenType::OR_KW}, {"do", TokenType::DO_KW}, {"new", TokenType::NEW_KW}, {"delete", TokenType::DELETE_KW}, {"this", TokenType::THIS_KW}, {"throw", TokenType::THROW_KW}, {"try", TokenType::TRY_KW}, {"catch", TokenType::CATCH_KW}, {"finally", TokenType::FINALLY_KW}, {"import", TokenType::IMPORT_KW}, {"from", TokenType::FROM_KW},
         {"byte", TokenType::BYTE_KW},
-        {"bytearray", TokenType::BYTEARRAY_KW},
+        {"int8", TokenType::INT8_KW},
+        {"int16", TokenType::INT16_KW},
+        {"int32", TokenType::INT32_KW},
+        {"int64", TokenType::INT64_KW},
+        {"uint8", TokenType::UINT8_KW},
+        {"uint16", TokenType::UINT16_KW},
+        {"uint32", TokenType::UINT32_KW},
+        {"uint64", TokenType::UINT64_KW},
+        {"float32", TokenType::FLOAT32_KW},
+        {"float64", TokenType::FLOAT64_KW},
         {"id", TokenType::IDENTIFIER} // Thêm dòng này để id luôn là identifier (không phải keyword, nhưng nhận diện được)
     };
 
@@ -212,6 +221,28 @@ namespace Linh
             return "IMPORT_KW";
         case TokenType::FROM_KW:
             return "FROM_KW";
+        case TokenType::BYTE_KW:
+            return "BYTE_KW";
+        case TokenType::INT8_KW:
+            return "INT8_KW";
+        case TokenType::INT16_KW:
+            return "INT16_KW";
+        case TokenType::INT32_KW:
+            return "INT32_KW";
+        case TokenType::INT64_KW:
+            return "INT64_KW";
+        case TokenType::UINT8_KW:
+            return "UINT8_KW";
+        case TokenType::UINT16_KW:
+            return "UINT16_KW";
+        case TokenType::UINT32_KW:
+            return "UINT32_KW";
+        case TokenType::UINT64_KW:
+            return "UINT64_KW";
+        case TokenType::FLOAT32_KW:
+            return "FLOAT32_KW";
+        case TokenType::FLOAT64_KW:
+            return "FLOAT64_KW";
         // case TokenType::CLASS_KW: return "CLASS_KW";
         case TokenType::ERROR:
             return "ERROR";

@@ -17,7 +17,6 @@ namespace Linh
         struct BlockStmt;
         struct IfStmt;
         struct WhileStmt;
-        struct DoWhileStmt;
         struct FunctionDeclStmt;
         struct ReturnStmt;
         struct BreakStmt;
@@ -27,6 +26,7 @@ namespace Linh
         struct ThrowStmt;
         struct TryStmt;
         struct ImportStmt;
+        struct ExportStmt;
         struct PrintStmt;
         struct ExpressionStmt;
         struct VarDeclStmt;
@@ -57,7 +57,6 @@ namespace Linh
             virtual void visitBlockStmt(BlockStmt *stmt) = 0;
             virtual void visitIfStmt(IfStmt *stmt) = 0;
             virtual void visitWhileStmt(WhileStmt *stmt) = 0;
-            virtual void visitDoWhileStmt(DoWhileStmt *stmt) = 0;
             virtual void visitFunctionDeclStmt(FunctionDeclStmt *stmt) = 0;
             virtual void visitReturnStmt(ReturnStmt *stmt) = 0;
             virtual void visitBreakStmt(BreakStmt *stmt) = 0;
@@ -67,6 +66,7 @@ namespace Linh
             virtual void visitThrowStmt(ThrowStmt *stmt) = 0;
             virtual void visitTryStmt(TryStmt *stmt) = 0;
             virtual void visitImportStmt(ImportStmt *stmt) = 0;
+            virtual void visitExportStmt(ExportStmt *stmt) = 0;
         }; // Định nghĩa rỗng
         using StmtPtr = std::unique_ptr<Stmt>;
         using StmtList = std::vector<StmtPtr>;
@@ -398,18 +398,6 @@ namespace Linh
             int getCol() const { return keyword_while.column_start; }
         };
 
-        struct DoWhileStmt : Stmt
-        {
-            Token keyword_do;
-            StmtPtr body;
-            Token keyword_while;
-            ExprPtr condition;
-            DoWhileStmt(Token kw_do, StmtPtr b, Token kw_while, ExprPtr cond) : keyword_do(std::move(kw_do)), body(std::move(b)), keyword_while(std::move(kw_while)), condition(std::move(cond)) {}
-            void accept(StmtVisitor *visitor) override { visitor->visitDoWhileStmt(this); }
-            int getLine() const { return keyword_do.line; }
-            int getCol() const { return keyword_do.column_start; }
-        };
-
         struct ReturnStmt : Stmt
         {
             Token keyword_return;
@@ -514,6 +502,15 @@ namespace Linh
                 : import_kw(std::move(import_kw)), names(std::move(names)), from_kw(std::move(from_kw)), module_name(std::move(module_name)), semicolon(std::move(semicolon)) {}
             // Đơn giản hóa: names rỗng và from_kw.type == END_OF_FILE nếu chỉ import module
             void accept(StmtVisitor *visitor) override { visitor->visitImportStmt(this); }
+        };
+        
+        struct ExportStmt : Stmt
+        {
+            Token export_kw;
+            StmtPtr declaration; // Function, variable, or other declaration to export
+            ExportStmt(Token export_kw, StmtPtr decl)
+                : export_kw(std::move(export_kw)), declaration(std::move(decl)) {}
+            void accept(StmtVisitor *visitor) override { visitor->visitExportStmt(this); }
         };
 
         // --- MapEntryNode definition for MapLiteralExpr ---

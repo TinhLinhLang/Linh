@@ -1,8 +1,10 @@
-#include "SemanticAnalyzer.hpp"
-#include "../../../config.hpp"
+#include "semanticAnalyzer.hpp"
+#include "../Parser/Parser.hpp"
+#include "../../Module/ModuleManager.hpp"
 #include <array>                              // thêm dòng này
 #include <fstream>                            // thêm dòng này
 #include <unordered_set>                      // <--- add this line
+#include <algorithm>                        // for std::replace
 #include "../Parser/Parser.hpp"               // thêm dòng này
 #include "../../Bytecode/BytecodeEmitter.hpp" // Thêm dòng này để dùng BytecodeEmitter
 #include <chrono>
@@ -558,13 +560,6 @@ namespace Linh
                 stmt->body->accept(this);
             end_scope();
         }
-        void SemanticAnalyzer::visitDoWhileStmt(AST::DoWhileStmt *stmt)
-        {
-            if (stmt->body)
-                stmt->body->accept(this);
-            if (stmt->condition)
-                stmt->condition->accept(this);
-        }
         void SemanticAnalyzer::visitFunctionDeclStmt(AST::FunctionDeclStmt *stmt)
         {
             // Kiểm tra trùng tên hàm với biến toàn cục (scope ngoài cùng)
@@ -712,11 +707,38 @@ namespace Linh
 
         void SemanticAnalyzer::visitImportStmt(AST::ImportStmt *stmt)
         {
-            // Đảm bảo chỉ xử lý import module dạng: import module_name;
+            // Hỗ trợ 2 dạng đơn giản:\n            //   1. import module_name; (module search)\n            //   2. import \"path/to/file.li\"; (direct path)
             if (!stmt->module_name.lexeme.empty())
             {
                 std::string module_name = stmt->module_name.lexeme;
-                
+                // --- Case 2: import \"path/to/file\" ---
+                if (stmt->module_name.type == TokenType::STR)
+                {
+                    // Remove enclosing quotes if present
+                    if (!module_name.empty() && (module_name.front() == '"' || module_name.front() == '\''))
+                    {
+                        module_name = module_name.substr(1, module_name.size() - 2);
+                    }
+                    
+                    // Use ModuleManager to resolve and load the module
+                    auto& module_manager = Linh::Module::get_module_manager();
+                    bool success = module_manager.load_module(module_name, current_file_path);
+                    
+                    if (!success)
+                    {
+                        push_semantic_error(errors, stmt->module_name.line, stmt->module_name.column_start, "Cannot open module file: " + module_name);
+                        return;
+                    }
+                    
+                    // Get the loaded module and analyze it
+                    auto* module_info = module_manager.get_module_info(module_name);
+                    if (module_info && !module_info->parsed_statements.empty())
+                    {
+                        this->analyze(module_info->parsed_statements, false);
+                    }
+                    return;
+                }
+
                 // Check if it's a Std package first
                 if (Linh::Std::package_exists(module_name))
                 {
@@ -726,7 +748,15 @@ namespace Linh
                 }
                 
                 // Fall back to file-based module import
-                std::string module_path = "Li/" + module_name;
+                // Use current file's directory as base
+                std::string base_dir;
+                if (!current_file_path.empty()) {
+                    size_t last_slash = current_file_path.find_last_of("/\\");
+                    if (last_slash != std::string::npos) {
+                        base_dir = current_file_path.substr(0, last_slash + 1);
+                    }
+                }
+                std::string module_path = base_dir + module_name;
                 if (module_path.find(".li") == std::string::npos)
                     module_path += ".li";
                 std::ifstream mod_file(module_path);
@@ -751,21 +781,39 @@ namespace Linh
                 // Phân tích semantic cho module (không reset state để giữ lại các hàm/biến)
                 this->analyze(mod_ast, false);
 
-                // --- Sinh bytecode cho module và merge function table ---
-                Linh::BytecodeEmitter mod_emitter;
-                mod_emitter.emit(mod_ast);
-                // Giả sử bạn có một con trỏ emitter chính hoặc một biến toàn cục để merge
+                // --- Emit module and merge tables ---
                 if (g_main_emitter)
                 {
-                    auto &main_funcs = g_main_emitter->get_functions(); // non-const reference
+                    // Create separate emitter for module
+                    Linh::BytecodeEmitter mod_emitter;
+                    mod_emitter.emit(mod_ast);
+                    
+                    // Merge function table
+                    auto &main_funcs = g_main_emitter->get_functions();
                     for (const auto &kv : mod_emitter.get_functions())
                     {
-                        // Nếu chưa có trong main emitter thì thêm vào
                         if (main_funcs.count(kv.first) == 0)
                         {
-                            main_funcs.insert(kv);
+                            main_funcs[kv.first] = kv.second;
                         }
                     }
+                    
+                    // Merge variable table
+                    auto &main_vars = g_main_emitter->get_variables();
+                    for (const auto &kv : mod_emitter.get_variables())
+                    {
+                        main_vars[kv.first] = kv.second;
+                    }
+                    
+#ifdef _DEBUG
+                    std::cout << "[DEBUG] After module merge - Functions: " << main_funcs.size() << ", Variables: " << main_vars.size() << std::endl;
+                    for (const auto& kv : main_funcs) {
+                        std::cout << "[DEBUG] Module function: " << kv.first << std::endl;
+                    }
+                    for (const auto& kv : main_vars) {
+                        std::cout << "[DEBUG] Module variable: " << kv.first << std::endl;
+                    }
+#endif
                 }
                 // --- Kết thúc merge ---
             }
@@ -1231,6 +1279,20 @@ namespace Linh
             if (!expr)
                 return false;
             return dynamic_cast<AST::UninitLiteralExpr *>(expr.get()) != nullptr;
+        }
+
+        void SemanticAnalyzer::visitExportStmt(AST::ExportStmt *stmt)
+        {
+            // Analyze the exported declaration
+            if (stmt->declaration)
+            {
+                stmt->declaration->accept(this);
+            }
+        }
+
+        void SemanticAnalyzer::set_current_file_path(const std::string& path)
+        {
+            current_file_path = path;
         }
 
         // Semantic error retrieval

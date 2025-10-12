@@ -1,15 +1,17 @@
-#include "Lexer.hpp"
+#include "LinhC/Parsing/Lexer/Lexer.hpp"
 #include <iostream>
 #include <utility>
 #include <stdexcept>
 #include <cctype>
 #include <string>
 #include <limits>
+#include <locale>
+#include <codecvt>
 
 namespace Linh
 {
     const std::unordered_map<std::string, TokenType> Lexer::s_keywords = {
-        {"var", TokenType::VAR_KW}, {"vas", TokenType::VAS_KW}, {"const", TokenType::CONST_KW}, {"if", TokenType::IF_KW}, {"else", TokenType::ELSE_KW}, {"for", TokenType::FOR_KW}, {"while", TokenType::WHILE_KW}, {"func", TokenType::FUNC_KW}, {"return", TokenType::RETURN_KW}, {"true", TokenType::TRUE_KW}, {"false", TokenType::FALSE_KW}, {"int", TokenType::INT_KW}, {"uint", TokenType::UINT_KW}, {"str", TokenType::STR_KW}, {"bool", TokenType::BOOL_KW}, {"float", TokenType::FLOAT_KW}, {"map", TokenType::MAP_KW}, {"array", TokenType::ARRAY_KW}, {"void", TokenType::VOID_KW}, {"any", TokenType::ANY_KW}, {"print", TokenType::PRINT_KW}, {"break", TokenType::BREAK_KW}, {"continue", TokenType::CONTINUE_KW}, {"skip", TokenType::SKIP_KW}, {"switch", TokenType::SWITCH_KW}, {"case", TokenType::CASE_KW}, {"default", TokenType::DEFAULT_KW}, {"other", TokenType::OTHER_KW}, {"type", TokenType::TYPE_KW}, {"sol", TokenType::SOL_KW}, {"is", TokenType::IS_KW}, {"not", TokenType::NOT_KW}, {"and", TokenType::AND_KW}, {"or", TokenType::OR_KW}, {"do", TokenType::DO_KW}, {"new", TokenType::NEW_KW}, {"delete", TokenType::DELETE_KW}, {"this", TokenType::THIS_KW}, {"throw", TokenType::THROW_KW}, {"try", TokenType::TRY_KW}, {"catch", TokenType::CATCH_KW}, {"finally", TokenType::FINALLY_KW}, {"import", TokenType::IMPORT_KW}, {"from", TokenType::FROM_KW},
+        {"var", TokenType::VAR_KW}, {"vas", TokenType::VAS_KW}, {"const", TokenType::CONST_KW}, {"if", TokenType::IF_KW}, {"else", TokenType::ELSE_KW}, {"for", TokenType::FOR_KW}, {"while", TokenType::WHILE_KW}, {"func", TokenType::FUNC_KW}, {"return", TokenType::RETURN_KW}, {"true", TokenType::TRUE_KW}, {"false", TokenType::FALSE_KW}, {"int", TokenType::INT_KW}, {"uint", TokenType::UINT_KW}, {"str", TokenType::STR_KW}, {"bool", TokenType::BOOL_KW}, {"float", TokenType::FLOAT_KW}, {"map", TokenType::MAP_KW}, {"array", TokenType::ARRAY_KW}, {"void", TokenType::VOID_KW}, {"any", TokenType::ANY_KW}, {"print", TokenType::PRINT_KW}, {"break", TokenType::BREAK_KW}, {"continue", TokenType::CONTINUE_KW}, {"skip", TokenType::SKIP_KW}, {"switch", TokenType::SWITCH_KW}, {"case", TokenType::CASE_KW}, {"default", TokenType::DEFAULT_KW}, {"other", TokenType::OTHER_KW}, {"type", TokenType::TYPE_KW}, {"sol", TokenType::SOL_KW}, {"is", TokenType::IS_KW}, {"not", TokenType::NOT_KW}, {"and", TokenType::AND_KW}, {"or", TokenType::OR_KW}, {"new", TokenType::NEW_KW}, {"delete", TokenType::DELETE_KW}, {"this", TokenType::THIS_KW}, {"throw", TokenType::THROW_KW}, {"try", TokenType::TRY_KW}, {"catch", TokenType::CATCH_KW}, {"finally", TokenType::FINALLY_KW}, {"import", TokenType::IMPORT_KW}, {"export", TokenType::EXPORT_KW}, {"from", TokenType::FROM_KW},
         {"byte", TokenType::BYTE_KW},
         {"int8", TokenType::INT8_KW},
         {"int16", TokenType::INT16_KW},
@@ -201,8 +203,6 @@ namespace Linh
             return "AND_KW";
         case TokenType::OR_KW:
             return "OR_KW";
-        case TokenType::DO_KW:
-            return "DO_KW";
         case TokenType::NEW_KW:
             return "NEW_KW";
         case TokenType::DELETE_KW:
@@ -219,6 +219,8 @@ namespace Linh
             return "FINALLY_KW";
         case TokenType::IMPORT_KW:
             return "IMPORT_KW";
+        case TokenType::EXPORT_KW:
+            return "EXPORT_KW";
         case TokenType::FROM_KW:
             return "FROM_KW";
         case TokenType::BYTE_KW:
@@ -512,16 +514,41 @@ namespace Linh
             }
             return;
         }
-        while (isdigit(peek()))
+        while (peek() >= '0' && peek() <= '9')
             advance();
         bool is_float = false;
-        if (peek() == '.' && isdigit(peek_next()))
+        if (peek() == '.' && (peek_next() >= '0' && peek_next() <= '9'))
         {
             is_float = true;
             advance();
-            while (isdigit(peek()))
+            while (peek() >= '0' && peek() <= '9')
                 advance();
         }
+        
+        // Xử lý ký pháp khoa học (E/e notation)
+        if (peek() == 'e' || peek() == 'E')
+        {
+            is_float = true;
+            advance(); // consume 'e' or 'E'
+            
+            // Kiểm tra dấu + hoặc - sau E
+            if (peek() == '+' || peek() == '-')
+                advance();
+            
+            // Phải có ít nhất một chữ số sau E
+            if (!(peek() >= '0' && peek() <= '9'))
+            {
+                m_tokens.emplace_back(TokenType::ERROR, 
+                    m_source.substr(m_start_lexeme, m_current_pos - m_start_lexeme),
+                    "Invalid exponent in scientific notation", start_line, start_col);
+                return;
+            }
+            
+            // Đọc các chữ số của exponent
+            while (peek() >= '0' && peek() <= '9')
+                advance();
+        }
+        
         std::string num_str = m_source.substr(m_start_lexeme, m_current_pos - m_start_lexeme);
         // Kiểm tra hậu tố u/U cho uint
         bool is_uint = false;
@@ -549,7 +576,7 @@ namespace Linh
     }
     void Lexer::handle_identifier(int start_line, int start_col)
     {
-        while (isalnum(peek()) || peek() == '_')
+        while (is_utf8_alnum(peek()) || peek() == '_')
             advance();
         std::string text = m_source.substr(m_start_lexeme, m_current_pos - m_start_lexeme);
         auto it = s_keywords.find(text);
@@ -725,9 +752,9 @@ namespace Linh
                 handle_string_literal(c, lexeme_start_line, lexeme_start_col);
                 break;
             default:
-                if (isdigit(c))
+                if (c >= '0' && c <= '9')
                     handle_number_literal(lexeme_start_line, lexeme_start_col);
-                else if (isalpha(c) || c == '_')
+                else if (is_utf8_start_char(c))
                     handle_identifier(lexeme_start_line, lexeme_start_col);
                 else
                     m_tokens.emplace_back(TokenType::ERROR, std::string(1, c), "Unexpected character.", lexeme_start_line, lexeme_start_col);
@@ -737,5 +764,43 @@ namespace Linh
         m_current_col_scan = 1;
         m_tokens.emplace_back(TokenType::END_OF_FILE, "", std::monostate{}, m_current_line, m_current_col_scan);
         return m_tokens;
+    }
+
+    // UTF-8 helper functions
+    bool Lexer::is_utf8_alpha(char c) const
+    {
+        // ASCII letters
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+            return true;
+        }
+        
+        // UTF-8 multi-byte characters (simplified check)
+        // Check if it's a UTF-8 start byte (high bit set)
+        unsigned char uc = static_cast<unsigned char>(c);
+        return (uc >= 0x80); // Any non-ASCII character is considered alphabetic
+    }
+
+    bool Lexer::is_utf8_alnum(char c) const
+    {
+        // ASCII alphanumeric (safe check without isalnum)
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+            return true;
+        }
+        
+        // UTF-8 multi-byte characters
+        unsigned char uc = static_cast<unsigned char>(c);
+        return (uc >= 0x80); // Any non-ASCII character is considered alphanumeric
+    }
+
+    bool Lexer::is_utf8_start_char(char c) const
+    {
+        // ASCII letters and underscore
+        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_') {
+            return true;
+        }
+        
+        // UTF-8 multi-byte characters
+        unsigned char uc = static_cast<unsigned char>(c);
+        return (uc >= 0x80); // Any non-ASCII character can start an identifier
     }
 } // namespace Linh

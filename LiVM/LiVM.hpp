@@ -1,6 +1,6 @@
 #pragma once
-#include "../LinhC/Bytecode/Bytecode.hpp"
-#include "Value/Value.hpp"
+#include "LinhC/Bytecode/Bytecode.hpp"
+#include "LiVM/Variable/Value.hpp"
 #include <vector>
 #include <unordered_map>
 #include <string>
@@ -130,10 +130,16 @@ namespace Linh
         // Getter/setter cho biến toàn cục REPL
         const std::unordered_map<int, Value> &get_global_variables() const { return variables; }
         void set_global_variables(const std::unordered_map<int, Value> &vars) { variables = vars; }
+        
+        // Set exported variables from modules
+        void set_exported_variables(const std::unordered_map<std::string, Value> &exported_vars) {
+            exported_variables = exported_vars;
+        }
 
     private:
         std::vector<Value> stack;
         std::unordered_map<int, Value> variables;
+        std::unordered_map<std::string, Value> exported_variables; // Variables exported from modules
         size_t ip = 0; // instruction pointer
         
         // Optimization flags
@@ -155,6 +161,10 @@ namespace Linh
         static constexpr size_t STACK_RESERVE_SIZE = 1024;
         static constexpr size_t STACK_SHRINK_THRESHOLD = 512;
 
+    public:
+        // Module system support
+        std::string current_file_path;
+        std::string current_module_name;
         void push(const Value &val);
         Value pop();
         Value peek();

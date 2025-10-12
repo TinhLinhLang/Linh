@@ -78,6 +78,7 @@ namespace Linh
         AST::StmtPtr var_declaration(Token keyword_token);
         AST::StmtPtr function_declaration(Token func_keyword);
         AST::StmtPtr import_statement(); // <--- Thêm dòng này
+        AST::StmtPtr export_statement(); // export statement
         AST::StmtPtr statement();
         AST::StmtPtr print_statement();
         AST::StmtPtr if_statement();
@@ -87,7 +88,6 @@ namespace Linh
         AST::StmtPtr return_statement();
         AST::StmtPtr break_statement();
         AST::StmtPtr continue_statement();
-        AST::StmtPtr do_while_statement();
         AST::StmtPtr delete_statement();
         AST::StmtPtr throw_statement();
         AST::StmtPtr try_statement();

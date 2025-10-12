@@ -1,0 +1,11 @@
+// Test float formatting rules
+print(0.0)        // Should be: 0.0
+print(1.0)        // Should be: 1.0  
+print(2.5)        // Should be: 2.5
+print(1.00000)    // Should be: 1.0
+print(3.14159)    // Should be: 3.14159
+print(100000.0)   // Should be: 100000.0
+print(0.00001)    // Should be: 1e-05 (scientific notation)
+print(1e5)        // Should be: 100000 (scientific notation)
+print(1.23e4)     // Should be: 12300 (scientific notation)
+print(2.5e-3)     // Should be: 0.0025

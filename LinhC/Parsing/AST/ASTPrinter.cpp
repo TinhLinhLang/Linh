@@ -332,30 +332,6 @@ namespace Linh
             indent();
             m_builder << ")\n";
         }
-        void ASTPrinter::visitDoWhileStmt(DoWhileStmt *stmt)
-        {
-            indent();
-            m_builder << "(Do kw:" << stmt->keyword_do.lexeme << "\n";
-            m_indent_level++;
-            indent();
-            m_builder << "(Body\n";
-            m_indent_level++;
-            if (stmt->body)
-                stmt->body->accept(this);
-            else
-            {
-                indent();
-                m_builder << "(EmptyBody)\n";
-            }
-            m_indent_level--;
-            indent();
-            m_builder << ")\n";
-            m_indent_level--;
-            indent();
-            m_builder << "(WhileCond kw:" << stmt->keyword_while.lexeme << " " << print_expr(stmt->condition.get()) << ")\n";
-            indent();
-            m_builder << ")\n";
-        }
 
         void ASTPrinter::visitFunctionDeclStmt(FunctionDeclStmt *stmt)
         {

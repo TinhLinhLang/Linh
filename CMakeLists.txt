@@ -48,6 +48,8 @@ add_library(LinhLexerLib STATIC
 )
 target_include_directories(LinhLexerLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 
 # --- Định nghĩa thư viện AST (cho các node và printer) ---
@@ -56,7 +58,22 @@ add_library(LinhASTLib STATIC
     LinhC/Parsing/AST/ASTPrinter.cpp
 )
 target_include_directories(LinhASTLib PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR} # Để include ASTNode.hpp và Lexer.hpp (cho Token)
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
+)
+
+# --- Định nghĩa thư viện Module ---
+add_library(LinhModuleLib STATIC
+    LinhC/Module/ModuleManager.cpp
+)
+target_include_directories(LinhModuleLib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
+)
+target_link_libraries(LinhModuleLib
+    LinhLexerLib
 )
 
 # --- Định nghĩa thư viện Parser ---
@@ -68,7 +85,9 @@ add_library(LinhParserLib STATIC
     LinhC/Parsing/Parser/ParseType.cpp
 )
 target_include_directories(LinhParserLib PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR} # Để include Parser.hpp, ASTNode.hpp, Lexer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 
 # --- Định nghĩa thư viện SemanticAnalyzer ---
@@ -77,22 +96,26 @@ add_library(LinhSemanticLib STATIC
 )
 target_include_directories(LinhSemanticLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 
 # --- LiVM VM ---
 add_library(LiVMLib STATIC
     LiVM/LiVM.cpp
-    LiVM/type.cpp
-    LiVM/Loop.cpp
+    LiVM/Loop/Loop.cpp
     LiVM/Functional/Func.cpp
-    LiVM/iostream/iostream.cpp # Thêm dòng này để build iostream
+    LiVM/iostream/iostream.cpp
     LiVM/Math/Math.cpp
-    LiVM/Value/Value.cpp
+    LiVM/Variable/type.cpp
+    LiVM/Variable/Value.cpp
 )
 target_include_directories(LiVMLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
-target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson)
+target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson LinhModuleLib)
 
 # --- Std Package ---
 add_library(StdLib STATIC
@@ -106,6 +129,8 @@ add_library(StdLib STATIC
 )
 target_include_directories(StdLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 # Cần include path của simdjson khi compile StdLib
 target_link_libraries(StdLib PUBLIC simdjson::simdjson)
@@ -120,8 +145,13 @@ add_executable(LinhApp
     LinhC/Parsing/Semantic/SemanticAnalyzer.cpp
     LinhC/Parsing/AST/ASTPrinter.cpp
     LinhC/Bytecode/BytecodeEmitter.cpp
-    REPL.cpp
-    config.cpp # Thêm dòng này để link biến toàn cục
+    REPL/REPL.cpp
+    config/config.cpp # Thêm dòng này để link biến toàn cục
+)
+target_include_directories(LinhApp PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 target_link_libraries(LinhApp PRIVATE
     LinhLexerLib
@@ -135,8 +165,8 @@ target_link_libraries(LinhApp PRIVATE
 )
 
 if(WIN32)
-    set(RESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/appicon.rc")
-    set(ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Linh.ico")
+    set(RESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/appicon.rc")
+    set(ICON_FILE "${CMAKE_CURRENT_SOURCE_DIR}/resources/Linh.ico")
 
     if(EXISTS "${RESOURCE_FILE}" AND EXISTS "${ICON_FILE}")
         message(STATUS "Found Windows resource file: ${RESOURCE_FILE} and icon: ${ICON_FILE}")

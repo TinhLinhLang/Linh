@@ -1,5 +1,5 @@
 #include <fmt/format.h>
-#include "../type.hpp"
+#include "LiVM/Variable/type.hpp"
 
 namespace LinhIO
 {

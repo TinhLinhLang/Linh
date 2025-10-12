@@ -1,7 +1,0 @@
-vas a = 0;
-const b = 0;
-var c = 0;
-a = "hello";
-b = "world";
-c = a + b;
-print("a: &{a}, b: &{b}, c: &{c}");

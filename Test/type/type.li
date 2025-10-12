@@ -1,0 +1,6 @@
+print(int("123")) //int == int32
+print(float("3.14")) // float == float32
+print(uint(-5)) // uint == uint32
+print(str(456))
+print(bool(0))
+print(sol(12345)) // Luôn in ra sol

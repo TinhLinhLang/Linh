@@ -1,6 +1,0 @@
-print(int("123"))
-print(float("3.14"))
-print(str(456))
-print(bool(0))
-print(uint(-5))
-print(sol(12345)) // Luôn in ra sol

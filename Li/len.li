@@ -1,9 +1,0 @@
-var arr = [1,2,3]
-print(arr)
-print(len(arr))
-var m = {"x": 1, "y": 2}
-print(m)
-print(len(m))
-var s = "hello"
-print(s)
-print(len(s))

@@ -4,7 +4,7 @@
 #include <memory>
 #include <optional>
 #include <unordered_map>
-#include "LiVM/Value/Value.hpp"
+#include "LiVM/Variable/Value.hpp"
 
 // Forward declarations
 namespace Linh {

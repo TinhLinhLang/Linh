@@ -1,0 +1,6 @@
+export func hello(){
+    print("module hello đang chạy")
+    return "hello"
+}
+
+export var Model = "Hello"

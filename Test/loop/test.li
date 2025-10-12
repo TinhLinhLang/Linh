@@ -1,0 +1,10 @@
+for (var i = 0; i <= 10; i++) {
+  print("for")
+  print(i)
+}
+
+var j = true
+while(j){
+  print("while")
+  j = false
+}

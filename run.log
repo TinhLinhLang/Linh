@@ -1,0 +1,3180 @@
+--- Source Code Being Parsed ---
+// ===== COMPREHENSIVE TEST FOR LINH LANGUAGE =====
+// Test tất cả tính năng của ngôn ngữ Linh
+
+print("=== LINH LANGUAGE COMPREHENSIVE TEST ===")
+
+// ===== 1. VARIABLES & TYPES =====
+print("\n1. VARIABLES & TYPES")
+
+// Basic types
+var int_var = 42
+var uint_var = 100u
+var float_var = 3.14
+var str_var = "Hello Linh"
+var bool_var = true
+
+print("Integer:", int_var)
+print("Unsigned:", uint_var)
+print("Float:", float_var)
+print("String:", str_var)
+print("Boolean:", bool_var)
+
+// Type checking
+print("Type of int_var:", type(int_var))
+print("Type of float_var:", type(float_var))
+print("Type of str_var:", type(str_var))
+
+// ===== 2. SCIENTIFIC NOTATION =====
+print("\n2. SCIENTIFIC NOTATION")
+print("1e5 =", 1e5)
+print("2.5E-3 =", 2.5E-3)
+print("1.23e+4 =", 1.23e+4)
+
+// ===== 3. ARITHMETIC OPERATIONS =====
+print("\n3. ARITHMETIC OPERATIONS")
+var a = 10
+var b = 3
+print("a + b =", a + b)
+print("a - b =", a - b)
+print("a * b =", a * b)
+print("a / b =", a / b)
+print("a % b =", a % b)
+
+// Float arithmetic
+var x = 10.5
+var y = 2.5
+print("x + y =", x + y)
+print("x * y =", x * y)
+
+// ===== 4. COMPARISON OPERATIONS =====
+print("\n4. COMPARISON OPERATIONS")
+print("10 > 5 =", 10 > 5)
+print("10 < 5 =", 10 < 5)
+print("10 >= 10 =", 10 >= 10)
+print("10 <= 5 =", 10 <= 5)
+print("10 == 10 =", 10 == 10)
+print("10 != 5 =", 10 != 5)
+
+// ===== 5. LOGICAL OPERATIONS =====
+print("\n5. LOGICAL OPERATIONS")
+print("true and false =", true and false)
+print("true or false =", true or false)
+print("not true =", not true)
+
+// ===== 6. ARRAYS =====
+print("\n6. ARRAYS")
+var arr = [1, 2, 3, 4, 5]
+print("Original array:", arr)
+
+// Array methods
+arr.append(6)
+print("After append(6):", arr)
+
+arr.remove(3)
+print("After remove(3):", arr)
+
+print("Array length:", arr.len())
+
+// Array access
+print("First element:", arr[0])
+print("Last element:", arr[arr.len() - 1])
+
+// ===== 7. MAPS =====
+print("\n7. MAPS")
+var my_map = {"name": "Linh", "version": "0.017", "type": "language"}
+print("Original map:", my_map)
+
+// Map methods
+my_map.delete("version")
+print("After delete('version'):", my_map)
+
+var keys = my_map.keys()
+print("Map keys:", keys)
+
+var values = my_map.values()
+print("Map values:", values)
+
+my_map.clear()
+print("After clear():", my_map)
+
+// ===== 8. CONTROL FLOW - IF/ELSE =====
+print("\n8. CONTROL FLOW - IF/ELSE")
+var score = 85
+
+if (score >= 90) {
+    print("Grade: A")
+} else if (score >= 80) {
+    print("Grade: B")
+} else if (score >= 70) {
+    print("Grade: C")
+} else {
+    print("Grade: F")
+}
+
+// ===== 9. LOOPS =====
+print("\n9. LOOPS")
+
+// For loop
+print("For loop (1 to 5):")
+for (var i = 1; i <= 5; i = i + 1) {
+    print("i =", i)
+}
+
+// While loop
+print("While loop countdown:")
+var countdown = 3
+while (countdown > 0) {
+    print("Countdown:", countdown)
+    countdown = countdown - 1
+}
+
+// ===== 10. FUNCTIONS =====
+print("\n10. FUNCTIONS")
+
+// Function definition
+func add(a, b) {
+    return a + b
+}
+
+func greet(name) {
+    return "Hello, " + name + "!"
+}
+
+func factorial(n) {
+    if (n <= 1) {
+        return 1
+    } else {
+        return n * factorial(n - 1)
+    }
+}
+
+// Function calls
+print("add(5, 3) =", add(5, 3))
+print("greet('Linh') =", greet("Linh"))
+print("factorial(5) =", factorial(5))
+
+// Anonymous functions
+var square = func(x) {
+    return x * x
+}
+print("square(4) =", square(4))
+
+// ===== 11. STRING OPERATIONS =====
+print("\n11. STRING OPERATIONS")
+var str1 = "Hello"
+var str2 = "World"
+print("String concatenation:", str1 + " " + str2)
+
+// String interpolation (if supported)
+var name = "Linh"
+var age = 1
+print("Interpolation test: Name is", name, "and age is", age)
+
+// ===== 12. TYPE CONVERSIONS =====
+print("\n12. TYPE CONVERSIONS")
+var num_str = "123"
+var str_num = 456
+print("String '123' as string:", num_str)
+print("Number 456 as number:", str_num)
+
+// ===== 13. NESTED STRUCTURES =====
+print("\n13. NESTED STRUCTURES")
+var nested_array = [[1, 2], [3, 4], [5, 6]]
+print("Nested array:", nested_array)
+
+var nested_map = {
+    "user": {
+        "name": "Admin",
+        "permissions": ["read", "write", "execute"]
+    },
+    "settings": {
+        "theme": "dark",
+        "language": "en"
+    }
+}
+print("Nested map:", nested_map)
+
+// ===== 14. ERROR HANDLING =====
+print("\n14. ERROR HANDLING")
+// Test division by zero
+var safe_div = func(a, b) {
+    if (b == 0) {
+        print("Error: Division by zero!")
+        return 0
+    } else {
+        return a / b
+    }
+}
+
+print("safe_div(10, 2) =", safe_div(10, 2))
+print("safe_div(10, 0) =", safe_div(10, 0))
+
+// ===== 15. ADVANCED FEATURES =====
+print("\n15. ADVANCED FEATURES")
+
+// Higher-order functions
+var apply_twice = func(f, x) {
+    return f(f(x))
+}
+
+var increment = func(x) {
+    return x + 1
+}
+
+print("apply_twice(increment, 5) =", apply_twice(increment, 5))
+
+// ===== 16. COMPLEX EXPRESSIONS =====
+print("\n16. COMPLEX EXPRESSIONS")
+var complex_result = (10 + 5) * 2 - 8 / 4 + 3 % 2
+print("Complex arithmetic:", complex_result)
+
+var logic_result = (true or false) and not (false and true)
+print("Complex logic:", logic_result)
+
+// ===== 17. PERFORMANCE TEST =====
+print("\n17. PERFORMANCE TEST")
+var start_time = 0  // Placeholder for timing
+var sum = 0
+for (var i = 1; i <= 1000; i = i + 1) {
+    sum = sum + i
+}
+print("Sum of 1 to 1000:", sum)
+
+// ===== FINAL MESSAGE =====
+print("\n=== COMPREHENSIVE TEST COMPLETED ===")
+print("All major language features tested!")
+print("Linh language is working correctly! 🎉")
+
+--------------------------------
+PARSER_INIT: Parser initialized with 989 tokens.
+PARSER_INIT: First token: 'print' (Type: PRINT_KW, Line: 4, Col: 1)
+PARSER_INIT: Last token: 'EOF' (Type: EOF, Line: 247, Col: 1)
+[DEBUG] Found DOT token, next token: append (type: 41)
+[DEBUG] MemberExpr created with property: append
+[DEBUG] Found DOT token, next token: remove (type: 41)
+[DEBUG] MemberExpr created with property: remove
+[DEBUG] Found DOT token, next token: len (type: 41)
+[DEBUG] MemberExpr created with property: len
+[DEBUG] Found DOT token, next token: len (type: 41)
+[DEBUG] MemberExpr created with property: len
+[DEBUG] Found DOT token, next token: delete (type: 86)
+[DEBUG] MemberExpr created with property: delete
+[DEBUG] Found DOT token, next token: keys (type: 41)
+[DEBUG] MemberExpr created with property: keys
+[DEBUG] Found DOT token, next token: values (type: 41)
+[DEBUG] MemberExpr created with property: values
+[DEBUG] Found DOT token, next token: clear (type: 41)
+[DEBUG] MemberExpr created with property: clear
+[DEBUG] BytecodeEmitter::append_emit: processing 119 statements
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitAssignmentExpr: name=i
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitAssignmentExpr: name=countdown
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitFunctionDeclStmt: function body has 4 instructions
+[DEBUG] Function add body[0]: 29
+[DEBUG] Function add body[1]: 29
+[DEBUG] Function add body[2]: 9
+[DEBUG] Function add body[3]: 35
+[DEBUG] visitFunctionDeclStmt: creating function object for add
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitFunctionDeclStmt: function body has 6 instructions
+[DEBUG] Function greet body[0]: 4
+[DEBUG] Function greet body[1]: 29
+[DEBUG] Function greet body[2]: 9
+[DEBUG] Function greet body[3]: 4
+[DEBUG] Function greet body[4]: 9
+[DEBUG] Function greet body[5]: 35
+[DEBUG] visitFunctionDeclStmt: creating function object for greet
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitFunctionDeclStmt: function body has 16 instructions
+[DEBUG] Function factorial body[0]: 29
+[DEBUG] Function factorial body[1]: 1
+[DEBUG] Function factorial body[2]: 27
+[DEBUG] Function factorial body[3]: 32
+[DEBUG] Function factorial body[4]: 1
+[DEBUG] Function factorial body[5]: 35
+[DEBUG] Function factorial body[6]: 31
+[DEBUG] Function factorial body[7]: 29
+[DEBUG] Function factorial body[8]: 29
+[DEBUG] Function factorial body[9]: 1
+[DEBUG] Function factorial body[10]: 10
+[DEBUG] Function factorial body[11]: 29
+[DEBUG] Function factorial body[12]: 7
+[DEBUG] Function factorial body[13]: 34
+[DEBUG] Function factorial body[14]: 11
+[DEBUG] Function factorial body[15]: 35
+[DEBUG] visitFunctionDeclStmt: creating function object for factorial
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] visitAssignmentExpr: name=sum
+[DEBUG] visitAssignmentExpr: name=i
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+
+--- Function Table After Import Merge ---
+Function: add, param_count: 2
+Function: greet, param_count: 1
+Function: factorial, param_count: 1
+------------------------------------------
+[DEBUG] VM::run() started with 575 instructions
+=== VM Bytecode Dump ===
+[0] OpCode: 4 (PUSH_STR), Operand: === LINH LANGUAGE COMPREHENSIVE TEST ===
+[1] OpCode: 40 (PRINT), Operand: 0
+[2] OpCode: 4 (PUSH_STR), Operand: 
+1. VARIABLES & TYPES
+[3] OpCode: 40 (PRINT), Operand: 0
+[4] OpCode: 1 (PUSH_INT), Operand: 42
+[5] OpCode: 30 (STORE_VAR), Operand: 0
+[6] OpCode: 2 (PUSH_UINT), Operand: (tuple/other)
+[7] OpCode: 30 (STORE_VAR), Operand: 1
+[8] OpCode: 3 (PUSH_FLOAT), Operand: 3.14
+[9] OpCode: 30 (STORE_VAR), Operand: 2
+[10] OpCode: 4 (PUSH_STR), Operand: Hello Linh
+[11] OpCode: 30 (STORE_VAR), Operand: 3
+[12] OpCode: 5 (PUSH_BOOL), Operand: true
+[13] OpCode: 30 (STORE_VAR), Operand: 4
+[14] OpCode: 4 (PUSH_STR), Operand: Integer:
+[15] OpCode: 29 (LOAD_VAR), Operand: 0
+[16] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[17] OpCode: 4 (PUSH_STR), Operand: Unsigned:
+[18] OpCode: 29 (LOAD_VAR), Operand: 1
+[19] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[20] OpCode: 4 (PUSH_STR), Operand: Float:
+[21] OpCode: 29 (LOAD_VAR), Operand: 2
+[22] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[23] OpCode: 4 (PUSH_STR), Operand: String:
+[24] OpCode: 29 (LOAD_VAR), Operand: 3
+[25] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[26] OpCode: 4 (PUSH_STR), Operand: Boolean:
+[27] OpCode: 29 (LOAD_VAR), Operand: 4
+[28] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[29] OpCode: 4 (PUSH_STR), Operand: Type of int_var:
+[30] OpCode: 29 (LOAD_VAR), Operand: 0
+[31] OpCode: 43 (TYPEOF), Operand: 0
+[32] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[33] OpCode: 4 (PUSH_STR), Operand: Type of float_var:
+[34] OpCode: 29 (LOAD_VAR), Operand: 2
+[35] OpCode: 43 (TYPEOF), Operand: 0
+[36] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[37] OpCode: 4 (PUSH_STR), Operand: Type of str_var:
+[38] OpCode: 29 (LOAD_VAR), Operand: 3
+[39] OpCode: 43 (TYPEOF), Operand: 0
+[40] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[41] OpCode: 4 (PUSH_STR), Operand: 
+2. SCIENTIFIC NOTATION
+[42] OpCode: 40 (PRINT), Operand: 0
+[43] OpCode: 4 (PUSH_STR), Operand: 1e5 =
+[44] OpCode: 3 (PUSH_FLOAT), Operand: 100000
+[45] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[46] OpCode: 4 (PUSH_STR), Operand: 2.5E-3 =
+[47] OpCode: 3 (PUSH_FLOAT), Operand: 0.0025
+[48] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[49] OpCode: 4 (PUSH_STR), Operand: 1.23e+4 =
+[50] OpCode: 3 (PUSH_FLOAT), Operand: 12300
+[51] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[52] OpCode: 4 (PUSH_STR), Operand: 
+3. ARITHMETIC OPERATIONS
+[53] OpCode: 40 (PRINT), Operand: 0
+[54] OpCode: 1 (PUSH_INT), Operand: 10
+[55] OpCode: 30 (STORE_VAR), Operand: 5
+[56] OpCode: 1 (PUSH_INT), Operand: 3
+[57] OpCode: 30 (STORE_VAR), Operand: 6
+[58] OpCode: 4 (PUSH_STR), Operand: a + b =
+[59] OpCode: 29 (LOAD_VAR), Operand: 5
+[60] OpCode: 29 (LOAD_VAR), Operand: 6
+[61] OpCode: 9 (ADD), Operand: 0
+[62] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[63] OpCode: 4 (PUSH_STR), Operand: a - b =
+[64] OpCode: 29 (LOAD_VAR), Operand: 5
+[65] OpCode: 29 (LOAD_VAR), Operand: 6
+[66] OpCode: 10 (SUB), Operand: 0
+[67] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[68] OpCode: 4 (PUSH_STR), Operand: a * b =
+[69] OpCode: 29 (LOAD_VAR), Operand: 5
+[70] OpCode: 29 (LOAD_VAR), Operand: 6
+[71] OpCode: 11 (MUL), Operand: 0
+[72] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[73] OpCode: 4 (PUSH_STR), Operand: a / b =
+[74] OpCode: 29 (LOAD_VAR), Operand: 5
+[75] OpCode: 29 (LOAD_VAR), Operand: 6
+[76] OpCode: 12 (DIV), Operand: 0
+[77] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[78] OpCode: 4 (PUSH_STR), Operand: a % b =
+[79] OpCode: 29 (LOAD_VAR), Operand: 5
+[80] OpCode: 29 (LOAD_VAR), Operand: 6
+[81] OpCode: 13 (MOD), Operand: 0
+[82] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[83] OpCode: 3 (PUSH_FLOAT), Operand: 10.5
+[84] OpCode: 30 (STORE_VAR), Operand: 7
+[85] OpCode: 3 (PUSH_FLOAT), Operand: 2.5
+[86] OpCode: 30 (STORE_VAR), Operand: 8
+[87] OpCode: 4 (PUSH_STR), Operand: x + y =
+[88] OpCode: 29 (LOAD_VAR), Operand: 7
+[89] OpCode: 29 (LOAD_VAR), Operand: 8
+[90] OpCode: 9 (ADD), Operand: 0
+[91] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[92] OpCode: 4 (PUSH_STR), Operand: x * y =
+[93] OpCode: 29 (LOAD_VAR), Operand: 7
+[94] OpCode: 29 (LOAD_VAR), Operand: 8
+[95] OpCode: 11 (MUL), Operand: 0
+[96] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[97] OpCode: 4 (PUSH_STR), Operand: 
+4. COMPARISON OPERATIONS
+[98] OpCode: 40 (PRINT), Operand: 0
+[99] OpCode: 4 (PUSH_STR), Operand: 10 > 5 =
+[100] OpCode: 5 (PUSH_BOOL), Operand: true
+[101] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[102] OpCode: 4 (PUSH_STR), Operand: 10 < 5 =
+[103] OpCode: 5 (PUSH_BOOL), Operand: false
+[104] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[105] OpCode: 4 (PUSH_STR), Operand: 10 >= 10 =
+[106] OpCode: 1 (PUSH_INT), Operand: 10
+[107] OpCode: 1 (PUSH_INT), Operand: 10
+[108] OpCode: 28 (GTE), Operand: 0
+[109] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[110] OpCode: 4 (PUSH_STR), Operand: 10 <= 5 =
+[111] OpCode: 1 (PUSH_INT), Operand: 10
+[112] OpCode: 1 (PUSH_INT), Operand: 5
+[113] OpCode: 27 (LTE), Operand: 0
+[114] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[115] OpCode: 4 (PUSH_STR), Operand: 10 == 10 =
+[116] OpCode: 5 (PUSH_BOOL), Operand: true
+[117] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[118] OpCode: 4 (PUSH_STR), Operand: 10 != 5 =
+[119] OpCode: 5 (PUSH_BOOL), Operand: true
+[120] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[121] OpCode: 4 (PUSH_STR), Operand: 
+5. LOGICAL OPERATIONS
+[122] OpCode: 40 (PRINT), Operand: 0
+[123] OpCode: 4 (PUSH_STR), Operand: true and false =
+[124] OpCode: 5 (PUSH_BOOL), Operand: true
+[125] OpCode: 5 (PUSH_BOOL), Operand: false
+[126] OpCode: 20 (AND), Operand: 0
+[127] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[128] OpCode: 4 (PUSH_STR), Operand: true or false =
+[129] OpCode: 5 (PUSH_BOOL), Operand: true
+[130] OpCode: 5 (PUSH_BOOL), Operand: false
+[131] OpCode: 21 (OR), Operand: 0
+[132] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[133] OpCode: 4 (PUSH_STR), Operand: not true =
+[134] OpCode: 5 (PUSH_BOOL), Operand: false
+[135] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[136] OpCode: 4 (PUSH_STR), Operand: 
+6. ARRAYS
+[137] OpCode: 40 (PRINT), Operand: 0
+[138] OpCode: 1 (PUSH_INT), Operand: 1
+[139] OpCode: 1 (PUSH_INT), Operand: 2
+[140] OpCode: 1 (PUSH_INT), Operand: 3
+[141] OpCode: 1 (PUSH_INT), Operand: 4
+[142] OpCode: 1 (PUSH_INT), Operand: 5
+[143] OpCode: 46 (PUSH_ARRAY), Operand: 5
+[144] OpCode: 30 (STORE_VAR), Operand: 9
+[145] OpCode: 4 (PUSH_STR), Operand: Original array:
+[146] OpCode: 29 (LOAD_VAR), Operand: 9
+[147] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[148] OpCode: 29 (LOAD_VAR), Operand: 9
+[149] OpCode: 1 (PUSH_INT), Operand: 6
+[150] OpCode: 53 (ARRAY_APPEND), Operand: 0
+[151] OpCode: 6 (POP), Operand: 0
+[152] OpCode: 4 (PUSH_STR), Operand: After append(6):
+[153] OpCode: 29 (LOAD_VAR), Operand: 9
+[154] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[155] OpCode: 29 (LOAD_VAR), Operand: 9
+[156] OpCode: 1 (PUSH_INT), Operand: 3
+[157] OpCode: 54 (ARRAY_REMOVE), Operand: 0
+[158] OpCode: 6 (POP), Operand: 0
+[159] OpCode: 4 (PUSH_STR), Operand: After remove(3):
+[160] OpCode: 29 (LOAD_VAR), Operand: 9
+[161] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[162] OpCode: 4 (PUSH_STR), Operand: Array length:
+[163] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[164] OpCode: 4 (PUSH_STR), Operand: First element:
+[165] OpCode: 29 (LOAD_VAR), Operand: 9
+[166] OpCode: 1 (PUSH_INT), Operand: 0
+[167] OpCode: 48 (ARRAY_GET), Operand: 0
+[168] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[169] OpCode: 4 (PUSH_STR), Operand: Last element:
+[170] OpCode: 29 (LOAD_VAR), Operand: 9
+[171] OpCode: 1 (PUSH_INT), Operand: 1
+[172] OpCode: 10 (SUB), Operand: 0
+[173] OpCode: 48 (ARRAY_GET), Operand: 0
+[174] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[175] OpCode: 4 (PUSH_STR), Operand: 
+7. MAPS
+[176] OpCode: 40 (PRINT), Operand: 0
+[177] OpCode: 4 (PUSH_STR), Operand: name
+[178] OpCode: 4 (PUSH_STR), Operand: Linh
+[179] OpCode: 4 (PUSH_STR), Operand: version
+[180] OpCode: 4 (PUSH_STR), Operand: 0.017
+[181] OpCode: 4 (PUSH_STR), Operand: type
+[182] OpCode: 4 (PUSH_STR), Operand: language
+[183] OpCode: 47 (PUSH_MAP), Operand: 3
+[184] OpCode: 30 (STORE_VAR), Operand: 10
+[185] OpCode: 4 (PUSH_STR), Operand: Original map:
+[186] OpCode: 29 (LOAD_VAR), Operand: 10
+[187] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[188] OpCode: 29 (LOAD_VAR), Operand: 10
+[189] OpCode: 4 (PUSH_STR), Operand: version
+[190] OpCode: 60 (MAP_DELETE), Operand: 0
+[191] OpCode: 6 (POP), Operand: 0
+[192] OpCode: 4 (PUSH_STR), Operand: After delete('version'):
+[193] OpCode: 29 (LOAD_VAR), Operand: 10
+[194] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[195] OpCode: 29 (LOAD_VAR), Operand: 10
+[196] OpCode: 58 (MAP_KEYS), Operand: 0
+[197] OpCode: 30 (STORE_VAR), Operand: 11
+[198] OpCode: 4 (PUSH_STR), Operand: Map keys:
+[199] OpCode: 29 (LOAD_VAR), Operand: 11
+[200] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[201] OpCode: 29 (LOAD_VAR), Operand: 10
+[202] OpCode: 59 (MAP_VALUES), Operand: 0
+[203] OpCode: 30 (STORE_VAR), Operand: 12
+[204] OpCode: 4 (PUSH_STR), Operand: Map values:
+[205] OpCode: 29 (LOAD_VAR), Operand: 12
+[206] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[207] OpCode: 29 (LOAD_VAR), Operand: 10
+[208] OpCode: 55 (ARRAY_CLEAR), Operand: 0
+[209] OpCode: 6 (POP), Operand: 0
+[210] OpCode: 4 (PUSH_STR), Operand: After clear():
+[211] OpCode: 29 (LOAD_VAR), Operand: 10
+[212] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[213] OpCode: 4 (PUSH_STR), Operand: 
+8. CONTROL FLOW - IF/ELSE
+[214] OpCode: 40 (PRINT), Operand: 0
+[215] OpCode: 1 (PUSH_INT), Operand: 85
+[216] OpCode: 30 (STORE_VAR), Operand: 13
+[217] OpCode: 29 (LOAD_VAR), Operand: 13
+[218] OpCode: 1 (PUSH_INT), Operand: 90
+[219] OpCode: 28 (GTE), Operand: 0
+[220] OpCode: 32 (JMP_IF_FALSE), Operand: 224
+[221] OpCode: 4 (PUSH_STR), Operand: Grade: A
+[222] OpCode: 40 (PRINT), Operand: 0
+[223] OpCode: 31 (JMP), Operand: 240
+[224] OpCode: 29 (LOAD_VAR), Operand: 13
+[225] OpCode: 1 (PUSH_INT), Operand: 80
+[226] OpCode: 28 (GTE), Operand: 0
+[227] OpCode: 32 (JMP_IF_FALSE), Operand: 231
+[228] OpCode: 4 (PUSH_STR), Operand: Grade: B
+[229] OpCode: 40 (PRINT), Operand: 0
+[230] OpCode: 31 (JMP), Operand: 240
+[231] OpCode: 29 (LOAD_VAR), Operand: 13
+[232] OpCode: 1 (PUSH_INT), Operand: 70
+[233] OpCode: 28 (GTE), Operand: 0
+[234] OpCode: 32 (JMP_IF_FALSE), Operand: 238
+[235] OpCode: 4 (PUSH_STR), Operand: Grade: C
+[236] OpCode: 40 (PRINT), Operand: 0
+[237] OpCode: 31 (JMP), Operand: 240
+[238] OpCode: 4 (PUSH_STR), Operand: Grade: F
+[239] OpCode: 40 (PRINT), Operand: 0
+[240] OpCode: 4 (PUSH_STR), Operand: 
+9. LOOPS
+[241] OpCode: 40 (PRINT), Operand: 0
+[242] OpCode: 4 (PUSH_STR), Operand: For loop (1 to 5):
+[243] OpCode: 40 (PRINT), Operand: 0
+[244] OpCode: 1 (PUSH_INT), Operand: 1
+[245] OpCode: 30 (STORE_VAR), Operand: 14
+[246] OpCode: 29 (LOAD_VAR), Operand: 14
+[247] OpCode: 1 (PUSH_INT), Operand: 5
+[248] OpCode: 27 (LTE), Operand: 0
+[249] OpCode: 32 (JMP_IF_FALSE), Operand: 258
+[250] OpCode: 4 (PUSH_STR), Operand: i =
+[251] OpCode: 29 (LOAD_VAR), Operand: 14
+[252] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[253] OpCode: 29 (LOAD_VAR), Operand: 14
+[254] OpCode: 1 (PUSH_INT), Operand: 1
+[255] OpCode: 9 (ADD), Operand: 0
+[256] OpCode: 30 (STORE_VAR), Operand: 14
+[257] OpCode: 31 (JMP), Operand: 246
+[258] OpCode: 4 (PUSH_STR), Operand: While loop countdown:
+[259] OpCode: 40 (PRINT), Operand: 0
+[260] OpCode: 1 (PUSH_INT), Operand: 3
+[261] OpCode: 30 (STORE_VAR), Operand: 15
+[262] OpCode: 29 (LOAD_VAR), Operand: 15
+[263] OpCode: 1 (PUSH_INT), Operand: 0
+[264] OpCode: 26 (GT), Operand: 0
+[265] OpCode: 32 (JMP_IF_FALSE), Operand: 274
+[266] OpCode: 4 (PUSH_STR), Operand: Countdown:
+[267] OpCode: 29 (LOAD_VAR), Operand: 15
+[268] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[269] OpCode: 29 (LOAD_VAR), Operand: 15
+[270] OpCode: 1 (PUSH_INT), Operand: 1
+[271] OpCode: 10 (SUB), Operand: 0
+[272] OpCode: 30 (STORE_VAR), Operand: 15
+[273] OpCode: 31 (JMP), Operand: 262
+[274] OpCode: 4 (PUSH_STR), Operand: 
+10. FUNCTIONS
+[275] OpCode: 40 (PRINT), Operand: 0
+[276] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[277] OpCode: 30 (STORE_VAR), Operand: 16
+[278] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[279] OpCode: 30 (STORE_VAR), Operand: 17
+[280] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[281] OpCode: 30 (STORE_VAR), Operand: 18
+[282] OpCode: 4 (PUSH_STR), Operand: add(5, 3) =
+[283] OpCode: 1 (PUSH_INT), Operand: 5
+[284] OpCode: 1 (PUSH_INT), Operand: 3
+[285] OpCode: 29 (LOAD_VAR), Operand: 16
+[286] OpCode: 34 (CALL), Operand: add
+[287] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[288] OpCode: 4 (PUSH_STR), Operand: greet('Linh') =
+[289] OpCode: 4 (PUSH_STR), Operand: Linh
+[290] OpCode: 29 (LOAD_VAR), Operand: 17
+[291] OpCode: 34 (CALL), Operand: greet
+[292] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[293] OpCode: 4 (PUSH_STR), Operand: factorial(5) =
+[294] OpCode: 1 (PUSH_INT), Operand: 5
+[295] OpCode: 29 (LOAD_VAR), Operand: 18
+[296] OpCode: 34 (CALL), Operand: factorial
+[297] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[298] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[299] OpCode: 38 (CAPTURE_VAR), Operand: arr
+[300] OpCode: 38 (CAPTURE_VAR), Operand: int_var
+[301] OpCode: 38 (CAPTURE_VAR), Operand: uint_var
+[302] OpCode: 38 (CAPTURE_VAR), Operand: x
+[303] OpCode: 38 (CAPTURE_VAR), Operand: float_var
+[304] OpCode: 38 (CAPTURE_VAR), Operand: bool_var
+[305] OpCode: 38 (CAPTURE_VAR), Operand: square
+[306] OpCode: 38 (CAPTURE_VAR), Operand: str_var
+[307] OpCode: 38 (CAPTURE_VAR), Operand: a
+[308] OpCode: 38 (CAPTURE_VAR), Operand: b
+[309] OpCode: 38 (CAPTURE_VAR), Operand: y
+[310] OpCode: 38 (CAPTURE_VAR), Operand: add
+[311] OpCode: 38 (CAPTURE_VAR), Operand: my_map
+[312] OpCode: 38 (CAPTURE_VAR), Operand: keys
+[313] OpCode: 38 (CAPTURE_VAR), Operand: values
+[314] OpCode: 38 (CAPTURE_VAR), Operand: score
+[315] OpCode: 38 (CAPTURE_VAR), Operand: i
+[316] OpCode: 38 (CAPTURE_VAR), Operand: countdown
+[317] OpCode: 38 (CAPTURE_VAR), Operand: greet
+[318] OpCode: 38 (CAPTURE_VAR), Operand: factorial
+[319] OpCode: 37 (CREATE_CLOSURE), Operand: 0
+[320] OpCode: 30 (STORE_VAR), Operand: 19
+[321] OpCode: 4 (PUSH_STR), Operand: square(4) =
+[322] OpCode: 1 (PUSH_INT), Operand: 4
+[323] OpCode: 29 (LOAD_VAR), Operand: 19
+[324] OpCode: 34 (CALL), Operand: square
+[325] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[326] OpCode: 4 (PUSH_STR), Operand: 
+11. STRING OPERATIONS
+[327] OpCode: 40 (PRINT), Operand: 0
+[328] OpCode: 4 (PUSH_STR), Operand: Hello
+[329] OpCode: 30 (STORE_VAR), Operand: 20
+[330] OpCode: 4 (PUSH_STR), Operand: World
+[331] OpCode: 30 (STORE_VAR), Operand: 21
+[332] OpCode: 4 (PUSH_STR), Operand: String concatenation:
+[333] OpCode: 29 (LOAD_VAR), Operand: 20
+[334] OpCode: 4 (PUSH_STR), Operand:  
+[335] OpCode: 9 (ADD), Operand: 0
+[336] OpCode: 29 (LOAD_VAR), Operand: 21
+[337] OpCode: 9 (ADD), Operand: 0
+[338] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[339] OpCode: 4 (PUSH_STR), Operand: Linh
+[340] OpCode: 30 (STORE_VAR), Operand: 22
+[341] OpCode: 1 (PUSH_INT), Operand: 1
+[342] OpCode: 30 (STORE_VAR), Operand: 23
+[343] OpCode: 4 (PUSH_STR), Operand: Interpolation test: Name is
+[344] OpCode: 29 (LOAD_VAR), Operand: 22
+[345] OpCode: 4 (PUSH_STR), Operand: and age is
+[346] OpCode: 29 (LOAD_VAR), Operand: 23
+[347] OpCode: 41 (PRINT_MULTIPLE), Operand: 4
+[348] OpCode: 4 (PUSH_STR), Operand: 
+12. TYPE CONVERSIONS
+[349] OpCode: 40 (PRINT), Operand: 0
+[350] OpCode: 4 (PUSH_STR), Operand: 123
+[351] OpCode: 30 (STORE_VAR), Operand: 24
+[352] OpCode: 1 (PUSH_INT), Operand: 456
+[353] OpCode: 30 (STORE_VAR), Operand: 25
+[354] OpCode: 4 (PUSH_STR), Operand: String '123' as string:
+[355] OpCode: 29 (LOAD_VAR), Operand: 24
+[356] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[357] OpCode: 4 (PUSH_STR), Operand: Number 456 as number:
+[358] OpCode: 29 (LOAD_VAR), Operand: 25
+[359] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[360] OpCode: 4 (PUSH_STR), Operand: 
+13. NESTED STRUCTURES
+[361] OpCode: 40 (PRINT), Operand: 0
+[362] OpCode: 1 (PUSH_INT), Operand: 1
+[363] OpCode: 1 (PUSH_INT), Operand: 2
+[364] OpCode: 46 (PUSH_ARRAY), Operand: 2
+[365] OpCode: 1 (PUSH_INT), Operand: 3
+[366] OpCode: 1 (PUSH_INT), Operand: 4
+[367] OpCode: 46 (PUSH_ARRAY), Operand: 2
+[368] OpCode: 1 (PUSH_INT), Operand: 5
+[369] OpCode: 1 (PUSH_INT), Operand: 6
+[370] OpCode: 46 (PUSH_ARRAY), Operand: 2
+[371] OpCode: 46 (PUSH_ARRAY), Operand: 3
+[372] OpCode: 30 (STORE_VAR), Operand: 26
+[373] OpCode: 4 (PUSH_STR), Operand: Nested array:
+[374] OpCode: 29 (LOAD_VAR), Operand: 26
+[375] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[376] OpCode: 4 (PUSH_STR), Operand: user
+[377] OpCode: 4 (PUSH_STR), Operand: name
+[378] OpCode: 4 (PUSH_STR), Operand: Admin
+[379] OpCode: 4 (PUSH_STR), Operand: permissions
+[380] OpCode: 4 (PUSH_STR), Operand: read
+[381] OpCode: 4 (PUSH_STR), Operand: write
+[382] OpCode: 4 (PUSH_STR), Operand: execute
+[383] OpCode: 46 (PUSH_ARRAY), Operand: 3
+[384] OpCode: 47 (PUSH_MAP), Operand: 2
+[385] OpCode: 4 (PUSH_STR), Operand: settings
+[386] OpCode: 4 (PUSH_STR), Operand: theme
+[387] OpCode: 4 (PUSH_STR), Operand: dark
+[388] OpCode: 4 (PUSH_STR), Operand: language
+[389] OpCode: 4 (PUSH_STR), Operand: en
+[390] OpCode: 47 (PUSH_MAP), Operand: 2
+[391] OpCode: 47 (PUSH_MAP), Operand: 2
+[392] OpCode: 30 (STORE_VAR), Operand: 27
+[393] OpCode: 4 (PUSH_STR), Operand: Nested map:
+[394] OpCode: 29 (LOAD_VAR), Operand: 27
+[395] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[396] OpCode: 4 (PUSH_STR), Operand: 
+14. ERROR HANDLING
+[397] OpCode: 40 (PRINT), Operand: 0
+[398] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[399] OpCode: 38 (CAPTURE_VAR), Operand: arr
+[400] OpCode: 38 (CAPTURE_VAR), Operand: int_var
+[401] OpCode: 38 (CAPTURE_VAR), Operand: uint_var
+[402] OpCode: 38 (CAPTURE_VAR), Operand: x
+[403] OpCode: 38 (CAPTURE_VAR), Operand: str_num
+[404] OpCode: 38 (CAPTURE_VAR), Operand: float_var
+[405] OpCode: 38 (CAPTURE_VAR), Operand: bool_var
+[406] OpCode: 38 (CAPTURE_VAR), Operand: str_var
+[407] OpCode: 38 (CAPTURE_VAR), Operand: square
+[408] OpCode: 38 (CAPTURE_VAR), Operand: name
+[409] OpCode: 38 (CAPTURE_VAR), Operand: a
+[410] OpCode: 38 (CAPTURE_VAR), Operand: nested_array
+[411] OpCode: 38 (CAPTURE_VAR), Operand: b
+[412] OpCode: 38 (CAPTURE_VAR), Operand: y
+[413] OpCode: 38 (CAPTURE_VAR), Operand: add
+[414] OpCode: 38 (CAPTURE_VAR), Operand: my_map
+[415] OpCode: 38 (CAPTURE_VAR), Operand: keys
+[416] OpCode: 38 (CAPTURE_VAR), Operand: values
+[417] OpCode: 38 (CAPTURE_VAR), Operand: score
+[418] OpCode: 38 (CAPTURE_VAR), Operand: i
+[419] OpCode: 38 (CAPTURE_VAR), Operand: countdown
+[420] OpCode: 38 (CAPTURE_VAR), Operand: greet
+[421] OpCode: 38 (CAPTURE_VAR), Operand: factorial
+[422] OpCode: 38 (CAPTURE_VAR), Operand: safe_div
+[423] OpCode: 38 (CAPTURE_VAR), Operand: str1
+[424] OpCode: 38 (CAPTURE_VAR), Operand: str2
+[425] OpCode: 38 (CAPTURE_VAR), Operand: age
+[426] OpCode: 38 (CAPTURE_VAR), Operand: num_str
+[427] OpCode: 38 (CAPTURE_VAR), Operand: nested_map
+[428] OpCode: 37 (CREATE_CLOSURE), Operand: 0
+[429] OpCode: 30 (STORE_VAR), Operand: 28
+[430] OpCode: 4 (PUSH_STR), Operand: safe_div(10, 2) =
+[431] OpCode: 1 (PUSH_INT), Operand: 10
+[432] OpCode: 1 (PUSH_INT), Operand: 2
+[433] OpCode: 29 (LOAD_VAR), Operand: 28
+[434] OpCode: 34 (CALL), Operand: safe_div
+[435] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[436] OpCode: 4 (PUSH_STR), Operand: safe_div(10, 0) =
+[437] OpCode: 1 (PUSH_INT), Operand: 10
+[438] OpCode: 1 (PUSH_INT), Operand: 0
+[439] OpCode: 29 (LOAD_VAR), Operand: 28
+[440] OpCode: 34 (CALL), Operand: safe_div
+[441] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[442] OpCode: 4 (PUSH_STR), Operand: 
+15. ADVANCED FEATURES
+[443] OpCode: 40 (PRINT), Operand: 0
+[444] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[445] OpCode: 38 (CAPTURE_VAR), Operand: arr
+[446] OpCode: 38 (CAPTURE_VAR), Operand: int_var
+[447] OpCode: 38 (CAPTURE_VAR), Operand: uint_var
+[448] OpCode: 38 (CAPTURE_VAR), Operand: x
+[449] OpCode: 38 (CAPTURE_VAR), Operand: str_num
+[450] OpCode: 38 (CAPTURE_VAR), Operand: float_var
+[451] OpCode: 38 (CAPTURE_VAR), Operand: bool_var
+[452] OpCode: 38 (CAPTURE_VAR), Operand: str_var
+[453] OpCode: 38 (CAPTURE_VAR), Operand: square
+[454] OpCode: 38 (CAPTURE_VAR), Operand: name
+[455] OpCode: 38 (CAPTURE_VAR), Operand: a
+[456] OpCode: 38 (CAPTURE_VAR), Operand: nested_array
+[457] OpCode: 38 (CAPTURE_VAR), Operand: b
+[458] OpCode: 38 (CAPTURE_VAR), Operand: y
+[459] OpCode: 38 (CAPTURE_VAR), Operand: add
+[460] OpCode: 38 (CAPTURE_VAR), Operand: my_map
+[461] OpCode: 38 (CAPTURE_VAR), Operand: keys
+[462] OpCode: 38 (CAPTURE_VAR), Operand: values
+[463] OpCode: 38 (CAPTURE_VAR), Operand: score
+[464] OpCode: 38 (CAPTURE_VAR), Operand: i
+[465] OpCode: 38 (CAPTURE_VAR), Operand: countdown
+[466] OpCode: 38 (CAPTURE_VAR), Operand: greet
+[467] OpCode: 38 (CAPTURE_VAR), Operand: factorial
+[468] OpCode: 38 (CAPTURE_VAR), Operand: safe_div
+[469] OpCode: 38 (CAPTURE_VAR), Operand: str1
+[470] OpCode: 38 (CAPTURE_VAR), Operand: str2
+[471] OpCode: 38 (CAPTURE_VAR), Operand: age
+[472] OpCode: 38 (CAPTURE_VAR), Operand: num_str
+[473] OpCode: 38 (CAPTURE_VAR), Operand: nested_map
+[474] OpCode: 38 (CAPTURE_VAR), Operand: apply_twice
+[475] OpCode: 37 (CREATE_CLOSURE), Operand: 0
+[476] OpCode: 30 (STORE_VAR), Operand: 29
+[477] OpCode: 36 (PUSH_FUNCTION), Operand: (tuple/other)
+[478] OpCode: 38 (CAPTURE_VAR), Operand: arr
+[479] OpCode: 38 (CAPTURE_VAR), Operand: int_var
+[480] OpCode: 38 (CAPTURE_VAR), Operand: uint_var
+[481] OpCode: 38 (CAPTURE_VAR), Operand: x
+[482] OpCode: 38 (CAPTURE_VAR), Operand: str_num
+[483] OpCode: 38 (CAPTURE_VAR), Operand: float_var
+[484] OpCode: 38 (CAPTURE_VAR), Operand: bool_var
+[485] OpCode: 38 (CAPTURE_VAR), Operand: str_var
+[486] OpCode: 38 (CAPTURE_VAR), Operand: square
+[487] OpCode: 38 (CAPTURE_VAR), Operand: name
+[488] OpCode: 38 (CAPTURE_VAR), Operand: a
+[489] OpCode: 38 (CAPTURE_VAR), Operand: nested_array
+[490] OpCode: 38 (CAPTURE_VAR), Operand: b
+[491] OpCode: 38 (CAPTURE_VAR), Operand: y
+[492] OpCode: 38 (CAPTURE_VAR), Operand: add
+[493] OpCode: 38 (CAPTURE_VAR), Operand: my_map
+[494] OpCode: 38 (CAPTURE_VAR), Operand: keys
+[495] OpCode: 38 (CAPTURE_VAR), Operand: values
+[496] OpCode: 38 (CAPTURE_VAR), Operand: score
+[497] OpCode: 38 (CAPTURE_VAR), Operand: i
+[498] OpCode: 38 (CAPTURE_VAR), Operand: countdown
+[499] OpCode: 38 (CAPTURE_VAR), Operand: greet
+[500] OpCode: 38 (CAPTURE_VAR), Operand: factorial
+[501] OpCode: 38 (CAPTURE_VAR), Operand: safe_div
+[502] OpCode: 38 (CAPTURE_VAR), Operand: str1
+[503] OpCode: 38 (CAPTURE_VAR), Operand: str2
+[504] OpCode: 38 (CAPTURE_VAR), Operand: age
+[505] OpCode: 38 (CAPTURE_VAR), Operand: num_str
+[506] OpCode: 38 (CAPTURE_VAR), Operand: nested_map
+[507] OpCode: 38 (CAPTURE_VAR), Operand: apply_twice
+[508] OpCode: 38 (CAPTURE_VAR), Operand: increment
+[509] OpCode: 37 (CREATE_CLOSURE), Operand: 0
+[510] OpCode: 30 (STORE_VAR), Operand: 30
+[511] OpCode: 4 (PUSH_STR), Operand: apply_twice(increment, 5) =
+[512] OpCode: 29 (LOAD_VAR), Operand: 30
+[513] OpCode: 1 (PUSH_INT), Operand: 5
+[514] OpCode: 29 (LOAD_VAR), Operand: 29
+[515] OpCode: 34 (CALL), Operand: apply_twice
+[516] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[517] OpCode: 4 (PUSH_STR), Operand: 
+16. COMPLEX EXPRESSIONS
+[518] OpCode: 40 (PRINT), Operand: 0
+[519] OpCode: 1 (PUSH_INT), Operand: 15
+[520] OpCode: 1 (PUSH_INT), Operand: 2
+[521] OpCode: 11 (MUL), Operand: 0
+[522] OpCode: 1 (PUSH_INT), Operand: 2
+[523] OpCode: 10 (SUB), Operand: 0
+[524] OpCode: 1 (PUSH_INT), Operand: 3
+[525] OpCode: 1 (PUSH_INT), Operand: 2
+[526] OpCode: 13 (MOD), Operand: 0
+[527] OpCode: 9 (ADD), Operand: 0
+[528] OpCode: 30 (STORE_VAR), Operand: 31
+[529] OpCode: 4 (PUSH_STR), Operand: Complex arithmetic:
+[530] OpCode: 29 (LOAD_VAR), Operand: 31
+[531] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[532] OpCode: 5 (PUSH_BOOL), Operand: true
+[533] OpCode: 5 (PUSH_BOOL), Operand: false
+[534] OpCode: 21 (OR), Operand: 0
+[535] OpCode: 5 (PUSH_BOOL), Operand: false
+[536] OpCode: 5 (PUSH_BOOL), Operand: true
+[537] OpCode: 20 (AND), Operand: 0
+[538] OpCode: 22 (NOT), Operand: 0
+[539] OpCode: 20 (AND), Operand: 0
+[540] OpCode: 30 (STORE_VAR), Operand: 32
+[541] OpCode: 4 (PUSH_STR), Operand: Complex logic:
+[542] OpCode: 29 (LOAD_VAR), Operand: 32
+[543] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[544] OpCode: 4 (PUSH_STR), Operand: 
+17. PERFORMANCE TEST
+[545] OpCode: 40 (PRINT), Operand: 0
+[546] OpCode: 1 (PUSH_INT), Operand: 0
+[547] OpCode: 30 (STORE_VAR), Operand: 33
+[548] OpCode: 1 (PUSH_INT), Operand: 0
+[549] OpCode: 30 (STORE_VAR), Operand: 34
+[550] OpCode: 1 (PUSH_INT), Operand: 1
+[551] OpCode: 30 (STORE_VAR), Operand: 14
+[552] OpCode: 29 (LOAD_VAR), Operand: 14
+[553] OpCode: 1 (PUSH_INT), Operand: 1000
+[554] OpCode: 27 (LTE), Operand: 0
+[555] OpCode: 32 (JMP_IF_FALSE), Operand: 565
+[556] OpCode: 29 (LOAD_VAR), Operand: 34
+[557] OpCode: 29 (LOAD_VAR), Operand: 14
+[558] OpCode: 9 (ADD), Operand: 0
+[559] OpCode: 30 (STORE_VAR), Operand: 34
+[560] OpCode: 29 (LOAD_VAR), Operand: 14
+[561] OpCode: 1 (PUSH_INT), Operand: 1
+[562] OpCode: 9 (ADD), Operand: 0
+[563] OpCode: 30 (STORE_VAR), Operand: 14
+[564] OpCode: 31 (JMP), Operand: 552
+[565] OpCode: 4 (PUSH_STR), Operand: Sum of 1 to 1000:
+[566] OpCode: 29 (LOAD_VAR), Operand: 34
+[567] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[568] OpCode: 4 (PUSH_STR), Operand: 
+=== COMPREHENSIVE TEST COMPLETED ===
+[569] OpCode: 40 (PRINT), Operand: 0
+[570] OpCode: 4 (PUSH_STR), Operand: All major language features tested!
+[571] OpCode: 40 (PRINT), Operand: 0
+[572] OpCode: 4 (PUSH_STR), Operand: Linh language is working correctly! 🎉
+[573] OpCode: 40 (PRINT), Operand: 0
+[574] OpCode: 44 (HALT), Operand: 0
+=== End Bytecode Dump ===
+[DEBUG] VM executing instruction 0: PUSH_STR
+[DEBUG][ip=0] OpCode: 4 (PUSH_STR), Operand index: === LINH LANGUAGE COMPREHENSIVE TEST ===, Stack size: 0
+[DEBUG] VM executing instruction 1: PRINT
+[DEBUG][ip=1] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: === LINH LANGUAGE COMPREHENSIVE TEST ===
+----- START PRINT -----
+=== LINH LANGUAGE COMPREHENSIVE TEST ===
+----- END PRINT -----
+[DEBUG] VM executing instruction 2: PUSH_STR
+[DEBUG][ip=2] OpCode: 4 (PUSH_STR), Operand index: 
+1. VARIABLES & TYPES, Stack size: 0
+[DEBUG] VM executing instruction 3: PRINT
+[DEBUG][ip=3] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+1. VARIABLES & TYPES
+----- START PRINT -----
+
+1. VARIABLES & TYPES
+----- END PRINT -----
+[DEBUG] VM executing instruction 4: PUSH_INT
+[DEBUG][ip=4] OpCode: 1 (PUSH_INT), Operand index: 42, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 5: STORE_VAR
+[DEBUG][ip=5] OpCode: 30 (STORE_VAR), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 6: PUSH_UINT
+[DEBUG][ip=6] OpCode: 2 (PUSH_UINT), Operand index: (tuple/other), Stack size: 0
+[DEBUG] VM executing instruction 7: STORE_VAR
+[DEBUG][ip=7] OpCode: 30 (STORE_VAR), Operand index: 1, Stack size: 1
+[DEBUG] VM executing instruction 8: PUSH_FLOAT
+[DEBUG][ip=8] OpCode: 3 (PUSH_FLOAT), Operand index: 3.14, Stack size: 0
+[DEBUG] VM executing instruction 9: STORE_VAR
+[DEBUG][ip=9] OpCode: 30 (STORE_VAR), Operand index: 2, Stack size: 1
+[DEBUG] VM executing instruction 10: PUSH_STR
+[DEBUG][ip=10] OpCode: 4 (PUSH_STR), Operand index: Hello Linh, Stack size: 0
+[DEBUG] VM executing instruction 11: STORE_VAR
+[DEBUG][ip=11] OpCode: 30 (STORE_VAR), Operand index: 3, Stack size: 1
+[DEBUG] VM executing instruction 12: PUSH_BOOL
+[DEBUG][ip=12] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 0
+[DEBUG] VM executing instruction 13: STORE_VAR
+[DEBUG][ip=13] OpCode: 30 (STORE_VAR), Operand index: 4, Stack size: 1
+[DEBUG] VM executing instruction 14: PUSH_STR
+[DEBUG][ip=14] OpCode: 4 (PUSH_STR), Operand index: Integer:, Stack size: 0
+[DEBUG] VM executing instruction 15: LOAD_VAR
+[DEBUG][ip=15] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 16: PRINT_MULTIPLE
+[DEBUG][ip=16] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 42
+[DEBUG] PRINT_MULTIPLE: popped value 1: Integer:
+[DEBUG] PRINT_MULTIPLE: final result: 'Integer: 42'
+----- START PRINT -----
+Integer: 42
+----- END PRINT -----
+[DEBUG] VM executing instruction 17: PUSH_STR
+[DEBUG][ip=17] OpCode: 4 (PUSH_STR), Operand index: Unsigned:, Stack size: 0
+[DEBUG] VM executing instruction 18: LOAD_VAR
+[DEBUG][ip=18] OpCode: 29 (LOAD_VAR), Operand index: 1, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 1
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 8
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 8
+[DEBUG] VM executing instruction 19: PRINT_MULTIPLE
+[DEBUG][ip=19] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 100
+[DEBUG] PRINT_MULTIPLE: popped value 1: Unsigned:
+[DEBUG] PRINT_MULTIPLE: final result: 'Unsigned: 100'
+----- START PRINT -----
+Unsigned: 100
+----- END PRINT -----
+[DEBUG] VM executing instruction 20: PUSH_STR
+[DEBUG][ip=20] OpCode: 4 (PUSH_STR), Operand index: Float:, Stack size: 0
+[DEBUG] VM executing instruction 21: LOAD_VAR
+[DEBUG][ip=21] OpCode: 29 (LOAD_VAR), Operand index: 2, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 2
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 10
+[DEBUG] VM executing instruction 22: PRINT_MULTIPLE
+[DEBUG][ip=22] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 3.14
+[DEBUG] PRINT_MULTIPLE: popped value 1: Float:
+[DEBUG] PRINT_MULTIPLE: final result: 'Float: 3.14'
+----- START PRINT -----
+Float: 3.14
+----- END PRINT -----
+[DEBUG] VM executing instruction 23: PUSH_STR
+[DEBUG][ip=23] OpCode: 4 (PUSH_STR), Operand index: String:, Stack size: 0
+[DEBUG] VM executing instruction 24: LOAD_VAR
+[DEBUG][ip=24] OpCode: 29 (LOAD_VAR), Operand index: 3, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 3
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 12
+[DEBUG] VM executing instruction 25: PRINT_MULTIPLE
+[DEBUG][ip=25] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: Hello Linh
+[DEBUG] PRINT_MULTIPLE: popped value 1: String:
+[DEBUG] PRINT_MULTIPLE: final result: 'String: Hello Linh'
+----- START PRINT -----
+String: Hello Linh
+----- END PRINT -----
+[DEBUG] VM executing instruction 26: PUSH_STR
+[DEBUG][ip=26] OpCode: 4 (PUSH_STR), Operand index: Boolean:, Stack size: 0
+[DEBUG] VM executing instruction 27: LOAD_VAR
+[DEBUG][ip=27] OpCode: 29 (LOAD_VAR), Operand index: 4, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 4
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 1
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 1
+[DEBUG] VM executing instruction 28: PRINT_MULTIPLE
+[DEBUG][ip=28] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: Boolean:
+[DEBUG] PRINT_MULTIPLE: final result: 'Boolean: true'
+----- START PRINT -----
+Boolean: true
+----- END PRINT -----
+[DEBUG] VM executing instruction 29: PUSH_STR
+[DEBUG][ip=29] OpCode: 4 (PUSH_STR), Operand index: Type of int_var:, Stack size: 0
+[DEBUG] VM executing instruction 30: LOAD_VAR
+[DEBUG][ip=30] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 31: TYPEOF
+[DEBUG][ip=31] OpCode: 43 (TYPEOF), Operand index: 0, Stack size: 2
+[DEBUG] VM executing instruction 32: PRINT_MULTIPLE
+[DEBUG][ip=32] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: int32
+[DEBUG] PRINT_MULTIPLE: popped value 1: Type of int_var:
+[DEBUG] PRINT_MULTIPLE: final result: 'Type of int_var: int32'
+----- START PRINT -----
+Type of int_var: int32
+----- END PRINT -----
+[DEBUG] VM executing instruction 33: PUSH_STR
+[DEBUG][ip=33] OpCode: 4 (PUSH_STR), Operand index: Type of float_var:, Stack size: 0
+[DEBUG] VM executing instruction 34: LOAD_VAR
+[DEBUG][ip=34] OpCode: 29 (LOAD_VAR), Operand index: 2, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 2
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 10
+[DEBUG] VM executing instruction 35: TYPEOF
+[DEBUG][ip=35] OpCode: 43 (TYPEOF), Operand index: 0, Stack size: 2
+[DEBUG] VM executing instruction 36: PRINT_MULTIPLE
+[DEBUG][ip=36] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: float32
+[DEBUG] PRINT_MULTIPLE: popped value 1: Type of float_var:
+[DEBUG] PRINT_MULTIPLE: final result: 'Type of float_var: float32'
+----- START PRINT -----
+Type of float_var: float32
+----- END PRINT -----
+[DEBUG] VM executing instruction 37: PUSH_STR
+[DEBUG][ip=37] OpCode: 4 (PUSH_STR), Operand index: Type of str_var:, Stack size: 0
+[DEBUG] VM executing instruction 38: LOAD_VAR
+[DEBUG][ip=38] OpCode: 29 (LOAD_VAR), Operand index: 3, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 3
+[DEBUG] LOAD_VAR: variables.size() = 5
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 12
+[DEBUG] VM executing instruction 39: TYPEOF
+[DEBUG][ip=39] OpCode: 43 (TYPEOF), Operand index: 0, Stack size: 2
+[DEBUG] VM executing instruction 40: PRINT_MULTIPLE
+[DEBUG][ip=40] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: str
+[DEBUG] PRINT_MULTIPLE: popped value 1: Type of str_var:
+[DEBUG] PRINT_MULTIPLE: final result: 'Type of str_var: str'
+----- START PRINT -----
+Type of str_var: str
+----- END PRINT -----
+[DEBUG] VM executing instruction 41: PUSH_STR
+[DEBUG][ip=41] OpCode: 4 (PUSH_STR), Operand index: 
+2. SCIENTIFIC NOTATION, Stack size: 0
+[DEBUG] VM executing instruction 42: PRINT
+[DEBUG][ip=42] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+2. SCIENTIFIC NOTATION
+----- START PRINT -----
+
+2. SCIENTIFIC NOTATION
+----- END PRINT -----
+[DEBUG] VM executing instruction 43: PUSH_STR
+[DEBUG][ip=43] OpCode: 4 (PUSH_STR), Operand index: 1e5 =, Stack size: 0
+[DEBUG] VM executing instruction 44: PUSH_FLOAT
+[DEBUG][ip=44] OpCode: 3 (PUSH_FLOAT), Operand index: 100000, Stack size: 1
+[DEBUG] VM executing instruction 45: PRINT_MULTIPLE
+[DEBUG][ip=45] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 100000.0
+[DEBUG] PRINT_MULTIPLE: popped value 1: 1e5 =
+[DEBUG] PRINT_MULTIPLE: final result: '1e5 = 100000.0'
+----- START PRINT -----
+1e5 = 100000.0
+----- END PRINT -----
+[DEBUG] VM executing instruction 46: PUSH_STR
+[DEBUG][ip=46] OpCode: 4 (PUSH_STR), Operand index: 2.5E-3 =, Stack size: 0
+[DEBUG] VM executing instruction 47: PUSH_FLOAT
+[DEBUG][ip=47] OpCode: 3 (PUSH_FLOAT), Operand index: 0.0025, Stack size: 1
+[DEBUG] VM executing instruction 48: PRINT_MULTIPLE
+[DEBUG][ip=48] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 0.0025
+[DEBUG] PRINT_MULTIPLE: popped value 1: 2.5E-3 =
+[DEBUG] PRINT_MULTIPLE: final result: '2.5E-3 = 0.0025'
+----- START PRINT -----
+2.5E-3 = 0.0025
+----- END PRINT -----
+[DEBUG] VM executing instruction 49: PUSH_STR
+[DEBUG][ip=49] OpCode: 4 (PUSH_STR), Operand index: 1.23e+4 =, Stack size: 0
+[DEBUG] VM executing instruction 50: PUSH_FLOAT
+[DEBUG][ip=50] OpCode: 3 (PUSH_FLOAT), Operand index: 12300, Stack size: 1
+[DEBUG] VM executing instruction 51: PRINT_MULTIPLE
+[DEBUG][ip=51] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 12300.0
+[DEBUG] PRINT_MULTIPLE: popped value 1: 1.23e+4 =
+[DEBUG] PRINT_MULTIPLE: final result: '1.23e+4 = 12300.0'
+----- START PRINT -----
+1.23e+4 = 12300.0
+----- END PRINT -----
+[DEBUG] VM executing instruction 52: PUSH_STR
+[DEBUG][ip=52] OpCode: 4 (PUSH_STR), Operand index: 
+3. ARITHMETIC OPERATIONS, Stack size: 0
+[DEBUG] VM executing instruction 53: PRINT
+[DEBUG][ip=53] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+3. ARITHMETIC OPERATIONS
+----- START PRINT -----
+
+3. ARITHMETIC OPERATIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 54: PUSH_INT
+[DEBUG][ip=54] OpCode: 1 (PUSH_INT), Operand index: 10, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 55: STORE_VAR
+[DEBUG][ip=55] OpCode: 30 (STORE_VAR), Operand index: 5, Stack size: 1
+[DEBUG] VM executing instruction 56: PUSH_INT
+[DEBUG][ip=56] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 57: STORE_VAR
+[DEBUG][ip=57] OpCode: 30 (STORE_VAR), Operand index: 6, Stack size: 1
+[DEBUG] VM executing instruction 58: PUSH_STR
+[DEBUG][ip=58] OpCode: 4 (PUSH_STR), Operand index: a + b =, Stack size: 0
+[DEBUG] VM executing instruction 59: LOAD_VAR
+[DEBUG][ip=59] OpCode: 29 (LOAD_VAR), Operand index: 5, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 5
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 60: LOAD_VAR
+[DEBUG][ip=60] OpCode: 29 (LOAD_VAR), Operand index: 6, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 4
+[DEBUG] VM executing instruction 61: ADD
+[DEBUG][ip=61] OpCode: 9 (ADD), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [int32] 10, [int32] 3
+[DEBUG] VM executing instruction 62: PRINT_MULTIPLE
+[DEBUG][ip=62] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 13
+[DEBUG] PRINT_MULTIPLE: popped value 1: a + b =
+[DEBUG] PRINT_MULTIPLE: final result: 'a + b = 13'
+----- START PRINT -----
+a + b = 13
+----- END PRINT -----
+[DEBUG] VM executing instruction 63: PUSH_STR
+[DEBUG][ip=63] OpCode: 4 (PUSH_STR), Operand index: a - b =, Stack size: 0
+[DEBUG] VM executing instruction 64: LOAD_VAR
+[DEBUG][ip=64] OpCode: 29 (LOAD_VAR), Operand index: 5, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 5
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 65: LOAD_VAR
+[DEBUG][ip=65] OpCode: 29 (LOAD_VAR), Operand index: 6, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 4
+[DEBUG] VM executing instruction 66: SUB
+[DEBUG][ip=66] OpCode: 10 (SUB), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [int32] 10, [int32] 3
+[DEBUG] VM executing instruction 67: PRINT_MULTIPLE
+[DEBUG][ip=67] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 7
+[DEBUG] PRINT_MULTIPLE: popped value 1: a - b =
+[DEBUG] PRINT_MULTIPLE: final result: 'a - b = 7'
+----- START PRINT -----
+a - b = 7
+----- END PRINT -----
+[DEBUG] VM executing instruction 68: PUSH_STR
+[DEBUG][ip=68] OpCode: 4 (PUSH_STR), Operand index: a * b =, Stack size: 0
+[DEBUG] VM executing instruction 69: LOAD_VAR
+[DEBUG][ip=69] OpCode: 29 (LOAD_VAR), Operand index: 5, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 5
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 70: LOAD_VAR
+[DEBUG][ip=70] OpCode: 29 (LOAD_VAR), Operand index: 6, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 4
+[DEBUG] VM executing instruction 71: MUL
+[DEBUG][ip=71] OpCode: 11 (MUL), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [int32] 10, [int32] 3
+[DEBUG] VM executing instruction 72: PRINT_MULTIPLE
+[DEBUG][ip=72] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 30
+[DEBUG] PRINT_MULTIPLE: popped value 1: a * b =
+[DEBUG] PRINT_MULTIPLE: final result: 'a * b = 30'
+----- START PRINT -----
+a * b = 30
+----- END PRINT -----
+[DEBUG] VM executing instruction 73: PUSH_STR
+[DEBUG][ip=73] OpCode: 4 (PUSH_STR), Operand index: a / b =, Stack size: 0
+[DEBUG] VM executing instruction 74: LOAD_VAR
+[DEBUG][ip=74] OpCode: 29 (LOAD_VAR), Operand index: 5, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 5
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 75: LOAD_VAR
+[DEBUG][ip=75] OpCode: 29 (LOAD_VAR), Operand index: 6, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 4
+[DEBUG] VM executing instruction 76: DIV
+[DEBUG][ip=76] OpCode: 12 (DIV), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [int32] 10, [int32] 3
+[DEBUG] VM executing instruction 77: PRINT_MULTIPLE
+[DEBUG][ip=77] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 3
+[DEBUG] PRINT_MULTIPLE: popped value 1: a / b =
+[DEBUG] PRINT_MULTIPLE: final result: 'a / b = 3'
+----- START PRINT -----
+a / b = 3
+----- END PRINT -----
+[DEBUG] VM executing instruction 78: PUSH_STR
+[DEBUG][ip=78] OpCode: 4 (PUSH_STR), Operand index: a % b =, Stack size: 0
+[DEBUG] VM executing instruction 79: LOAD_VAR
+[DEBUG][ip=79] OpCode: 29 (LOAD_VAR), Operand index: 5, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 5
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 80: LOAD_VAR
+[DEBUG][ip=80] OpCode: 29 (LOAD_VAR), Operand index: 6, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 7
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 4
+[DEBUG] VM executing instruction 81: MOD
+[DEBUG][ip=81] OpCode: 13 (MOD), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [int32] 10, [int32] 3
+[DEBUG] VM executing instruction 82: PRINT_MULTIPLE
+[DEBUG][ip=82] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 1
+[DEBUG] PRINT_MULTIPLE: popped value 1: a % b =
+[DEBUG] PRINT_MULTIPLE: final result: 'a % b = 1'
+----- START PRINT -----
+a % b = 1
+----- END PRINT -----
+[DEBUG] VM executing instruction 83: PUSH_FLOAT
+[DEBUG][ip=83] OpCode: 3 (PUSH_FLOAT), Operand index: 10.5, Stack size: 0
+[DEBUG] VM executing instruction 84: STORE_VAR
+[DEBUG][ip=84] OpCode: 30 (STORE_VAR), Operand index: 7, Stack size: 1
+[DEBUG] VM executing instruction 85: PUSH_FLOAT
+[DEBUG][ip=85] OpCode: 3 (PUSH_FLOAT), Operand index: 2.5, Stack size: 0
+[DEBUG] VM executing instruction 86: STORE_VAR
+[DEBUG][ip=86] OpCode: 30 (STORE_VAR), Operand index: 8, Stack size: 1
+[DEBUG] VM executing instruction 87: PUSH_STR
+[DEBUG][ip=87] OpCode: 4 (PUSH_STR), Operand index: x + y =, Stack size: 0
+[DEBUG] VM executing instruction 88: LOAD_VAR
+[DEBUG][ip=88] OpCode: 29 (LOAD_VAR), Operand index: 7, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 7
+[DEBUG] LOAD_VAR: variables.size() = 9
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 10
+[DEBUG] VM executing instruction 89: LOAD_VAR
+[DEBUG][ip=89] OpCode: 29 (LOAD_VAR), Operand index: 8, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 8
+[DEBUG] LOAD_VAR: variables.size() = 9
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 10
+[DEBUG] VM executing instruction 90: ADD
+[DEBUG][ip=90] OpCode: 9 (ADD), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [float32] 10.5, [float32] 2.5
+[DEBUG] VM executing instruction 91: PRINT_MULTIPLE
+[DEBUG][ip=91] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 13.0
+[DEBUG] PRINT_MULTIPLE: popped value 1: x + y =
+[DEBUG] PRINT_MULTIPLE: final result: 'x + y = 13.0'
+----- START PRINT -----
+x + y = 13.0
+----- END PRINT -----
+[DEBUG] VM executing instruction 92: PUSH_STR
+[DEBUG][ip=92] OpCode: 4 (PUSH_STR), Operand index: x * y =, Stack size: 0
+[DEBUG] VM executing instruction 93: LOAD_VAR
+[DEBUG][ip=93] OpCode: 29 (LOAD_VAR), Operand index: 7, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 7
+[DEBUG] LOAD_VAR: variables.size() = 9
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 10
+[DEBUG] VM executing instruction 94: LOAD_VAR
+[DEBUG][ip=94] OpCode: 29 (LOAD_VAR), Operand index: 8, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 8
+[DEBUG] LOAD_VAR: variables.size() = 9
+[DEBUG] LOAD_VAR: loaded value index = 10
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 10
+[DEBUG] VM executing instruction 95: MUL
+[DEBUG][ip=95] OpCode: 11 (MUL), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [float32] 10.5, [float32] 2.5
+[DEBUG] VM executing instruction 96: PRINT_MULTIPLE
+[DEBUG][ip=96] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 26.25
+[DEBUG] PRINT_MULTIPLE: popped value 1: x * y =
+[DEBUG] PRINT_MULTIPLE: final result: 'x * y = 26.25'
+----- START PRINT -----
+x * y = 26.25
+----- END PRINT -----
+[DEBUG] VM executing instruction 97: PUSH_STR
+[DEBUG][ip=97] OpCode: 4 (PUSH_STR), Operand index: 
+4. COMPARISON OPERATIONS, Stack size: 0
+[DEBUG] VM executing instruction 98: PRINT
+[DEBUG][ip=98] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+4. COMPARISON OPERATIONS
+----- START PRINT -----
+
+4. COMPARISON OPERATIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 99: PUSH_STR
+[DEBUG][ip=99] OpCode: 4 (PUSH_STR), Operand index: 10 > 5 =, Stack size: 0
+[DEBUG] VM executing instruction 100: PUSH_BOOL
+[DEBUG][ip=100] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 1
+[DEBUG] VM executing instruction 101: PRINT_MULTIPLE
+[DEBUG][ip=101] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 > 5 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 > 5 = true'
+----- START PRINT -----
+10 > 5 = true
+----- END PRINT -----
+[DEBUG] VM executing instruction 102: PUSH_STR
+[DEBUG][ip=102] OpCode: 4 (PUSH_STR), Operand index: 10 < 5 =, Stack size: 0
+[DEBUG] VM executing instruction 103: PUSH_BOOL
+[DEBUG][ip=103] OpCode: 5 (PUSH_BOOL), Operand index: false, Stack size: 1
+[DEBUG] VM executing instruction 104: PRINT_MULTIPLE
+[DEBUG][ip=104] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: false
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 < 5 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 < 5 = false'
+----- START PRINT -----
+10 < 5 = false
+----- END PRINT -----
+[DEBUG] VM executing instruction 105: PUSH_STR
+[DEBUG][ip=105] OpCode: 4 (PUSH_STR), Operand index: 10 >= 10 =, Stack size: 0
+[DEBUG] VM executing instruction 106: PUSH_INT
+[DEBUG][ip=106] OpCode: 1 (PUSH_INT), Operand index: 10, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 107: PUSH_INT
+[DEBUG][ip=107] OpCode: 1 (PUSH_INT), Operand index: 10, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 108: GTE
+[DEBUG][ip=108] OpCode: 28 (GTE), Operand index: 0, Stack size: 3
+[DEBUG] Before comparison: [STACK size=3] [str] 10 >= 10 =, [int32] 10, [int32] 10, 
+[DEBUG] Compare a=[int32] 10, b=[int32] 10
+[DEBUG] VM executing instruction 109: PRINT_MULTIPLE
+[DEBUG][ip=109] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 >= 10 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 >= 10 = true'
+----- START PRINT -----
+10 >= 10 = true
+----- END PRINT -----
+[DEBUG] VM executing instruction 110: PUSH_STR
+[DEBUG][ip=110] OpCode: 4 (PUSH_STR), Operand index: 10 <= 5 =, Stack size: 0
+[DEBUG] VM executing instruction 111: PUSH_INT
+[DEBUG][ip=111] OpCode: 1 (PUSH_INT), Operand index: 10, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 112: PUSH_INT
+[DEBUG][ip=112] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 113: LTE
+[DEBUG][ip=113] OpCode: 27 (LTE), Operand index: 0, Stack size: 3
+[DEBUG] Before comparison: [STACK size=3] [str] 10 <= 5 =, [int32] 10, [int32] 5, 
+[DEBUG] Compare a=[int32] 10, b=[int32] 5
+[DEBUG] VM executing instruction 114: PRINT_MULTIPLE
+[DEBUG][ip=114] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: false
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 <= 5 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 <= 5 = false'
+----- START PRINT -----
+10 <= 5 = false
+----- END PRINT -----
+[DEBUG] VM executing instruction 115: PUSH_STR
+[DEBUG][ip=115] OpCode: 4 (PUSH_STR), Operand index: 10 == 10 =, Stack size: 0
+[DEBUG] VM executing instruction 116: PUSH_BOOL
+[DEBUG][ip=116] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 1
+[DEBUG] VM executing instruction 117: PRINT_MULTIPLE
+[DEBUG][ip=117] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 == 10 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 == 10 = true'
+----- START PRINT -----
+10 == 10 = true
+----- END PRINT -----
+[DEBUG] VM executing instruction 118: PUSH_STR
+[DEBUG][ip=118] OpCode: 4 (PUSH_STR), Operand index: 10 != 5 =, Stack size: 0
+[DEBUG] VM executing instruction 119: PUSH_BOOL
+[DEBUG][ip=119] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 1
+[DEBUG] VM executing instruction 120: PRINT_MULTIPLE
+[DEBUG][ip=120] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: 10 != 5 =
+[DEBUG] PRINT_MULTIPLE: final result: '10 != 5 = true'
+----- START PRINT -----
+10 != 5 = true
+----- END PRINT -----
+[DEBUG] VM executing instruction 121: PUSH_STR
+[DEBUG][ip=121] OpCode: 4 (PUSH_STR), Operand index: 
+5. LOGICAL OPERATIONS, Stack size: 0
+[DEBUG] VM executing instruction 122: PRINT
+[DEBUG][ip=122] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+5. LOGICAL OPERATIONS
+----- START PRINT -----
+
+5. LOGICAL OPERATIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 123: PUSH_STR
+[DEBUG][ip=123] OpCode: 4 (PUSH_STR), Operand index: true and false =, Stack size: 0
+[DEBUG] VM executing instruction 124: PUSH_BOOL
+[DEBUG][ip=124] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 1
+[DEBUG] VM executing instruction 125: PUSH_BOOL
+[DEBUG][ip=125] OpCode: 5 (PUSH_BOOL), Operand index: false, Stack size: 2
+[DEBUG] VM executing instruction 126: AND
+[DEBUG][ip=126] OpCode: 20 (AND), Operand index: 0, Stack size: 3
+[DEBUG] VM executing instruction 127: PRINT_MULTIPLE
+[DEBUG][ip=127] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: false
+[DEBUG] PRINT_MULTIPLE: popped value 1: true and false =
+[DEBUG] PRINT_MULTIPLE: final result: 'true and false = false'
+----- START PRINT -----
+true and false = false
+----- END PRINT -----
+[DEBUG] VM executing instruction 128: PUSH_STR
+[DEBUG][ip=128] OpCode: 4 (PUSH_STR), Operand index: true or false =, Stack size: 0
+[DEBUG] VM executing instruction 129: PUSH_BOOL
+[DEBUG][ip=129] OpCode: 5 (PUSH_BOOL), Operand index: true, Stack size: 1
+[DEBUG] VM executing instruction 130: PUSH_BOOL
+[DEBUG][ip=130] OpCode: 5 (PUSH_BOOL), Operand index: false, Stack size: 2
+[DEBUG] VM executing instruction 131: OR
+[DEBUG][ip=131] OpCode: 21 (OR), Operand index: 0, Stack size: 3
+[DEBUG] VM executing instruction 132: PRINT_MULTIPLE
+[DEBUG][ip=132] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: true
+[DEBUG] PRINT_MULTIPLE: popped value 1: true or false =
+[DEBUG] PRINT_MULTIPLE: final result: 'true or false = true'
+----- START PRINT -----
+true or false = true
+----- END PRINT -----
+[DEBUG] VM executing instruction 133: PUSH_STR
+[DEBUG][ip=133] OpCode: 4 (PUSH_STR), Operand index: not true =, Stack size: 0
+[DEBUG] VM executing instruction 134: PUSH_BOOL
+[DEBUG][ip=134] OpCode: 5 (PUSH_BOOL), Operand index: false, Stack size: 1
+[DEBUG] VM executing instruction 135: PRINT_MULTIPLE
+[DEBUG][ip=135] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: false
+[DEBUG] PRINT_MULTIPLE: popped value 1: not true =
+[DEBUG] PRINT_MULTIPLE: final result: 'not true = false'
+----- START PRINT -----
+not true = false
+----- END PRINT -----
+[DEBUG] VM executing instruction 136: PUSH_STR
+[DEBUG][ip=136] OpCode: 4 (PUSH_STR), Operand index: 
+6. ARRAYS, Stack size: 0
+[DEBUG] VM executing instruction 137: PRINT
+[DEBUG][ip=137] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+6. ARRAYS
+----- START PRINT -----
+
+6. ARRAYS
+----- END PRINT -----
+[DEBUG] VM executing instruction 138: PUSH_INT
+[DEBUG][ip=138] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 139: PUSH_INT
+[DEBUG][ip=139] OpCode: 1 (PUSH_INT), Operand index: 2, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 140: PUSH_INT
+[DEBUG][ip=140] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 141: PUSH_INT
+[DEBUG][ip=141] OpCode: 1 (PUSH_INT), Operand index: 4, Stack size: 3
+[DEBUG] PUSH_INT: stack size = 4, top index = 4
+[DEBUG] VM executing instruction 142: PUSH_INT
+[DEBUG][ip=142] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 4
+[DEBUG] PUSH_INT: stack size = 5, top index = 4
+[DEBUG] VM executing instruction 143: PUSH_ARRAY
+[DEBUG][ip=143] OpCode: 46 (PUSH_ARRAY), Operand index: 5, Stack size: 5
+[DEBUG] VM executing instruction 144: STORE_VAR
+[DEBUG][ip=144] OpCode: 30 (STORE_VAR), Operand index: 9, Stack size: 1
+[DEBUG] VM executing instruction 145: PUSH_STR
+[DEBUG][ip=145] OpCode: 4 (PUSH_STR), Operand index: Original array:, Stack size: 0
+[DEBUG] VM executing instruction 146: LOAD_VAR
+[DEBUG][ip=146] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 147: PRINT_MULTIPLE
+[DEBUG][ip=147] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [1, 2, 3, 4, 5]
+[DEBUG] PRINT_MULTIPLE: popped value 1: Original array:
+[DEBUG] PRINT_MULTIPLE: final result: 'Original array: [1, 2, 3, 4, 5]'
+----- START PRINT -----
+Original array: [1, 2, 3, 4, 5]
+----- END PRINT -----
+[DEBUG] VM executing instruction 148: LOAD_VAR
+[DEBUG][ip=148] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 13
+[DEBUG] VM executing instruction 149: PUSH_INT
+[DEBUG][ip=149] OpCode: 1 (PUSH_INT), Operand index: 6, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 150: ARRAY_APPEND
+[DEBUG][ip=150] OpCode: 53 (ARRAY_APPEND), Operand index: 0, Stack size: 2
+[DEBUG] VM executing instruction 151: POP
+[DEBUG][ip=151] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 152: PUSH_STR
+[DEBUG][ip=152] OpCode: 4 (PUSH_STR), Operand index: After append(6):, Stack size: 0
+[DEBUG] VM executing instruction 153: LOAD_VAR
+[DEBUG][ip=153] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 154: PRINT_MULTIPLE
+[DEBUG][ip=154] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [1, 2, 3, 4, 5, 6]
+[DEBUG] PRINT_MULTIPLE: popped value 1: After append(6):
+[DEBUG] PRINT_MULTIPLE: final result: 'After append(6): [1, 2, 3, 4, 5, 6]'
+----- START PRINT -----
+After append(6): [1, 2, 3, 4, 5, 6]
+----- END PRINT -----
+[DEBUG] VM executing instruction 155: LOAD_VAR
+[DEBUG][ip=155] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 13
+[DEBUG] VM executing instruction 156: PUSH_INT
+[DEBUG][ip=156] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 157: ARRAY_REMOVE
+[DEBUG][ip=157] OpCode: 54 (ARRAY_REMOVE), Operand index: 0, Stack size: 2
+[DEBUG] ARRAY_REMOVE: value_to_remove = 3
+[DEBUG] ARRAY_REMOVE: array before = [1, 2, 3, 4, 5, 6]
+[DEBUG] ARRAY_REMOVE: comparing 1 with 3
+[DEBUG] ARRAY_REMOVE: comparing 2 with 3
+[DEBUG] ARRAY_REMOVE: comparing 3 with 3
+[DEBUG] ARRAY_REMOVE: found match, removing element
+[DEBUG] ARRAY_REMOVE: array after = [1, 2, 4, 5, 6], found = 1
+[DEBUG] VM executing instruction 158: POP
+[DEBUG][ip=158] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 159: PUSH_STR
+[DEBUG][ip=159] OpCode: 4 (PUSH_STR), Operand index: After remove(3):, Stack size: 0
+[DEBUG] VM executing instruction 160: LOAD_VAR
+[DEBUG][ip=160] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 161: PRINT_MULTIPLE
+[DEBUG][ip=161] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [1, 2, 4, 5, 6]
+[DEBUG] PRINT_MULTIPLE: popped value 1: After remove(3):
+[DEBUG] PRINT_MULTIPLE: final result: 'After remove(3): [1, 2, 4, 5, 6]'
+----- START PRINT -----
+After remove(3): [1, 2, 4, 5, 6]
+----- END PRINT -----
+[DEBUG] VM executing instruction 162: PUSH_STR
+[DEBUG][ip=162] OpCode: 4 (PUSH_STR), Operand index: Array length:, Stack size: 0
+[DEBUG] VM executing instruction 163: PRINT_MULTIPLE
+[DEBUG][ip=163] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 1
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=1
+ERROR [Line 76, Col 1] RuntimeError : VM stack underflow for PRINT_MULTIPLE
+[DEBUG] VM executing instruction 164: PUSH_STR
+[DEBUG][ip=164] OpCode: 4 (PUSH_STR), Operand index: First element:, Stack size: 1
+[DEBUG] VM executing instruction 165: LOAD_VAR
+[DEBUG][ip=165] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 13
+[DEBUG] VM executing instruction 166: PUSH_INT
+[DEBUG][ip=166] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 3
+[DEBUG] PUSH_INT: stack size = 4, top index = 4
+[DEBUG] VM executing instruction 167: ARRAY_GET
+[DEBUG][ip=167] OpCode: 48 (ARRAY_GET), Operand index: 0, Stack size: 4
+[DEBUG] VM executing instruction 168: PRINT_MULTIPLE
+[DEBUG][ip=168] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 3
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=3
+[DEBUG] PRINT_MULTIPLE: popped value 0: sol
+[DEBUG] PRINT_MULTIPLE: popped value 1: First element:
+[DEBUG] PRINT_MULTIPLE: final result: 'First element: sol'
+----- START PRINT -----
+First element: sol
+----- END PRINT -----
+[DEBUG] VM executing instruction 169: PUSH_STR
+[DEBUG][ip=169] OpCode: 4 (PUSH_STR), Operand index: Last element:, Stack size: 1
+[DEBUG] VM executing instruction 170: LOAD_VAR
+[DEBUG][ip=170] OpCode: 29 (LOAD_VAR), Operand index: 9, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 9
+[DEBUG] LOAD_VAR: variables.size() = 10
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 13
+[DEBUG] VM executing instruction 171: PUSH_INT
+[DEBUG][ip=171] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 3
+[DEBUG] PUSH_INT: stack size = 4, top index = 4
+[DEBUG] VM executing instruction 172: SUB
+[DEBUG][ip=172] OpCode: 10 (SUB), Operand index: 0, Stack size: 4
+[DEBUG] Stack before pop (size=2): [array] [1, 2, 4, 5, 6], [int32] 1
+Invalid operand types for arithmetic or comparison
+[DEBUG] VM executing instruction 173: ARRAY_GET
+[DEBUG][ip=173] OpCode: 48 (ARRAY_GET), Operand index: 0, Stack size: 3
+[DEBUG] VM executing instruction 174: PRINT_MULTIPLE
+[DEBUG][ip=174] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: sol
+[DEBUG] PRINT_MULTIPLE: popped value 1: Array length:
+[DEBUG] PRINT_MULTIPLE: final result: 'Array length: sol'
+----- START PRINT -----
+Array length: sol
+----- END PRINT -----
+[DEBUG] VM executing instruction 175: PUSH_STR
+[DEBUG][ip=175] OpCode: 4 (PUSH_STR), Operand index: 
+7. MAPS, Stack size: 0
+[DEBUG] VM executing instruction 176: PRINT
+[DEBUG][ip=176] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+7. MAPS
+----- START PRINT -----
+
+7. MAPS
+----- END PRINT -----
+[DEBUG] VM executing instruction 177: PUSH_STR
+[DEBUG][ip=177] OpCode: 4 (PUSH_STR), Operand index: name, Stack size: 0
+[DEBUG] VM executing instruction 178: PUSH_STR
+[DEBUG][ip=178] OpCode: 4 (PUSH_STR), Operand index: Linh, Stack size: 1
+[DEBUG] VM executing instruction 179: PUSH_STR
+[DEBUG][ip=179] OpCode: 4 (PUSH_STR), Operand index: version, Stack size: 2
+[DEBUG] VM executing instruction 180: PUSH_STR
+[DEBUG][ip=180] OpCode: 4 (PUSH_STR), Operand index: 0.017, Stack size: 3
+[DEBUG] VM executing instruction 181: PUSH_STR
+[DEBUG][ip=181] OpCode: 4 (PUSH_STR), Operand index: type, Stack size: 4
+[DEBUG] VM executing instruction 182: PUSH_STR
+[DEBUG][ip=182] OpCode: 4 (PUSH_STR), Operand index: language, Stack size: 5
+[DEBUG] VM executing instruction 183: PUSH_MAP
+[DEBUG][ip=183] OpCode: 47 (PUSH_MAP), Operand index: 3, Stack size: 6
+[DEBUG] VM executing instruction 184: STORE_VAR
+[DEBUG][ip=184] OpCode: 30 (STORE_VAR), Operand index: 10, Stack size: 1
+[DEBUG] VM executing instruction 185: PUSH_STR
+[DEBUG][ip=185] OpCode: 4 (PUSH_STR), Operand index: Original map:, Stack size: 0
+[DEBUG] VM executing instruction 186: LOAD_VAR
+[DEBUG][ip=186] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 11
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 187: PRINT_MULTIPLE
+[DEBUG][ip=187] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {"type": "language", "version": "0.017", "name": "Linh"}
+[DEBUG] PRINT_MULTIPLE: popped value 1: Original map:
+[DEBUG] PRINT_MULTIPLE: final result: 'Original map: {"type": "language", "version": "0.017", "name": "Linh"}'
+----- START PRINT -----
+Original map: {"type": "language", "version": "0.017", "name": "Linh"}
+----- END PRINT -----
+[DEBUG] VM executing instruction 188: LOAD_VAR
+[DEBUG][ip=188] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 11
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 14
+[DEBUG] VM executing instruction 189: PUSH_STR
+[DEBUG][ip=189] OpCode: 4 (PUSH_STR), Operand index: version, Stack size: 1
+[DEBUG] VM executing instruction 190: MAP_DELETE
+[DEBUG][ip=190] OpCode: 60 (MAP_DELETE), Operand index: 0, Stack size: 2
+[DEBUG] VM executing instruction 191: POP
+[DEBUG][ip=191] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 192: PUSH_STR
+[DEBUG][ip=192] OpCode: 4 (PUSH_STR), Operand index: After delete('version'):, Stack size: 0
+[DEBUG] VM executing instruction 193: LOAD_VAR
+[DEBUG][ip=193] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 11
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 194: PRINT_MULTIPLE
+[DEBUG][ip=194] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {"type": "language", "name": "Linh"}
+[DEBUG] PRINT_MULTIPLE: popped value 1: After delete('version'):
+[DEBUG] PRINT_MULTIPLE: final result: 'After delete('version'): {"type": "language", "name": "Linh"}'
+----- START PRINT -----
+After delete('version'): {"type": "language", "name": "Linh"}
+----- END PRINT -----
+[DEBUG] VM executing instruction 195: LOAD_VAR
+[DEBUG][ip=195] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 11
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 14
+[DEBUG] VM executing instruction 196: MAP_KEYS
+[DEBUG][ip=196] OpCode: 58 (MAP_KEYS), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 197: STORE_VAR
+[DEBUG][ip=197] OpCode: 30 (STORE_VAR), Operand index: 11, Stack size: 1
+[DEBUG] VM executing instruction 198: PUSH_STR
+[DEBUG][ip=198] OpCode: 4 (PUSH_STR), Operand index: Map keys:, Stack size: 0
+[DEBUG] VM executing instruction 199: LOAD_VAR
+[DEBUG][ip=199] OpCode: 29 (LOAD_VAR), Operand index: 11, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 11
+[DEBUG] LOAD_VAR: variables.size() = 12
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 200: PRINT_MULTIPLE
+[DEBUG][ip=200] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: ["type", "name"]
+[DEBUG] PRINT_MULTIPLE: popped value 1: Map keys:
+[DEBUG] PRINT_MULTIPLE: final result: 'Map keys: ["type", "name"]'
+----- START PRINT -----
+Map keys: ["type", "name"]
+----- END PRINT -----
+[DEBUG] VM executing instruction 201: LOAD_VAR
+[DEBUG][ip=201] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 12
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 14
+[DEBUG] VM executing instruction 202: MAP_VALUES
+[DEBUG][ip=202] OpCode: 59 (MAP_VALUES), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 203: STORE_VAR
+[DEBUG][ip=203] OpCode: 30 (STORE_VAR), Operand index: 12, Stack size: 1
+[DEBUG] VM executing instruction 204: PUSH_STR
+[DEBUG][ip=204] OpCode: 4 (PUSH_STR), Operand index: Map values:, Stack size: 0
+[DEBUG] VM executing instruction 205: LOAD_VAR
+[DEBUG][ip=205] OpCode: 29 (LOAD_VAR), Operand index: 12, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 12
+[DEBUG] LOAD_VAR: variables.size() = 13
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 206: PRINT_MULTIPLE
+[DEBUG][ip=206] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: ["language", "Linh"]
+[DEBUG] PRINT_MULTIPLE: popped value 1: Map values:
+[DEBUG] PRINT_MULTIPLE: final result: 'Map values: ["language", "Linh"]'
+----- START PRINT -----
+Map values: ["language", "Linh"]
+----- END PRINT -----
+[DEBUG] VM executing instruction 207: LOAD_VAR
+[DEBUG][ip=207] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 13
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 14
+[DEBUG] VM executing instruction 208: ARRAY_CLEAR
+[DEBUG][ip=208] OpCode: 55 (ARRAY_CLEAR), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 209: POP
+[DEBUG][ip=209] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 210: PUSH_STR
+[DEBUG][ip=210] OpCode: 4 (PUSH_STR), Operand index: After clear():, Stack size: 0
+[DEBUG] VM executing instruction 211: LOAD_VAR
+[DEBUG][ip=211] OpCode: 29 (LOAD_VAR), Operand index: 10, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 10
+[DEBUG] LOAD_VAR: variables.size() = 13
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 212: PRINT_MULTIPLE
+[DEBUG][ip=212] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {}
+[DEBUG] PRINT_MULTIPLE: popped value 1: After clear():
+[DEBUG] PRINT_MULTIPLE: final result: 'After clear(): {}'
+----- START PRINT -----
+After clear(): {}
+----- END PRINT -----
+[DEBUG] VM executing instruction 213: PUSH_STR
+[DEBUG][ip=213] OpCode: 4 (PUSH_STR), Operand index: 
+8. CONTROL FLOW - IF/ELSE, Stack size: 0
+[DEBUG] VM executing instruction 214: PRINT
+[DEBUG][ip=214] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+8. CONTROL FLOW - IF/ELSE
+----- START PRINT -----
+
+8. CONTROL FLOW - IF/ELSE
+----- END PRINT -----
+[DEBUG] VM executing instruction 215: PUSH_INT
+[DEBUG][ip=215] OpCode: 1 (PUSH_INT), Operand index: 85, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 216: STORE_VAR
+[DEBUG][ip=216] OpCode: 30 (STORE_VAR), Operand index: 13, Stack size: 1
+[DEBUG] VM executing instruction 217: LOAD_VAR
+[DEBUG][ip=217] OpCode: 29 (LOAD_VAR), Operand index: 13, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 13
+[DEBUG] LOAD_VAR: variables.size() = 14
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 218: PUSH_INT
+[DEBUG][ip=218] OpCode: 1 (PUSH_INT), Operand index: 90, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 219: GTE
+[DEBUG][ip=219] OpCode: 28 (GTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int32] 85, [int32] 90, 
+[DEBUG] Compare a=[int32] 85, b=[int32] 90
+[DEBUG] VM executing instruction 220: JMP_IF_FALSE
+[DEBUG][ip=220] OpCode: 32 (JMP_IF_FALSE), Operand index: 224, Stack size: 1
+[DEBUG] VM executing instruction 224: LOAD_VAR
+[DEBUG][ip=224] OpCode: 29 (LOAD_VAR), Operand index: 13, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 13
+[DEBUG] LOAD_VAR: variables.size() = 14
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 225: PUSH_INT
+[DEBUG][ip=225] OpCode: 1 (PUSH_INT), Operand index: 80, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 226: GTE
+[DEBUG][ip=226] OpCode: 28 (GTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int32] 85, [int32] 80, 
+[DEBUG] Compare a=[int32] 85, b=[int32] 80
+[DEBUG] VM executing instruction 227: JMP_IF_FALSE
+[DEBUG][ip=227] OpCode: 32 (JMP_IF_FALSE), Operand index: 231, Stack size: 1
+[DEBUG] VM executing instruction 228: PUSH_STR
+[DEBUG][ip=228] OpCode: 4 (PUSH_STR), Operand index: Grade: B, Stack size: 0
+[DEBUG] VM executing instruction 229: PRINT
+[DEBUG][ip=229] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: Grade: B
+----- START PRINT -----
+Grade: B
+----- END PRINT -----
+[DEBUG] VM executing instruction 230: JMP
+[DEBUG][ip=230] OpCode: 31 (JMP), Operand index: 240, Stack size: 0
+[DEBUG] VM executing instruction 240: PUSH_STR
+[DEBUG][ip=240] OpCode: 4 (PUSH_STR), Operand index: 
+9. LOOPS, Stack size: 0
+[DEBUG] VM executing instruction 241: PRINT
+[DEBUG][ip=241] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+9. LOOPS
+----- START PRINT -----
+
+9. LOOPS
+----- END PRINT -----
+[DEBUG] VM executing instruction 242: PUSH_STR
+[DEBUG][ip=242] OpCode: 4 (PUSH_STR), Operand index: For loop (1 to 5):, Stack size: 0
+[DEBUG] VM executing instruction 243: PRINT
+[DEBUG][ip=243] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: For loop (1 to 5):
+----- START PRINT -----
+For loop (1 to 5):
+----- END PRINT -----
+[DEBUG] VM executing instruction 244: PUSH_INT
+[DEBUG][ip=244] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 245: STORE_VAR
+[DEBUG][ip=245] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int32] 1, [int32] 5, 
+[DEBUG] Compare a=[int32] 1, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 250: PUSH_STR
+[DEBUG][ip=250] OpCode: 4 (PUSH_STR), Operand index: i =, Stack size: 0
+[DEBUG] VM executing instruction 251: LOAD_VAR
+[DEBUG][ip=251] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 252: PRINT_MULTIPLE
+[DEBUG][ip=252] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 1
+[DEBUG] PRINT_MULTIPLE: popped value 1: i =
+[DEBUG] PRINT_MULTIPLE: final result: 'i = 1'
+----- START PRINT -----
+i = 1
+----- END PRINT -----
+[DEBUG] VM executing instruction 253: LOAD_VAR
+[DEBUG][ip=253] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 254: PUSH_INT
+[DEBUG][ip=254] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 255: ADD
+[DEBUG][ip=255] OpCode: 9 (ADD), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int32] 1, [int32] 1
+[DEBUG] VM executing instruction 256: STORE_VAR
+[DEBUG][ip=256] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 257: JMP
+[DEBUG][ip=257] OpCode: 31 (JMP), Operand index: 246, Stack size: 0
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 2, [int32] 5, 
+[DEBUG] Compare a=[int64] 2, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 250: PUSH_STR
+[DEBUG][ip=250] OpCode: 4 (PUSH_STR), Operand index: i =, Stack size: 0
+[DEBUG] VM executing instruction 251: LOAD_VAR
+[DEBUG][ip=251] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 252: PRINT_MULTIPLE
+[DEBUG][ip=252] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 2
+[DEBUG] PRINT_MULTIPLE: popped value 1: i =
+[DEBUG] PRINT_MULTIPLE: final result: 'i = 2'
+----- START PRINT -----
+i = 2
+----- END PRINT -----
+[DEBUG] VM executing instruction 253: LOAD_VAR
+[DEBUG][ip=253] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 254: PUSH_INT
+[DEBUG][ip=254] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 255: ADD
+[DEBUG][ip=255] OpCode: 9 (ADD), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 2, [int32] 1
+[DEBUG] VM executing instruction 256: STORE_VAR
+[DEBUG][ip=256] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 257: JMP
+[DEBUG][ip=257] OpCode: 31 (JMP), Operand index: 246, Stack size: 0
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 3, [int32] 5, 
+[DEBUG] Compare a=[int64] 3, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 250: PUSH_STR
+[DEBUG][ip=250] OpCode: 4 (PUSH_STR), Operand index: i =, Stack size: 0
+[DEBUG] VM executing instruction 251: LOAD_VAR
+[DEBUG][ip=251] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 252: PRINT_MULTIPLE
+[DEBUG][ip=252] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 3
+[DEBUG] PRINT_MULTIPLE: popped value 1: i =
+[DEBUG] PRINT_MULTIPLE: final result: 'i = 3'
+----- START PRINT -----
+i = 3
+----- END PRINT -----
+[DEBUG] VM executing instruction 253: LOAD_VAR
+[DEBUG][ip=253] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 254: PUSH_INT
+[DEBUG][ip=254] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 255: ADD
+[DEBUG][ip=255] OpCode: 9 (ADD), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 3, [int32] 1
+[DEBUG] VM executing instruction 256: STORE_VAR
+[DEBUG][ip=256] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 257: JMP
+[DEBUG][ip=257] OpCode: 31 (JMP), Operand index: 246, Stack size: 0
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 4, [int32] 5, 
+[DEBUG] Compare a=[int64] 4, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 250: PUSH_STR
+[DEBUG][ip=250] OpCode: 4 (PUSH_STR), Operand index: i =, Stack size: 0
+[DEBUG] VM executing instruction 251: LOAD_VAR
+[DEBUG][ip=251] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 252: PRINT_MULTIPLE
+[DEBUG][ip=252] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 4
+[DEBUG] PRINT_MULTIPLE: popped value 1: i =
+[DEBUG] PRINT_MULTIPLE: final result: 'i = 4'
+----- START PRINT -----
+i = 4
+----- END PRINT -----
+[DEBUG] VM executing instruction 253: LOAD_VAR
+[DEBUG][ip=253] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 254: PUSH_INT
+[DEBUG][ip=254] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 255: ADD
+[DEBUG][ip=255] OpCode: 9 (ADD), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 4, [int32] 1
+[DEBUG] VM executing instruction 256: STORE_VAR
+[DEBUG][ip=256] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 257: JMP
+[DEBUG][ip=257] OpCode: 31 (JMP), Operand index: 246, Stack size: 0
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 5, [int32] 5, 
+[DEBUG] Compare a=[int64] 5, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 250: PUSH_STR
+[DEBUG][ip=250] OpCode: 4 (PUSH_STR), Operand index: i =, Stack size: 0
+[DEBUG] VM executing instruction 251: LOAD_VAR
+[DEBUG][ip=251] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 252: PRINT_MULTIPLE
+[DEBUG][ip=252] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 5
+[DEBUG] PRINT_MULTIPLE: popped value 1: i =
+[DEBUG] PRINT_MULTIPLE: final result: 'i = 5'
+----- START PRINT -----
+i = 5
+----- END PRINT -----
+[DEBUG] VM executing instruction 253: LOAD_VAR
+[DEBUG][ip=253] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 254: PUSH_INT
+[DEBUG][ip=254] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 255: ADD
+[DEBUG][ip=255] OpCode: 9 (ADD), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 5, [int32] 1
+[DEBUG] VM executing instruction 256: STORE_VAR
+[DEBUG][ip=256] OpCode: 30 (STORE_VAR), Operand index: 14, Stack size: 1
+[DEBUG] VM executing instruction 257: JMP
+[DEBUG][ip=257] OpCode: 31 (JMP), Operand index: 246, Stack size: 0
+[DEBUG] VM executing instruction 246: LOAD_VAR
+[DEBUG][ip=246] OpCode: 29 (LOAD_VAR), Operand index: 14, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 14
+[DEBUG] LOAD_VAR: variables.size() = 15
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 247: PUSH_INT
+[DEBUG][ip=247] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 248: LTE
+[DEBUG][ip=248] OpCode: 27 (LTE), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 6, [int32] 5, 
+[DEBUG] Compare a=[int64] 6, b=[int32] 5
+[DEBUG] VM executing instruction 249: JMP_IF_FALSE
+[DEBUG][ip=249] OpCode: 32 (JMP_IF_FALSE), Operand index: 258, Stack size: 1
+[DEBUG] VM executing instruction 258: PUSH_STR
+[DEBUG][ip=258] OpCode: 4 (PUSH_STR), Operand index: While loop countdown:, Stack size: 0
+[DEBUG] VM executing instruction 259: PRINT
+[DEBUG][ip=259] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: While loop countdown:
+----- START PRINT -----
+While loop countdown:
+----- END PRINT -----
+[DEBUG] VM executing instruction 260: PUSH_INT
+[DEBUG][ip=260] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 261: STORE_VAR
+[DEBUG][ip=261] OpCode: 30 (STORE_VAR), Operand index: 15, Stack size: 1
+[DEBUG] VM executing instruction 262: LOAD_VAR
+[DEBUG][ip=262] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 263: PUSH_INT
+[DEBUG][ip=263] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 264: GT
+[DEBUG][ip=264] OpCode: 26 (GT), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int32] 3, [int32] 0, 
+[DEBUG] Compare a=[int32] 3, b=[int32] 0
+[DEBUG] VM executing instruction 265: JMP_IF_FALSE
+[DEBUG][ip=265] OpCode: 32 (JMP_IF_FALSE), Operand index: 274, Stack size: 1
+[DEBUG] VM executing instruction 266: PUSH_STR
+[DEBUG][ip=266] OpCode: 4 (PUSH_STR), Operand index: Countdown:, Stack size: 0
+[DEBUG] VM executing instruction 267: LOAD_VAR
+[DEBUG][ip=267] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 268: PRINT_MULTIPLE
+[DEBUG][ip=268] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 3
+[DEBUG] PRINT_MULTIPLE: popped value 1: Countdown:
+[DEBUG] PRINT_MULTIPLE: final result: 'Countdown: 3'
+----- START PRINT -----
+Countdown: 3
+----- END PRINT -----
+[DEBUG] VM executing instruction 269: LOAD_VAR
+[DEBUG][ip=269] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 4
+[DEBUG] VM executing instruction 270: PUSH_INT
+[DEBUG][ip=270] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 271: SUB
+[DEBUG][ip=271] OpCode: 10 (SUB), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int32] 3, [int32] 1
+[DEBUG] VM executing instruction 272: STORE_VAR
+[DEBUG][ip=272] OpCode: 30 (STORE_VAR), Operand index: 15, Stack size: 1
+[DEBUG] VM executing instruction 273: JMP
+[DEBUG][ip=273] OpCode: 31 (JMP), Operand index: 262, Stack size: 0
+[DEBUG] VM executing instruction 262: LOAD_VAR
+[DEBUG][ip=262] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 263: PUSH_INT
+[DEBUG][ip=263] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 264: GT
+[DEBUG][ip=264] OpCode: 26 (GT), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 2, [int32] 0, 
+[DEBUG] Compare a=[int64] 2, b=[int32] 0
+[DEBUG] VM executing instruction 265: JMP_IF_FALSE
+[DEBUG][ip=265] OpCode: 32 (JMP_IF_FALSE), Operand index: 274, Stack size: 1
+[DEBUG] VM executing instruction 266: PUSH_STR
+[DEBUG][ip=266] OpCode: 4 (PUSH_STR), Operand index: Countdown:, Stack size: 0
+[DEBUG] VM executing instruction 267: LOAD_VAR
+[DEBUG][ip=267] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 268: PRINT_MULTIPLE
+[DEBUG][ip=268] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 2
+[DEBUG] PRINT_MULTIPLE: popped value 1: Countdown:
+[DEBUG] PRINT_MULTIPLE: final result: 'Countdown: 2'
+----- START PRINT -----
+Countdown: 2
+----- END PRINT -----
+[DEBUG] VM executing instruction 269: LOAD_VAR
+[DEBUG][ip=269] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 270: PUSH_INT
+[DEBUG][ip=270] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 271: SUB
+[DEBUG][ip=271] OpCode: 10 (SUB), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 2, [int32] 1
+[DEBUG] VM executing instruction 272: STORE_VAR
+[DEBUG][ip=272] OpCode: 30 (STORE_VAR), Operand index: 15, Stack size: 1
+[DEBUG] VM executing instruction 273: JMP
+[DEBUG][ip=273] OpCode: 31 (JMP), Operand index: 262, Stack size: 0
+[DEBUG] VM executing instruction 262: LOAD_VAR
+[DEBUG][ip=262] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 263: PUSH_INT
+[DEBUG][ip=263] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 264: GT
+[DEBUG][ip=264] OpCode: 26 (GT), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 1, [int32] 0, 
+[DEBUG] Compare a=[int64] 1, b=[int32] 0
+[DEBUG] VM executing instruction 265: JMP_IF_FALSE
+[DEBUG][ip=265] OpCode: 32 (JMP_IF_FALSE), Operand index: 274, Stack size: 1
+[DEBUG] VM executing instruction 266: PUSH_STR
+[DEBUG][ip=266] OpCode: 4 (PUSH_STR), Operand index: Countdown:, Stack size: 0
+[DEBUG] VM executing instruction 267: LOAD_VAR
+[DEBUG][ip=267] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 5
+[DEBUG] VM executing instruction 268: PRINT_MULTIPLE
+[DEBUG][ip=268] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 1
+[DEBUG] PRINT_MULTIPLE: popped value 1: Countdown:
+[DEBUG] PRINT_MULTIPLE: final result: 'Countdown: 1'
+----- START PRINT -----
+Countdown: 1
+----- END PRINT -----
+[DEBUG] VM executing instruction 269: LOAD_VAR
+[DEBUG][ip=269] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 270: PUSH_INT
+[DEBUG][ip=270] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 271: SUB
+[DEBUG][ip=271] OpCode: 10 (SUB), Operand index: 0, Stack size: 2
+[DEBUG] Stack before pop (size=0): [int64] 1, [int32] 1
+[DEBUG] VM executing instruction 272: STORE_VAR
+[DEBUG][ip=272] OpCode: 30 (STORE_VAR), Operand index: 15, Stack size: 1
+[DEBUG] VM executing instruction 273: JMP
+[DEBUG][ip=273] OpCode: 31 (JMP), Operand index: 262, Stack size: 0
+[DEBUG] VM executing instruction 262: LOAD_VAR
+[DEBUG][ip=262] OpCode: 29 (LOAD_VAR), Operand index: 15, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 15
+[DEBUG] LOAD_VAR: variables.size() = 16
+[DEBUG] LOAD_VAR: loaded value index = 5
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 5
+[DEBUG] VM executing instruction 263: PUSH_INT
+[DEBUG][ip=263] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 264: GT
+[DEBUG][ip=264] OpCode: 26 (GT), Operand index: 0, Stack size: 2
+[DEBUG] Before comparison: [STACK size=2] [int64] 0, [int32] 0, 
+[DEBUG] Compare a=[int64] 0, b=[int32] 0
+[DEBUG] VM executing instruction 265: JMP_IF_FALSE
+[DEBUG][ip=265] OpCode: 32 (JMP_IF_FALSE), Operand index: 274, Stack size: 1
+[DEBUG] VM executing instruction 274: PUSH_STR
+[DEBUG][ip=274] OpCode: 4 (PUSH_STR), Operand index: 
+10. FUNCTIONS, Stack size: 0
+[DEBUG] VM executing instruction 275: PRINT
+[DEBUG][ip=275] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+10. FUNCTIONS
+----- START PRINT -----
+
+10. FUNCTIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 276: PUSH_FUNCTION
+[DEBUG][ip=276] OpCode: 36 (PUSH_FUNCTION), Operand index: (tuple/other), Stack size: 0
+[DEBUG] PUSH_FUNCTION case reached
+[DEBUG] PUSH_FUNCTION: operand index = 6
+[DEBUG] PUSH_FUNCTION: function_value index = 15
+[DEBUG] PUSH_FUNCTION: pushed function object, stack size = 1
+[DEBUG] VM executing instruction 277: STORE_VAR
+[DEBUG][ip=277] OpCode: 30 (STORE_VAR), Operand index: 16, Stack size: 1
+[DEBUG] VM executing instruction 278: PUSH_FUNCTION
+[DEBUG][ip=278] OpCode: 36 (PUSH_FUNCTION), Operand index: (tuple/other), Stack size: 0
+[DEBUG] PUSH_FUNCTION case reached
+[DEBUG] PUSH_FUNCTION: operand index = 6
+[DEBUG] PUSH_FUNCTION: function_value index = 15
+[DEBUG] PUSH_FUNCTION: pushed function object, stack size = 1
+[DEBUG] VM executing instruction 279: STORE_VAR
+[DEBUG][ip=279] OpCode: 30 (STORE_VAR), Operand index: 17, Stack size: 1
+[DEBUG] VM executing instruction 280: PUSH_FUNCTION
+[DEBUG][ip=280] OpCode: 36 (PUSH_FUNCTION), Operand index: (tuple/other), Stack size: 0
+[DEBUG] PUSH_FUNCTION case reached
+[DEBUG] PUSH_FUNCTION: operand index = 6
+[DEBUG] PUSH_FUNCTION: function_value index = 15
+[DEBUG] PUSH_FUNCTION: pushed function object, stack size = 1
+[DEBUG] VM executing instruction 281: STORE_VAR
+[DEBUG][ip=281] OpCode: 30 (STORE_VAR), Operand index: 18, Stack size: 1
+[DEBUG] VM executing instruction 282: PUSH_STR
+[DEBUG][ip=282] OpCode: 4 (PUSH_STR), Operand index: add(5, 3) =, Stack size: 0
+[DEBUG] VM executing instruction 283: PUSH_INT
+[DEBUG][ip=283] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 284: PUSH_INT
+[DEBUG][ip=284] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 285: LOAD_VAR
+[DEBUG][ip=285] OpCode: 29 (LOAD_VAR), Operand index: 16, Stack size: 3
+[DEBUG] LOAD_VAR: loading variable index 16
+[DEBUG] LOAD_VAR: variables.size() = 19
+[DEBUG] LOAD_VAR: loaded value index = 15
+[DEBUG] LOAD_VAR: after push, stack size = 4, top index = 15
+[DEBUG] VM executing instruction 286: CALL
+[DEBUG][ip=286] OpCode: 34 (CALL), Operand index: add, Stack size: 4
+[DEBUG] CALL: checking for function object on stack, size=4
+[DEBUG] CALL: top of stack index = 15
+[DEBUG] CALL: found function object, calling it
+[DEBUG] CALL: calling function add with 2 arguments
+[DEBUG] Binding parameter 0 with value index = 4
+[DEBUG] Binding parameter 1 with value index = 4
+[DEBUG] run_chunk: starting execution with 4 instructions
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 2
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: loading variable index 1
+[DEBUG] LOAD_VAR: variables.size() = 2
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] Stack before pop (size=1): [int32] 5, [int32] 3
+[DEBUG] run_chunk: RET instruction, returning from function
+[DEBUG] CALL: function executed, result pushed to stack, ip=286
+[DEBUG] VM executing instruction 287: PRINT_MULTIPLE
+[DEBUG][ip=287] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 8
+[DEBUG] PRINT_MULTIPLE: popped value 1: add(5, 3) =
+[DEBUG] PRINT_MULTIPLE: final result: 'add(5, 3) = 8'
+----- START PRINT -----
+add(5, 3) = 8
+----- END PRINT -----
+[DEBUG] VM executing instruction 288: PUSH_STR
+[DEBUG][ip=288] OpCode: 4 (PUSH_STR), Operand index: greet('Linh') =, Stack size: 0
+[DEBUG] VM executing instruction 289: PUSH_STR
+[DEBUG][ip=289] OpCode: 4 (PUSH_STR), Operand index: Linh, Stack size: 1
+[DEBUG] VM executing instruction 290: LOAD_VAR
+[DEBUG][ip=290] OpCode: 29 (LOAD_VAR), Operand index: 17, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 17
+[DEBUG] LOAD_VAR: variables.size() = 19
+[DEBUG] LOAD_VAR: loaded value index = 15
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 15
+[DEBUG] VM executing instruction 291: CALL
+[DEBUG][ip=291] OpCode: 34 (CALL), Operand index: greet, Stack size: 3
+[DEBUG] CALL: checking for function object on stack, size=3
+[DEBUG] CALL: top of stack index = 15
+[DEBUG] CALL: found function object, calling it
+[DEBUG] CALL: calling function greet with 1 arguments
+[DEBUG] Binding parameter 0 with value index = 12
+[DEBUG] run_chunk: starting execution with 6 instructions
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] Stack before pop (size=1): [str] Hello, , [str] Linh
+[DEBUG] Stack before pop (size=1): [str] Hello, Linh, [str] !
+[DEBUG] run_chunk: RET instruction, returning from function
+[DEBUG] CALL: function executed, result pushed to stack, ip=291
+[DEBUG] VM executing instruction 292: PRINT_MULTIPLE
+[DEBUG][ip=292] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: Hello, Linh!
+[DEBUG] PRINT_MULTIPLE: popped value 1: greet('Linh') =
+[DEBUG] PRINT_MULTIPLE: final result: 'greet('Linh') = Hello, Linh!'
+----- START PRINT -----
+greet('Linh') = Hello, Linh!
+----- END PRINT -----
+[DEBUG] VM executing instruction 293: PUSH_STR
+[DEBUG][ip=293] OpCode: 4 (PUSH_STR), Operand index: factorial(5) =, Stack size: 0
+[DEBUG] VM executing instruction 294: PUSH_INT
+[DEBUG][ip=294] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 295: LOAD_VAR
+[DEBUG][ip=295] OpCode: 29 (LOAD_VAR), Operand index: 18, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 18
+[DEBUG] LOAD_VAR: variables.size() = 19
+[DEBUG] LOAD_VAR: loaded value index = 15
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 15
+[DEBUG] VM executing instruction 296: CALL
+[DEBUG][ip=296] OpCode: 34 (CALL), Operand index: factorial, Stack size: 3
+[DEBUG] CALL: checking for function object on stack, size=3
+[DEBUG] CALL: top of stack index = 15
+[DEBUG] CALL: found function object, calling it
+[DEBUG] CALL: calling function factorial with 1 arguments
+[DEBUG] Binding parameter 0 with value index = 4
+[DEBUG] run_chunk: starting execution with 16 instructions
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 4
+VM: Unknown opcode in function: 27
+[DEBUG] run_chunk: RET instruction, returning from function
+[DEBUG] CALL: function executed, result pushed to stack, ip=296
+[DEBUG] VM executing instruction 297: PRINT_MULTIPLE
+[DEBUG][ip=297] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 5
+[DEBUG] PRINT_MULTIPLE: popped value 1: factorial(5) =
+[DEBUG] PRINT_MULTIPLE: final result: 'factorial(5) = 5'
+----- START PRINT -----
+factorial(5) = 5
+----- END PRINT -----
+[DEBUG] VM executing instruction 298: PUSH_FUNCTION
+[DEBUG][ip=298] OpCode: 36 (PUSH_FUNCTION), Operand index: (tuple/other), Stack size: 0
+[DEBUG] PUSH_FUNCTION case reached
+[DEBUG] PUSH_FUNCTION: operand index = 6
+[DEBUG] PUSH_FUNCTION: function_value index = 15
+[DEBUG] PUSH_FUNCTION: pushed function object, stack size = 1
+[DEBUG] VM executing instruction 299: CAPTURE_VAR
+[DEBUG][ip=299] OpCode: 38 (CAPTURE_VAR), Operand index: arr, Stack size: 1
+Warning: Variable 'arr' not found for capture
+[DEBUG] VM executing instruction 300: CAPTURE_VAR
+[DEBUG][ip=300] OpCode: 38 (CAPTURE_VAR), Operand index: int_var, Stack size: 1
+Warning: Variable 'int_var' not found for capture
+[DEBUG] VM executing instruction 301: CAPTURE_VAR
+[DEBUG][ip=301] OpCode: 38 (CAPTURE_VAR), Operand index: uint_var, Stack size: 1
+Warning: Variable 'uint_var' not found for capture
+[DEBUG] VM executing instruction 302: CAPTURE_VAR
+[DEBUG][ip=302] OpCode: 38 (CAPTURE_VAR), Operand index: x, Stack size: 1
+Warning: Variable 'x' not found for capture
+[DEBUG] VM executing instruction 303: CAPTURE_VAR
+[DEBUG][ip=303] OpCode: 38 (CAPTURE_VAR), Operand index: float_var, Stack size: 1
+Warning: Variable 'float_var' not found for capture
+[DEBUG] VM executing instruction 304: CAPTURE_VAR
+[DEBUG][ip=304] OpCode: 38 (CAPTURE_VAR), Operand index: bool_var, Stack size: 1
+Warning: Variable 'bool_var' not found for capture
+[DEBUG] VM executing instruction 305: CAPTURE_VAR
+[DEBUG][ip=305] OpCode: 38 (CAPTURE_VAR), Operand index: square, Stack size: 1
+Warning: Variable 'square' not found for capture
+[DEBUG] VM executing instruction 306: CAPTURE_VAR
+[DEBUG][ip=306] OpCode: 38 (CAPTURE_VAR), Operand index: str_var, Stack size: 1
+Warning: Variable 'str_var' not found for capture
+[DEBUG] VM executing instruction 307: CAPTURE_VAR
+[DEBUG][ip=307] OpCode: 38 (CAPTURE_VAR), Operand index: a, Stack size: 1
+Warning: Variable 'a' not found for capture
+[DEBUG] VM executing instruction 308: CAPTURE_VAR
+[DEBUG][ip=308] OpCode: 38 (CAPTURE_VAR), Operand index: b, Stack size: 1
+Warning: Variable 'b' not found for capture
+[DEBUG] VM executing instruction 309: CAPTURE_VAR
+[DEBUG][ip=309] OpCode: 38 (CAPTURE_VAR), Operand index: y, Stack size: 1
+Warning: Variable 'y' not found for capture
+[DEBUG] VM executing instruction 310: CAPTURE_VAR
+[DEBUG][ip=310] OpCode: 38 (CAPTURE_VAR), Operand index: add, Stack size: 1
+Warning: Variable 'add' not found for capture
+[DEBUG] VM executing instruction 311: CAPTURE_VAR
+[DEBUG][ip=311] OpCode: 38 (CAPTURE_VAR), Operand index: my_map, Stack size: 1
+Warning: Variable 'my_map' not found for capture
+[DEBUG] VM executing instruction 312: CAPTURE_VAR
+[DEBUG][ip=312] OpCode: 38 (CAPTURE_VAR), Operand index: keys, Stack size: 1
+Warning: Variable 'keys' not found for capture
+[DEBUG] VM executing instruction 313: CAPTURE_VAR
+[DEBUG][ip=313] OpCode: 38 (CAPTURE_VAR), Operand index: values, Stack size: 1
+Warning: Variable 'values' not found for capture
+[DEBUG] VM executing instruction 314: CAPTURE_VAR
+[DEBUG][ip=314] OpCode: 38 (CAPTURE_VAR), Operand index: score, Stack size: 1
+Warning: Variable 'score' not found for capture
+[DEBUG] VM executing instruction 315: CAPTURE_VAR
+[DEBUG][ip=315] OpCode: 38 (CAPTURE_VAR), Operand index: i, Stack size: 1
+Warning: Variable 'i' not found for capture
+[DEBUG] VM executing instruction 316: CAPTURE_VAR
+[DEBUG][ip=316] OpCode: 38 (CAPTURE_VAR), Operand index: countdown, Stack size: 1
+Warning: Variable 'countdown' not found for capture
+[DEBUG] VM executing instruction 317: CAPTURE_VAR
+[DEBUG][ip=317] OpCode: 38 (CAPTURE_VAR), Operand index: greet, Stack size: 1
+Warning: Variable 'greet' not found for capture
+[DEBUG] VM executing instruction 318: CAPTURE_VAR
+[DEBUG][ip=318] OpCode: 38 (CAPTURE_VAR), Operand index: factorial, Stack size: 1
+Warning: Variable 'factorial' not found for capture
+[DEBUG] VM executing instruction 319: CREATE_CLOSURE
+[DEBUG][ip=319] OpCode: 37 (CREATE_CLOSURE), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 320: STORE_VAR
+[DEBUG][ip=320] OpCode: 30 (STORE_VAR), Operand index: 19, Stack size: 1
+[DEBUG] VM executing instruction 321: PUSH_STR
+[DEBUG][ip=321] OpCode: 4 (PUSH_STR), Operand index: square(4) =, Stack size: 0
+[DEBUG] VM executing instruction 322: PUSH_INT
+[DEBUG][ip=322] OpCode: 1 (PUSH_INT), Operand index: 4, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 323: LOAD_VAR
+[DEBUG][ip=323] OpCode: 29 (LOAD_VAR), Operand index: 19, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 19
+[DEBUG] LOAD_VAR: variables.size() = 20
+[DEBUG] LOAD_VAR: loaded value index = 15
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 15
+[DEBUG] VM executing instruction 324: CALL
+[DEBUG][ip=324] OpCode: 34 (CALL), Operand index: square, Stack size: 3
+[DEBUG] CALL: checking for function object on stack, size=3
+[DEBUG] CALL: top of stack index = 15
+[DEBUG] CALL: found function object, calling it
+[DEBUG] CALL: calling function  with 1 arguments
+[DEBUG] Restoring closure environment with 0 variables
+[DEBUG] Binding parameter 0 with value index = 4
+[DEBUG] run_chunk: starting execution with 4 instructions
+[DEBUG] LOAD_VAR: loading variable index 7
+[DEBUG] LOAD_VAR: variables.size() = 1
+VM: LOAD_VAR unknown variable index 7
+[DEBUG] LOAD_VAR: loading variable index 7
+[DEBUG] LOAD_VAR: variables.size() = 1
+VM: LOAD_VAR unknown variable index 7
+[DEBUG] Stack before pop (size=1): [int64] 0, [int64] 0
+[DEBUG] run_chunk: RET instruction, returning from function
+[DEBUG] Updated closure environment: count = 
+[DEBUG] CALL: function executed, result pushed to stack, ip=324
+[DEBUG] VM executing instruction 325: PRINT_MULTIPLE
+[DEBUG][ip=325] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 0
+[DEBUG] PRINT_MULTIPLE: popped value 1: square(4) =
+[DEBUG] PRINT_MULTIPLE: final result: 'square(4) = 0'
+----- START PRINT -----
+square(4) = 0
+----- END PRINT -----
+[DEBUG] VM executing instruction 326: PUSH_STR
+[DEBUG][ip=326] OpCode: 4 (PUSH_STR), Operand index: 
+11. STRING OPERATIONS, Stack size: 0
+[DEBUG] VM executing instruction 327: PRINT
+[DEBUG][ip=327] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+11. STRING OPERATIONS
+----- START PRINT -----
+
+11. STRING OPERATIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 328: PUSH_STR
+[DEBUG][ip=328] OpCode: 4 (PUSH_STR), Operand index: Hello, Stack size: 0
+[DEBUG] VM executing instruction 329: STORE_VAR
+[DEBUG][ip=329] OpCode: 30 (STORE_VAR), Operand index: 20, Stack size: 1
+[DEBUG] VM executing instruction 330: PUSH_STR
+[DEBUG][ip=330] OpCode: 4 (PUSH_STR), Operand index: World, Stack size: 0
+[DEBUG] VM executing instruction 331: STORE_VAR
+[DEBUG][ip=331] OpCode: 30 (STORE_VAR), Operand index: 21, Stack size: 1
+[DEBUG] VM executing instruction 332: PUSH_STR
+[DEBUG][ip=332] OpCode: 4 (PUSH_STR), Operand index: String concatenation:, Stack size: 0
+[DEBUG] VM executing instruction 333: LOAD_VAR
+[DEBUG][ip=333] OpCode: 29 (LOAD_VAR), Operand index: 20, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 20
+[DEBUG] LOAD_VAR: variables.size() = 22
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 12
+[DEBUG] VM executing instruction 334: PUSH_STR
+[DEBUG][ip=334] OpCode: 4 (PUSH_STR), Operand index:  , Stack size: 2
+[DEBUG] VM executing instruction 335: ADD
+[DEBUG][ip=335] OpCode: 9 (ADD), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [str] Hello, [str]  
+[DEBUG] VM executing instruction 336: LOAD_VAR
+[DEBUG][ip=336] OpCode: 29 (LOAD_VAR), Operand index: 21, Stack size: 2
+[DEBUG] LOAD_VAR: loading variable index 21
+[DEBUG] LOAD_VAR: variables.size() = 22
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 3, top index = 12
+[DEBUG] VM executing instruction 337: ADD
+[DEBUG][ip=337] OpCode: 9 (ADD), Operand index: 0, Stack size: 3
+[DEBUG] Stack before pop (size=1): [str] Hello , [str] World
+[DEBUG] VM executing instruction 338: PRINT_MULTIPLE
+[DEBUG][ip=338] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: Hello World
+[DEBUG] PRINT_MULTIPLE: popped value 1: String concatenation:
+[DEBUG] PRINT_MULTIPLE: final result: 'String concatenation: Hello World'
+----- START PRINT -----
+String concatenation: Hello World
+----- END PRINT -----
+[DEBUG] VM executing instruction 339: PUSH_STR
+[DEBUG][ip=339] OpCode: 4 (PUSH_STR), Operand index: Linh, Stack size: 0
+[DEBUG] VM executing instruction 340: STORE_VAR
+[DEBUG][ip=340] OpCode: 30 (STORE_VAR), Operand index: 22, Stack size: 1
+[DEBUG] VM executing instruction 341: PUSH_INT
+[DEBUG][ip=341] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 342: STORE_VAR
+[DEBUG][ip=342] OpCode: 30 (STORE_VAR), Operand index: 23, Stack size: 1
+[DEBUG] VM executing instruction 343: PUSH_STR
+[DEBUG][ip=343] OpCode: 4 (PUSH_STR), Operand index: Interpolation test: Name is, Stack size: 0
+[DEBUG] VM executing instruction 344: LOAD_VAR
+[DEBUG][ip=344] OpCode: 29 (LOAD_VAR), Operand index: 22, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 22
+[DEBUG] LOAD_VAR: variables.size() = 24
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 12
+[DEBUG] VM executing instruction 345: PUSH_STR
+[DEBUG][ip=345] OpCode: 4 (PUSH_STR), Operand index: and age is, Stack size: 2
+[DEBUG] VM executing instruction 346: LOAD_VAR
+[DEBUG][ip=346] OpCode: 29 (LOAD_VAR), Operand index: 23, Stack size: 3
+[DEBUG] LOAD_VAR: loading variable index 23
+[DEBUG] LOAD_VAR: variables.size() = 24
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 4, top index = 4
+[DEBUG] VM executing instruction 347: PRINT_MULTIPLE
+[DEBUG][ip=347] OpCode: 41 (PRINT_MULTIPLE), Operand index: 4, Stack size: 4
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=4, stack_size=4
+[DEBUG] PRINT_MULTIPLE: popped value 0: 1
+[DEBUG] PRINT_MULTIPLE: popped value 1: and age is
+[DEBUG] PRINT_MULTIPLE: popped value 2: Linh
+[DEBUG] PRINT_MULTIPLE: popped value 3: Interpolation test: Name is
+[DEBUG] PRINT_MULTIPLE: final result: 'Interpolation test: Name is Linh and age is 1'
+----- START PRINT -----
+Interpolation test: Name is Linh and age is 1
+----- END PRINT -----
+[DEBUG] VM executing instruction 348: PUSH_STR
+[DEBUG][ip=348] OpCode: 4 (PUSH_STR), Operand index: 
+12. TYPE CONVERSIONS, Stack size: 0
+[DEBUG] VM executing instruction 349: PRINT
+[DEBUG][ip=349] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+12. TYPE CONVERSIONS
+----- START PRINT -----
+
+12. TYPE CONVERSIONS
+----- END PRINT -----
+[DEBUG] VM executing instruction 350: PUSH_STR
+[DEBUG][ip=350] OpCode: 4 (PUSH_STR), Operand index: 123, Stack size: 0
+[DEBUG] VM executing instruction 351: STORE_VAR
+[DEBUG][ip=351] OpCode: 30 (STORE_VAR), Operand index: 24, Stack size: 1
+[DEBUG] VM executing instruction 352: PUSH_INT
+[DEBUG][ip=352] OpCode: 1 (PUSH_INT), Operand index: 456, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 353: STORE_VAR
+[DEBUG][ip=353] OpCode: 30 (STORE_VAR), Operand index: 25, Stack size: 1
+[DEBUG] VM executing instruction 354: PUSH_STR
+[DEBUG][ip=354] OpCode: 4 (PUSH_STR), Operand index: String '123' as string:, Stack size: 0
+[DEBUG] VM executing instruction 355: LOAD_VAR
+[DEBUG][ip=355] OpCode: 29 (LOAD_VAR), Operand index: 24, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 24
+[DEBUG] LOAD_VAR: variables.size() = 26
+[DEBUG] LOAD_VAR: loaded value index = 12
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 12
+[DEBUG] VM executing instruction 356: PRINT_MULTIPLE
+[DEBUG][ip=356] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 123
+[DEBUG] PRINT_MULTIPLE: popped value 1: String '123' as string:
+[DEBUG] PRINT_MULTIPLE: final result: 'String '123' as string: 123'
+----- START PRINT -----
+String '123' as string: 123
+----- END PRINT -----
+[DEBUG] VM executing instruction 357: PUSH_STR
+[DEBUG][ip=357] OpCode: 4 (PUSH_STR), Operand index: Number 456 as number:, Stack size: 0
+[DEBUG] VM executing instruction 358: LOAD_VAR
+[DEBUG][ip=358] OpCode: 29 (LOAD_VAR), Operand index: 25, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 25
+[DEBUG] LOAD_VAR: variables.size() = 26
+[DEBUG] LOAD_VAR: loaded value index = 4
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 4
+[DEBUG] VM executing instruction 359: PRINT_MULTIPLE
+[DEBUG][ip=359] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 456
+[DEBUG] PRINT_MULTIPLE: popped value 1: Number 456 as number:
+[DEBUG] PRINT_MULTIPLE: final result: 'Number 456 as number: 456'
+----- START PRINT -----
+Number 456 as number: 456
+----- END PRINT -----
+[DEBUG] VM executing instruction 360: PUSH_STR
+[DEBUG][ip=360] OpCode: 4 (PUSH_STR), Operand index: 
+13. NESTED STRUCTURES, Stack size: 0
+[DEBUG] VM executing instruction 361: PRINT
+[DEBUG][ip=361] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+13. NESTED STRUCTURES
+----- START PRINT -----
+
+13. NESTED STRUCTURES
+----- END PRINT -----
+[DEBUG] VM executing instruction 362: PUSH_INT
+[DEBUG][ip=362] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 363: PUSH_INT
+[DEBUG][ip=363] OpCode: 1 (PUSH_INT), Operand index: 2, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 364: PUSH_ARRAY
+[DEBUG][ip=364] OpCode: 46 (PUSH_ARRAY), Operand index: 2, Stack size: 2
+[DEBUG] VM executing instruction 365: PUSH_INT
+[DEBUG][ip=365] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 366: PUSH_INT
+[DEBUG][ip=366] OpCode: 1 (PUSH_INT), Operand index: 4, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 367: PUSH_ARRAY
+[DEBUG][ip=367] OpCode: 46 (PUSH_ARRAY), Operand index: 2, Stack size: 3
+[DEBUG] VM executing instruction 368: PUSH_INT
+[DEBUG][ip=368] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 369: PUSH_INT
+[DEBUG][ip=369] OpCode: 1 (PUSH_INT), Operand index: 6, Stack size: 3
+[DEBUG] PUSH_INT: stack size = 4, top index = 4
+[DEBUG] VM executing instruction 370: PUSH_ARRAY
+[DEBUG][ip=370] OpCode: 46 (PUSH_ARRAY), Operand index: 2, Stack size: 4
+[DEBUG] VM executing instruction 371: PUSH_ARRAY
+[DEBUG][ip=371] OpCode: 46 (PUSH_ARRAY), Operand index: 3, Stack size: 3
+[DEBUG] VM executing instruction 372: STORE_VAR
+[DEBUG][ip=372] OpCode: 30 (STORE_VAR), Operand index: 26, Stack size: 1
+[DEBUG] VM executing instruction 373: PUSH_STR
+[DEBUG][ip=373] OpCode: 4 (PUSH_STR), Operand index: Nested array:, Stack size: 0
+[DEBUG] VM executing instruction 374: LOAD_VAR
+[DEBUG][ip=374] OpCode: 29 (LOAD_VAR), Operand index: 26, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 26
+[DEBUG] LOAD_VAR: variables.size() = 27
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 375: PRINT_MULTIPLE
+[DEBUG][ip=375] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [[1, 2], [3, 4], [5, 6]]
+[DEBUG] PRINT_MULTIPLE: popped value 1: Nested array:
+[DEBUG] PRINT_MULTIPLE: final result: 'Nested array: [[1, 2], [3, 4], [5, 6]]'
+----- START PRINT -----
+Nested array: [[1, 2], [3, 4], [5, 6]]
+----- END PRINT -----
+[DEBUG] VM executing instruction 376: PUSH_STR
+[DEBUG][ip=376] OpCode: 4 (PUSH_STR), Operand index: user, Stack size: 0
+[DEBUG] VM executing instruction 377: PUSH_STR
+[DEBUG][ip=377] OpCode: 4 (PUSH_STR), Operand index: name, Stack size: 1
+[DEBUG] VM executing instruction 378: PUSH_STR
+[DEBUG][ip=378] OpCode: 4 (PUSH_STR), Operand index: Admin, Stack size: 2
+[DEBUG] VM executing instruction 379: PUSH_STR
+[DEBUG][ip=379] OpCode: 4 (PUSH_STR), Operand index: permissions, Stack size: 3
+[DEBUG] VM executing instruction 380: PUSH_STR
+[DEBUG][ip=380] OpCode: 4 (PUSH_STR), Operand index: read, Stack size: 4
+[DEBUG] VM executing instruction 381: PUSH_STR
+[DEBUG][ip=381] OpCode: 4 (PUSH_STR), Operand index: write, Stack size: 5
+[DEBUG] VM executing instruction 382: PUSH_STR
+[DEBUG][ip=382] OpCode: 4 (PUSH_STR), Operand index: execute, Stack size: 6
+[DEBUG] VM executing instruction 383: PUSH_ARRAY
+[DEBUG][ip=383] OpCode: 46 (PUSH_ARRAY), Operand index: 3, Stack size: 7
+[DEBUG] VM executing instruction 384: PUSH_MAP
+[DEBUG][ip=384] OpCode: 47 (PUSH_MAP), Operand index: 2, Stack size: 5
+[DEBUG] VM executing instruction 385: PUSH_STR
+[DEBUG][ip=385] OpCode: 4 (PUSH_STR), Operand index: settings, Stack size: 2
+[DEBUG] VM executing instruction 386: PUSH_STR
+[DEBUG][ip=386] OpCode: 4 (PUSH_STR), Operand index: theme, Stack size: 3
+[DEBUG] VM executing instruction 387: PUSH_STR
+[DEBUG][ip=387] OpCode: 4 (PUSH_STR), Operand index: dark, Stack size: 4
+[DEBUG] VM executing instruction 388: PUSH_STR
+[DEBUG][ip=388] OpCode: 4 (PUSH_STR), Operand index: language, Stack size: 5
+[DEBUG] VM executing instruction 389: PUSH_STR
+[DEBUG][ip=389] OpCode: 4 (PUSH_STR), Operand index: en, Stack size: 6
+[DEBUG] VM executing instruction 390: PUSH_MAP
+[DEBUG][ip=390] OpCode: 47 (PUSH_MAP), Operand index: 2, Stack size: 7
+[DEBUG] VM executing instruction 391: PUSH_MAP
+[DEBUG][ip=391] OpCode: 47 (PUSH_MAP), Operand index: 2, Stack size: 4
+[DEBUG] VM executing instruction 392: STORE_VAR
+[DEBUG][ip=392] OpCode: 30 (STORE_VAR), Operand index: 27, Stack size: 1
+[DEBUG] VM executing instruction 393: PUSH_STR
+[DEBUG][ip=393] OpCode: 4 (PUSH_STR), Operand index: Nested map:, Stack size: 0
+[DEBUG] VM executing instruction 394: LOAD_VAR
+[DEBUG][ip=394] OpCode: 29 (LOAD_VAR), Operand index: 27, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 27
+[DEBUG] LOAD_VAR: variables.size() = 28
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 395: PRINT_MULTIPLE
+[DEBUG][ip=395] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {"settings": {"language": "en", "theme": "dark"}, "user": {"permissions": ["read", "write", "execute"], "name": "Admin"}}
+[DEBUG] PRINT_MULTIPLE: popped value 1: Nested map:
+[DEBUG] PRINT_MULTIPLE: final result: 'Nested map: {"settings": {"language": "en", "theme": "dark"}, "user": {"permissions": ["read", "write", "execute"], "name": "Admin"}}'
+----- START PRINT -----
+Nested map: {"settings": {"language": "en", "theme": "dark"}, "user": {"permissions": ["read", "write", "execute"], "name": "Admin"}}
+----- END PRINT -----
+[DEBUG] VM executing instruction 396: PUSH_STR
+[DEBUG][ip=396] OpCode: 4 (PUSH_STR), Operand index: 
+14. ERROR HANDLING, Stack size: 0
+[DEBUG] VM executing instruction 397: PRINT
+[DEBUG][ip=397] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+14. ERROR HANDLING
+----- START PRINT -----
+
+14. ERROR HANDLING
+----- END PRINT -----
+[DEBUG] VM executing instruction 398: PUSH_FUNCTION
+[DEBUG][ip=398] OpCode: 36 (PUSH_FUNCTION), Operand index: (tuple/other), Stack size: 0
+[DEBUG] PUSH_FUNCTION case reached
+[DEBUG] PUSH_FUNCTION: operand index = 6
+[DEBUG] PUSH_FUNCTION: function_value index = 15
+[DEBUG] PUSH_FUNCTION: pushed function object, stack size = 1
+[DEBUG] VM executing instruction 399: CAPTURE_VAR
+[DEBUG][ip=399] OpCode: 38 (CAPTURE_VAR), Operand index: arr, Stack size: 1
+Warning: Variable 'arr' not found for capture
+[DEBUG] VM executing instruction 400: CAPTURE_VAR
+[DEBUG][ip=400] OpCode: 38 (CAPTURE_VAR), Operand index: int_var, Stack size: 1
+Warning: Variable 'int_var' not found for capture
+[DEBUG] VM executing instruction 401: CAPTURE_VAR
+[DEBUG][ip=401] OpCode: 38 (CAPTURE_VAR), Operand index: uint_var, Stack size: 1
+Warning: Variable 'uint_var' not found for capture
+[DEBUG] VM executing instruction 402: CAPTURE_VAR
+[DEBUG][ip=402] OpCode: 38 (CAPTURE_VAR), Operand index: x, Stack size: 1
+Warning: Variable 'x' not found for capture
+[DEBUG] VM executing instruction 403: CAPTURE_VAR
+[DEBUG][ip=403] OpCode: 38 (CAPTURE_VAR), Operand index: str_num, Stack size: 1
+Warning: Variable 'str_num' not found for capture
+[DEBUG] VM executing instruction 404: CAPTURE_VAR
+[DEBUG][ip=404] OpCode: 38 (CAPTURE_VAR), Operand index: float_var, Stack size: 1
+Warning: Variable 'float_var' not found for capture
+[DEBUG] VM executing instruction 405: CAPTURE_VAR
+[DEBUG][ip=405] OpCode: 38 (CAPTURE_VAR), Operand index: bool_var, Stack size: 1
+Warning: Variable 'bool_var' not found for capture
+[DEBUG] VM executing instruction 406: CAPTURE_VAR
+[DEBUG][ip=406] OpCode: 38 (CAPTURE_VAR), Operand index: str_var, Stack size: 1
+Warning: Variable 'str_var' not found for capture
+[DEBUG] VM executing instruction 407: CAPTURE_VAR
+[DEBUG][ip=407] OpCode: 38 (CAPTURE_VAR), Operand index: square, Stack size: 1
+Warning: Variable 'square' not found for capture
+[DEBUG] VM executing instruction 408: CAPTURE_VAR
+[DEBUG][ip=408] OpCode: 38 (CAPTURE_VAR), Operand index: name, Stack size: 1
+Warning: Variable 'name' not found for capture
+[DEBUG] VM executing instruction 409: CAPTURE_VAR
+[DEBUG][ip=409] OpCode: 38 (CAPTURE_VAR), Operand index: a, Stack size: 1
+Warning: Variable 'a' not found for capture
+[DEBUG] VM executing instruction 410: CAPTURE_VAR
+[DEBUG][ip=410] OpCode: 38 (CAPTURE_VAR), Operand index: nested_array, Stack size: 1
+Warning: Variable 'nested_array' not found for capture
+[DEBUG] VM executing instruction 411: CAPTURE_VAR
+[DEBUG][ip=411] OpCode: 38 (CAPTURE_VAR), Operand index: b, Stack size: 1
+Warning: Variable 'b' not found for capture
+[DEBUG] VM executing instruction 412: CAPTURE_VAR
+[DEBUG][ip=412] OpCode: 38 (CAPTURE_VAR), Operand index: y, Stack size: 1
+Warning: Variable 'y' not found for capture
+[DEBUG] VM executing instruction 413: CAPTURE_VAR
+[DEBUG][ip=413] OpCode: 38 (CAPTURE_VAR), Operand index: add, Stack size: 1
+Warning: Variable 'add' not found for capture
+[DEBUG] VM executing instruction 414: CAPTURE_VAR
+[DEBUG][ip=414] OpCode: 38 (CAPTURE_VAR), Operand index: my_map, Stack size: 1
+Warning: Variable 'my_map' not found for capture
+[DEBUG] VM executing instruction 415: CAPTURE_VAR
+[DEBUG][ip=415] OpCode: 38 (CAPTURE_VAR), Operand index: keys, Stack size: 1
+Warning: Variable 'keys' not found for capture
+[DEBUG] VM executing instruction 416: CAPTURE_VAR
+[DEBUG][ip=416] OpCode: 38 (CAPTURE_VAR), Operand index: values, Stack size: 1
+Warning: Variable 'values' not found for capture
+[DEBUG] VM executing instruction 417: CAPTURE_VAR
+[DEBUG][ip=417] OpCode: 38 (CAPTURE_VAR), Operand index: score, Stack size: 1
+Warning: Variable 'score' not found for capture
+[DEBUG] VM executing instruction 418: CAPTURE_VAR
+[DEBUG][ip=418] OpCode: 38 (CAPTURE_VAR), Operand index: i, Stack size: 1
+Warning: Variable 'i' not found for capture
+[DEBUG] VM executing instruction 419: CAPTURE_VAR
+[DEBUG][ip=419] OpCode: 38 (CAPTURE_VAR), Operand index: countdown, Stack size: 1
+Warning: Variable 'countdown' not found for capture
+[DEBUG] VM executing instruction 420: CAPTURE_VAR
+[DEBUG][ip=420] OpCode: 38 (CAPTURE_VAR), Operand index: greet, Stack size: 1
+Warning: Variable 'greet' not found for capture
+[DEBUG] VM executing instruction 421: CAPTURE_VAR
+[DEBUG][ip=421] OpCode: 38 (CAPTURE_VAR), Operand index: factorial, Stack size: 1
+Warning: Variable 'factorial' not found for capture
+[DEBUG] VM executing instruction 422: CAPTURE_VAR
+[DEBUG][ip=422] OpCode: 38 (CAPTURE_VAR), Operand index: safe_div, Stack size: 1
+Warning: Variable 'safe_div' not found for capture
+[DEBUG] VM executing instruction 423: CAPTURE_VAR
+[DEBUG][ip=423] OpCode: 38 (CAPTURE_VAR), Operand index: str1, Stack size: 1
+Warning: Variable 'str1' not found for capture
+[DEBUG] VM executing instruction 424: CAPTURE_VAR
+[DEBUG][ip=424] OpCode: 38 (CAPTURE_VAR), Operand index: str2, Stack size: 1
+Warning: Variable 'str2' not found for capture
+[DEBUG] VM executing instruction 425: CAPTURE_VAR
+[DEBUG][ip=425] OpCode: 38 (CAPTURE_VAR), Operand index: age, Stack size: 1
+Warning: Variable 'age' not found for capture
+[DEBUG] VM executing instruction 426: CAPTURE_VAR
+[DEBUG][ip=426] OpCode: 38 (CAPTURE_VAR), Operand index: num_str, Stack size: 1
+Warning: Variable 'num_str' not found for capture
+[DEBUG] VM executing instruction 427: CAPTURE_VAR
+[DEBUG][ip=427] OpCode: 38 (CAPTURE_VAR), Operand index: nested_map, Stack size: 1
+Warning: Variable 'nested_map' not found for capture
+[DEBUG] VM executing instruction 428: CREATE_CLOSURE
+[DEBUG][ip=428] OpCode: 37 (CREATE_CLOSURE), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 429: STORE_VAR
+[DEBUG][ip=429] OpCode: 30 (STORE_VAR), Operand index: 28, Stack size: 1
+[DEBUG] VM executing instruction 430: PUSH_STR
+[DEBUG][ip=430] OpCode: 4 (PUSH_STR), Operand index: safe_div(10, 2) =, Stack size: 0
+[DEBUG] VM executing instruction 431: PUSH_INT
+[DEBUG][ip=431] OpCode: 1 (PUSH_INT), Operand index: 10, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 432: PUSH_INT
+[DEBUG][ip=432] OpCode: 1 (PUSH_INT), Operand index: 2, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 433: LOAD_VAR
+[DEBUG][ip=433] OpCode: 29 (LOAD_VAR), Operand index: 28, Stack size: 3
+[DEBUG] LOAD_VAR: loading variable index 28
+[DEBUG] LOAD_VAR: variables.size() = 29
+[DEBUG] LOAD_VAR: loaded value index = 15
+[DEBUG] LOAD_VAR: after push, stack size = 4, top index = 15
+[DEBUG] VM executing instruction 434: CALL
+[DEBUG][ip=434] OpCode: 34 (CALL), Operand index: safe_div, Stack size: 4
+[DEBUG] CALL: checking for function object on stack, size=4
+[DEBUG] CALL: top of stack index = 15
+[DEBUG] CALL: found function object, calling it
+[DEBUG] CALL: calling function  with 2 arguments
+[DEBUG] Restoring closure environment with 0 variables
+[DEBUG] Binding parameter 0 with value index = 4
+[DEBUG] Binding parameter 1 with value index = 4
+[DEBUG] run_chunk: starting execution with 13 instructions
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 2
+VM: LOAD_VAR unknown variable index 6
+VM: Unknown opcode in function: 23
+[DEBUG] LOAD_VAR: loading variable index 6
+[DEBUG] LOAD_VAR: variables.size() = 2
+VM: LOAD_VAR unknown variable index 6
+[DEBUG] Stack before pop (size=1): [int64] 0, [int64] 0
+Division by zero (int)
+[DEBUG][EXCEPTION] Division by zero (int) at ip=0
+VM Exception: Division by zero (int)
+
+Parse succeeded!

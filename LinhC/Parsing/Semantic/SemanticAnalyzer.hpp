@@ -40,7 +40,6 @@ namespace Linh
             void visitBlockStmt(AST::BlockStmt *stmt) override;
             void visitIfStmt(AST::IfStmt *stmt) override;
             void visitWhileStmt(AST::WhileStmt *stmt) override;
-            void visitDoWhileStmt(AST::DoWhileStmt *stmt) override;
             void visitFunctionDeclStmt(AST::FunctionDeclStmt *stmt) override;
             void visitReturnStmt(AST::ReturnStmt *stmt) override;
             void visitBreakStmt(AST::BreakStmt *stmt) override;
@@ -50,6 +49,7 @@ namespace Linh
             void visitThrowStmt(AST::ThrowStmt *stmt) override;
             void visitTryStmt(AST::TryStmt *stmt) override;
             void visitImportStmt(AST::ImportStmt *stmt) override;
+            void visitExportStmt(AST::ExportStmt *stmt) override;
 
             // ExprVisitor overrides (only need UninitLiteralExpr for this rule)
             std::any visitBinaryExpr(AST::BinaryExpr *expr) override;
@@ -73,8 +73,12 @@ namespace Linh
             std::any visitFunctionExpr(AST::FunctionExpr *expr) override;
 
             const std::vector<Linh::Error> &get_errors() const;
+            void set_current_file_path(const std::string& path);
 
         private:
+            // Current file path for module resolution
+            std::string current_file_path;
+            
             // Optimization flags
             bool caching_enabled = true;
             bool early_exit_enabled = true;

@@ -3,9 +3,9 @@
 #include <memory>
 #include <cmath>
 #include <functional>
-#include "../Value/Value.hpp"
-#include "../LiVM.hpp"
-#include "../../config.hpp"
+#include "LiVM/Variable/Value.hpp"
+#include "LiVM/LiVM.hpp"
+#include "../../config/config.hpp"
 #include "Package/time.hpp"
 #include "Package/math.hpp"
 #include "Package/fs.hpp"

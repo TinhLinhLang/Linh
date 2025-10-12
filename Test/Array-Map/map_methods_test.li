@@ -1,0 +1,24 @@
+// Kiểm tra tất cả method của map trong Linh
+var m = {"a": 1, "b": 2, "c": 3}
+print(m)
+print(len(m))
+
+// Xóa phần tử
+m.delete("b") //{"a": 1, "c": 3}
+print(m)
+
+// Lấy keys
+var keys = m.keys()
+print(keys) // ["a", "c"]
+
+// Lấy values
+var vals = m.values()
+print(vals) // [1, 3]
+
+// Xóa toàn bộ
+m.clear()
+print(m) // {}
+
+// Thêm lại và kiểm tra xóa key không tồn tại
+m.delete("notfound") // {}
+print(m)

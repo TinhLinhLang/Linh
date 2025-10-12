@@ -109,6 +109,7 @@ namespace Linh
         ID_KW,
         SOL_KW,
         IMPORT_KW, // Đảm bảo dòng này nằm ở đây, đúng thứ tự với bảng từ khóa
+        EXPORT_KW, // export keyword
         FROM_KW,   // Đảm bảo dòng này nằm ở đây, đúng thứ tự với bảng từ khóa
 
         // New keywords from previous steps
@@ -116,7 +117,6 @@ namespace Linh
         NOT_KW,    // not (keyword version)
         AND_KW,    // and (keyword version)
         OR_KW,     // or (keyword version)
-        DO_KW,     // do
         NEW_KW,    // new
         DELETE_KW, // delete
         THIS_KW,   // this
@@ -185,6 +185,11 @@ namespace Linh
         void handle_number_literal(int start_line, int start_col);
         void handle_identifier(int start_line, int start_col);
         void handle_block_comment(int start_line, int start_col);
+        
+        // UTF-8 helper functions
+        bool is_utf8_alpha(char c) const;
+        bool is_utf8_alnum(char c) const;
+        bool is_utf8_start_char(char c) const;
 
         const std::string m_source;
         std::vector<Token> m_tokens;

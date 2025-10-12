@@ -1,3 +1,0 @@
-print("a\nb")
-printil("a\nb")
-var a = input("Nhập tên:\n> ")

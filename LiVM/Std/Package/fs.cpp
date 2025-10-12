@@ -726,7 +726,7 @@ namespace Std {
         return nullptr;
     }
 
-    std::unordered_map<std::string, FsFunction> get_fs_functions() {
+    std::unordered_map<std::string, FsFunction> get_fs_function_map() {
         if (!fs_functions_initialized) initialize_fs_functions();
         return fs_functions;
     }

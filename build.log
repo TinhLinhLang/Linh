@@ -1,0 +1,29 @@
+[INFO] Configuring CMake at CN, 12/10/2025 20:48:11,32 
+-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- {fmt} version: 11.0.2
+-- Build type: 
+-- CPM: Adding package fmt@11.0.2 (11.0.2 at D:/Cpp/Cmake/cache/fmt/cccb)
+-- fmt library added via CPM (archive, no git required)
+-- CPM: Adding package simdjson@3.9.5 (v3.9.5 at D:/Cpp/Cmake/cache/simdjson/9438)
+-- simdjson library added via CPM
+-- Found Windows resource file: D:/Linh/Linh.cpp/resources/appicon.rc and icon: D:/Linh/Linh.cpp/resources/Linh.ico
+-- Configuring done (0.3s)
+-- Generating done (0.6s)
+-- Build files have been written to: D:/Linh/Linh.cpp/build
+[INFO] Building project in Debug mode at CN, 12/10/2025 20:48:12,46 
+MSBuild version 17.14.19+164abd434 for .NET Framework
+
+  fmt.vcxproj -> D:\Linh\Linh.cpp\build\_deps\fmt-build\Debug\fmtd.lib
+  simdjson.vcxproj -> D:\Linh\Linh.cpp\build\_deps\simdjson-build\Debug\simdjson.lib
+  LinhASTLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhASTLib.lib
+  LinhLexerLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhLexerLib.lib
+  LinhSemanticLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhSemanticLib.lib
+  StdLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\StdLib.lib
+  LinhParserLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhParserLib.lib
+  LinhModuleLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhModuleLib.lib
+  LiVM.cpp
+  LiVMLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LiVMLib.lib
+  BytecodeEmitter.cpp
+  LinhApp.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhApp.exe
+  Built LinhApp: D:/Linh/Linh.cpp/build/Debug/LinhApp.exe
+[SUCCESS] Build completed successfully at CN, 12/10/2025 20:48:20,86 

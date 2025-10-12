@@ -1,19 +1,23 @@
+/*--- LiVM ---*/
 #include "LiVM.hpp"
-#include "Value/Value.hpp" // Để sử dụng make_array() và make_map()
-#include "iostream/iostream.hpp"
-#include "Loop.hpp"
+#include "LiVM/Std/Std.hpp"
+#include "LiVM/iostream/iostream.hpp"
+#include "LiVM/Loop/Loop.hpp"
+#include "LiVM/Math/Math.hpp"
+#include "LiVM/Variable/type.hpp"
+#include "LiVM/Std/Package/json.hpp"
+#include "LiVM/Functional/Func.hpp"
+/*--- LinhC ---*/
+#include "LinhC/Module/ModuleManager.hpp"
+/*--- Standard ---*/
 #include <cmath>
-#include "Math/Math.hpp" // Thêm dòng này
-#include <iomanip>
-#include "type.hpp"
-#include <variant>
-#include "Std/Std.cpp" // Thêm dòng này cho LiPM support
-#include "Std/Package/json.hpp" // Ensure inline json functions are visible
+#include <vector>
 #include <functional>
 #include <array>
+#include <variant>
+#include <iomanip>
+/*--- Library ---*/
 #include <fmt/format.h>
-#include <vector>
-#include "Functional/Func.hpp" // Thêm dòng này cho Function support
 
 #ifdef _DEBUG
 // Helper to print a Value for debug
@@ -260,6 +264,12 @@ namespace Linh
             return "LOAD_PACKAGE_CONST";
         case OpCode::CALL_PACKAGE_FUNCTION:
             return "CALL_PACKAGE_FUNCTION";
+        case OpCode::IMPORT_MODULE:
+            return "IMPORT_MODULE";
+        case OpCode::EXPORT_SYMBOL:
+            return "EXPORT_SYMBOL";
+        case OpCode::LOAD_MODULE_SYMBOL:
+            return "LOAD_MODULE_SYMBOL";
         case OpCode::PUSH_ARRAY:
             return "PUSH_ARRAY";
         case OpCode::PUSH_MAP:
@@ -592,6 +602,37 @@ namespace Linh
         }
     }
 
+    static void handle_IMPORT_MODULE(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Import a module
+        std::string module_path = std::get<std::string>(instr.operand);
+        
+        auto& module_manager = Linh::Module::get_module_manager();
+        bool success = module_manager.load_module(module_path, vm.current_file_path);
+        
+        if (!success) {
+            std::cerr << "Error: Failed to import module: " << module_path << std::endl;
+        }
+    }
+
+    static void handle_EXPORT_SYMBOL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Export a symbol from current module
+        std::string symbol_name = std::get<std::string>(instr.operand);
+        
+        auto& module_manager = Linh::Module::get_module_manager();
+        module_manager.register_export(vm.current_module_name, symbol_name, "function"); // Default to function type
+        
+        std::cout << "Exported symbol: " << symbol_name << " from module: " << vm.current_module_name << std::endl;
+    }
+
+    static void handle_LOAD_MODULE_SYMBOL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        // Load a symbol from imported module
+        std::string symbol_name = std::get<std::string>(instr.operand);
+        
+        // For now, just push the symbol name as a placeholder
+        // In a full implementation, this would resolve the actual symbol value
+        vm.push(Value(symbol_name));
+    }
+
     // Jump table for opcodes (partial, expand as needed)
     static const std::array<OpHandler, 256> opcode_jump_table = []{
         std::array<OpHandler, 256> table{};
@@ -658,6 +699,9 @@ namespace Linh
         table[static_cast<size_t>(OpCode::PUSH_FUNCTION)] = handle_PUSH_FUNCTION;
         table[static_cast<size_t>(OpCode::LOAD_PACKAGE_CONST)] = handle_LOAD_PACKAGE_CONST;
         table[static_cast<size_t>(OpCode::CALL_PACKAGE_FUNCTION)] = handle_CALL_PACKAGE_FUNCTION;
+        table[static_cast<size_t>(OpCode::IMPORT_MODULE)] = handle_IMPORT_MODULE;
+        table[static_cast<size_t>(OpCode::EXPORT_SYMBOL)] = handle_EXPORT_SYMBOL;
+        table[static_cast<size_t>(OpCode::LOAD_MODULE_SYMBOL)] = handle_LOAD_MODULE_SYMBOL;
         table[static_cast<size_t>(OpCode::CREATE_CLOSURE)] = handle_CREATE_CLOSURE;
         table[static_cast<size_t>(OpCode::CAPTURE_VAR)] = handle_CAPTURE_VAR;
         table[static_cast<size_t>(OpCode::LOAD_CLOSURE_VAR)] = handle_LOAD_CLOSURE_VAR;
@@ -2465,27 +2509,33 @@ namespace Linh
                     }
                     Value val = pop();
                     Value arr_val = pop();
+                    
+                    #ifdef _DEBUG
+                    std::cout << "[DEBUG] ARRAY_REMOVE: value_to_remove = " << Linh::to_str(val) << std::endl;
+                    std::cout << "[DEBUG] ARRAY_REMOVE: array before = " << Linh::to_str(arr_val) << std::endl;
+                    #endif
+                    
                     if (std::holds_alternative<Array>(arr_val))
                     {
                         auto arr = std::get<Array>(arr_val);
-                        // Tìm và xóa phần tử đầu tiên == val
-                        auto it = std::find_if(arr->begin(), arr->end(), [&](const Value &v)
-                                               {
-                            // So sánh giá trị (chỉ hỗ trợ int, uint, double, string, bool)
-                            if (v.index() != val.index()) return false;
-                            if (std::holds_alternative<int64_t>(v))
-                                return std::get<int64_t>(v) == std::get<int64_t>(val);
-                            if (std::holds_alternative<uint64_t>(v))
-                                return std::get<uint64_t>(v) == std::get<uint64_t>(val);
-                            if (std::holds_alternative<double>(v))
-                                return std::get<double>(v) == std::get<double>(val);
-                            if (std::holds_alternative<std::string>(v))
-                                return std::get<std::string>(v) == std::get<std::string>(val);
-                            if (std::holds_alternative<bool>(v))
-                                return std::get<bool>(v) == std::get<bool>(val);
-                            return false; });
-                        if (it != arr->end())
-                            arr->erase(it);
+                        bool found = false;
+                        // Tìm và xóa phần tử đầu tiên sử dụng values_equal
+                        for (auto it = arr->begin(); it != arr->end(); ++it) {
+                            #ifdef _DEBUG
+                            std::cout << "[DEBUG] ARRAY_REMOVE: comparing " << Linh::to_str(*it) << " with " << Linh::to_str(val) << std::endl;
+                            #endif
+                            if (Linh::values_equal(*it, val)) {
+                                #ifdef _DEBUG
+                                std::cout << "[DEBUG] ARRAY_REMOVE: found match, removing element" << std::endl;
+                                #endif
+                                arr->erase(it);
+                                found = true;
+                                break;
+                            }
+                        }
+                        #ifdef _DEBUG
+                        std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(Value(arr)) << ", found = " << found << std::endl;
+                        #endif
                         push(arr); // push lại array
                     }
                     else
@@ -2503,16 +2553,22 @@ namespace Linh
                         push(Value{}); // push sol
                         break;
                     }
-                    Value arr_val = pop();
-                    if (std::holds_alternative<Array>(arr_val))
+                    Value val = pop();
+                    if (std::holds_alternative<Array>(val))
                     {
-                        auto arr = std::get<Array>(arr_val);
+                        auto arr = std::get<Array>(val);
                         arr->clear();
                         push(arr); // push lại array
                     }
+                    else if (std::holds_alternative<Map>(val))
+                    {
+                        auto map = std::get<Map>(val);
+                        map->clear();
+                        push(map); // push lại map
+                    }
                     else
                     {
-                        std::cerr << "VM: ARRAY_CLEAR target is not array" << std::endl;
+                        std::cerr << "VM: ARRAY_CLEAR target is not array or map" << std::endl;
                         push(Value{}); // push sol
                     }
                     break;
@@ -2801,6 +2857,21 @@ namespace Linh
                 case OpCode::CALL_PACKAGE_FUNCTION:
                 {
                     handle_CALL_PACKAGE_FUNCTION(*this, instr, chunk, ip);
+                    break;
+                }
+                case OpCode::IMPORT_MODULE:
+                {
+                    handle_IMPORT_MODULE(*this, instr, chunk, ip);
+                    break;
+                }
+                case OpCode::EXPORT_SYMBOL:
+                {
+                    handle_EXPORT_SYMBOL(*this, instr, chunk, ip);
+                    break;
+                }
+                case OpCode::LOAD_MODULE_SYMBOL:
+                {
+                    handle_LOAD_MODULE_SYMBOL(*this, instr, chunk, ip);
                     break;
                 }
                 case OpCode::CREATE_CLOSURE:
@@ -3170,13 +3241,34 @@ namespace Linh
         }
     }
     static void handle_ARRAY_REMOVE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
-        auto idx = vm.pop();
+        auto value_to_remove = vm.pop();
         auto arr_val = vm.pop();
+        
+        #ifdef _DEBUG
+        std::cout << "[DEBUG] ARRAY_REMOVE: value_to_remove = " << Linh::to_str(value_to_remove) << std::endl;
+        std::cout << "[DEBUG] ARRAY_REMOVE: array before = " << Linh::to_str(arr_val) << std::endl;
+        #endif
+        
         if (std::holds_alternative<Array>(arr_val)) {
             auto arr = std::get<Array>(arr_val);
-            int64_t i = Linh::to_int(idx);
-            if (i >= 0 && i < (int64_t)arr->size())
-                arr->erase(arr->begin() + i);
+            bool found = false;
+            // Find and remove the first occurrence of the value
+            for (auto it = arr->begin(); it != arr->end(); ++it) {
+                #ifdef _DEBUG
+                std::cout << "[DEBUG] ARRAY_REMOVE: comparing " << Linh::to_str(*it) << " with " << Linh::to_str(value_to_remove) << std::endl;
+                #endif
+                if (Linh::values_equal(*it, value_to_remove)) {
+                    #ifdef _DEBUG
+                    std::cout << "[DEBUG] ARRAY_REMOVE: found match, removing element" << std::endl;
+                    #endif
+                    arr->erase(it);
+                    found = true;
+                    break; // Remove only the first occurrence
+                }
+            }
+            #ifdef _DEBUG
+            std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(Value(arr)) << ", found = " << found << std::endl;
+            #endif
             vm.push(arr);
         } else {
             vm.push(Value{}); // sol

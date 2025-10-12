@@ -1,5 +1,5 @@
 #include "Math.hpp"
-#include "../type.hpp"
+#include "LiVM/Variable/type.hpp"
 #include <cmath>
 #include <iostream>
 #include <variant>

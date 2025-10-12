@@ -1,3 +1,0 @@
-for (var i: int16 = 0; i <= 500; i++) {
-  print(i);
-}

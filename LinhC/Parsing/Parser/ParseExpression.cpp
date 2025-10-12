@@ -601,6 +601,7 @@ namespace Linh
         if (match({TokenType::COLON})) {
             return_type = parse_type();
         }
+        consume(TokenType::LBRACE, "Thiếu '{' để bắt đầu thân hàm anonymous function.");
         std::unique_ptr<AST::BlockStmt> body = block();
         return std::make_unique<AST::FunctionExpr>(func_kw, std::move(params), std::move(return_type), std::move(body));
     }

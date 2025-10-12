@@ -111,6 +111,10 @@ namespace Linh
         {
             return std::unique_ptr<AST::Stmt>(import_statement().release());
         }
+        if (match({TokenType::EXPORT_KW})) // export statement
+        {
+            return std::unique_ptr<AST::Stmt>(export_statement().release());
+        }
         return statement();
     }
 
@@ -300,8 +304,8 @@ namespace Linh
 #ifdef _DEBUG
         std::cerr << "[DEBUG] Import statement - current token: " << peek().lexeme << " (type: " << static_cast<int>(peek().type) << ")" << std::endl;
 #endif
-        // Nếu tiếp theo là IDENTIFIER, có thể là import name1, name2 from module; hoặc import module;
-        if (check(TokenType::IDENTIFIER))
+        // Nếu tiếp theo là IDENTIFIER hoặc STRING, có thể là import name1, name2 from module; hoặc import module; hoặc import "path";
+        if (check(TokenType::IDENTIFIER) || check(TokenType::STR))
         {
 #ifdef _DEBUG
             std::cerr << "[DEBUG] Found IDENTIFIER after import: " << peek().lexeme << std::endl;
@@ -346,7 +350,7 @@ namespace Linh
                 module_name = Token(TokenType::IDENTIFIER, mod_name, std::monostate{}, mod_first.line, mod_first.column_start);
                 semicolon = consume(TokenType::SEMICOLON, "Missing ';' after import statement.");
             }
-            else if (check(TokenType::DOT) || check(TokenType::SEMICOLON) || check(TokenType::END_OF_FILE)
+            else if (first.type == TokenType::STR || check(TokenType::DOT) || check(TokenType::SEMICOLON) || check(TokenType::END_OF_FILE)
                 || check(TokenType::PRINT_KW)
                 || check(TokenType::VAR_KW)
                 || check(TokenType::VAS_KW)
@@ -357,28 +361,41 @@ namespace Linh
                 || check(TokenType::FOR_KW)
                 || check(TokenType::SWITCH_KW)
                 || check(TokenType::RETURN_KW)
-                || check(TokenType::DO_KW)
                 || check(TokenType::TRY_KW)
                 || check(TokenType::THROW_KW)
                 || check(TokenType::DELETE_KW)
                 || check(TokenType::BREAK_KW)
                 || check(TokenType::SKIP_KW))
             {
-                // import module; hoặc import module.with.dots;
+                // import module; hoặc import module.with.dots; hoặc import "path";
 #ifdef _DEBUG
                 std::cerr << "[DEBUG] Entering import module branch" << std::endl;
 #endif
-                std::string mod_name = first.lexeme;
+                std::string mod_name;
                 int mod_line = first.line;
                 int mod_col = first.column_start;
-#ifdef _DEBUG
-                std::cerr << "[DEBUG] Processing import module: " << mod_name << std::endl;
-#endif
-                while (check(TokenType::DOT))
+                
+                if (first.type == TokenType::STR)
                 {
-                    advance(); // consume DOT
-                    Token next_part = consume(TokenType::IDENTIFIER, "Expected identifier after '.' in module name.");
-                    mod_name += "." + next_part.lexeme;
+                    // import "path/to/module.li";
+                    mod_name = std::get<std::string>(first.literal);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] Processing import string path: " << mod_name << std::endl;
+#endif
+                }
+                else
+                {
+                    // import module.with.dots;
+                    mod_name = first.lexeme;
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] Processing import module: " << mod_name << std::endl;
+#endif
+                    while (check(TokenType::DOT))
+                    {
+                        advance(); // consume DOT
+                        Token next_part = consume(TokenType::IDENTIFIER, "Expected identifier after '.' in module name.");
+                        mod_name += "." + next_part.lexeme;
+                    }
                 }
                 module_name = Token(TokenType::IDENTIFIER, mod_name, std::monostate{}, mod_line, mod_col);
 #ifdef _DEBUG
@@ -403,7 +420,6 @@ namespace Linh
                     || check(TokenType::FOR_KW)
                     || check(TokenType::SWITCH_KW)
                     || check(TokenType::RETURN_KW)
-                    || check(TokenType::DO_KW)
                     || check(TokenType::TRY_KW)
                     || check(TokenType::THROW_KW)
                     || check(TokenType::DELETE_KW)
@@ -433,6 +449,29 @@ namespace Linh
             throw error(peek(), "Missing module name or import names in import statement.");
         }
         return std::make_unique<AST::ImportStmt>(import_kw, std::move(names), from_kw, module_name, semicolon);
+    }
+
+    AST::StmtPtr Parser::export_statement()
+    {
+        Token export_kw = previous(); // EXPORT_KW
+        
+        // Parse the declaration to export (function, variable, etc.)
+        AST::StmtPtr declaration_to_export;
+        
+        if (match({TokenType::FUNC_KW}))
+        {
+            declaration_to_export = function_declaration(previous());
+        }
+        else if (match({TokenType::VAR_KW, TokenType::VAS_KW, TokenType::CONST_KW}))
+        {
+            declaration_to_export = var_declaration(previous());
+        }
+        else
+        {
+            throw error(peek(), "Expected function or variable declaration after 'export'.");
+        }
+        
+        return std::make_unique<AST::ExportStmt>(export_kw, std::move(declaration_to_export));
     }
 
 } // namespace Linh

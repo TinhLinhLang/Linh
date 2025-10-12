@@ -101,7 +101,12 @@ namespace Linh
         
         // --- LiPM Package Management ---
         LOAD_PACKAGE_CONST, // <--- Thêm opcode này cho package constants
-        CALL_PACKAGE_FUNCTION // <--- Thêm opcode này cho package functions
+        CALL_PACKAGE_FUNCTION, // <--- Thêm opcode này cho package functions
+        
+        // --- Module System ---
+        IMPORT_MODULE,     // Load and execute a module
+        EXPORT_SYMBOL,     // Export a symbol from current module
+        LOAD_MODULE_SYMBOL // Load a symbol from imported module
     };
 
     using BytecodeValue = std::variant<

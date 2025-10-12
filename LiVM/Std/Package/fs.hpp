@@ -4,7 +4,7 @@
 #include <functional>
 #include <fstream>
 #include <memory>
-#include "../../Value/Value.hpp"
+#include "LiVM/Variable/Value.hpp"
 
 namespace Linh {
 namespace Std {
@@ -47,7 +47,7 @@ namespace Std {
 
     // Function declarations
     FsFunction get_fs_function(const std::string& name);
-    std::unordered_map<std::string, FsFunction> get_fs_functions();
+    std::unordered_map<std::string, FsFunction> get_fs_function_map();
     Value get_fs_constant(const std::string& name);
     std::unordered_map<std::string, Value> get_fs_constants();
     void initialize_fs_functions();

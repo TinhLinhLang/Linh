@@ -1,7 +1,7 @@
 #include "BytecodeEmitter.hpp"
 #include <unordered_set>
 #include <iostream>
-#include "../../LiVM/Value/Value.hpp" // Để sử dụng Value cho constant folding
+#include "LiVM/Variable/Value.hpp" // Để sử dụng Value cho constant folding
 
 namespace Linh
 {
@@ -179,19 +179,23 @@ namespace Linh
     void BytecodeEmitter::emit(const AST::StmtList &stmts)
     {
         chunk.clear();
+        append_emit(stmts);
+    }
+
+    void BytecodeEmitter::append_emit(const AST::StmtList &stmts)
+    {
         // --- Emit all statements including function definitions ---
 #ifdef _DEBUG
-        std::cerr << "[DEBUG] BytecodeEmitter::emit: processing " << stmts.size() << " statements" << std::endl;
+        std::cerr << "[DEBUG] BytecodeEmitter::append_emit: processing " << stmts.size() << " statements" << std::endl;
 #endif
         for (const auto &stmt : stmts)
         {
-            if (stmt) {
 #ifdef _DEBUG
-                std::cerr << "[DEBUG] BytecodeEmitter::emit: processing statement type" << std::endl;
+            std::cerr << "[DEBUG] BytecodeEmitter::append_emit: processing statement type" << std::endl;
 #endif
-                stmt->accept(this);
-            }
+            stmt->accept(this);
         }
+        // --- End emit ---
         emit_instr(OpCode::HALT);
     }
 
@@ -228,8 +232,29 @@ namespace Linh
 
     std::any BytecodeEmitter::visitIdentifierExpr(AST::IdentifierExpr *expr)
     {
-        // Default behavior: load variable. Special handling is done in visitSubscriptExpr for index identifiers.
-        emit_instr(OpCode::LOAD_VAR, get_var_index(expr->name.lexeme), expr->getLine(), expr->getCol());
+        // Check if this is an exported variable first
+        if (exported_variables.count(expr->name.lexeme)) {
+            // Push the exported variable value directly
+            const Value& exported_value = exported_variables[expr->name.lexeme];
+            std::visit([this, expr](auto&& arg) {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<T, std::string>) {
+                    emit_instr(OpCode::PUSH_STR, arg, expr->getLine(), expr->getCol());
+                } else if constexpr (std::is_same_v<T, int64_t>) {
+                    emit_instr(OpCode::PUSH_INT, arg, expr->getLine(), expr->getCol());
+                } else if constexpr (std::is_same_v<T, double>) {
+                    emit_instr(OpCode::PUSH_FLOAT, arg, expr->getLine(), expr->getCol());
+                } else if constexpr (std::is_same_v<T, bool>) {
+                    emit_instr(OpCode::PUSH_BOOL, arg, expr->getLine(), expr->getCol());
+                } else {
+                    // Default: push as string representation
+                    emit_instr(OpCode::PUSH_STR, std::string("undefined"), expr->getLine(), expr->getCol());
+                }
+            }, exported_value);
+        } else {
+            // Default behavior: load variable
+            emit_instr(OpCode::LOAD_VAR, get_var_index(expr->name.lexeme), expr->getLine(), expr->getCol());
+        }
         return {};
     }
 
@@ -630,28 +655,6 @@ namespace Linh
         chunk[jmp_if_false_pos].operand = int64_t(end_pos);
     }
 
-    void BytecodeEmitter::visitDoWhileStmt(AST::DoWhileStmt *stmt)
-    {
-        size_t loop_start = chunk.size();
-        if (stmt->body)
-            stmt->body->accept(this);
-        // Tối ưu hóa: Nếu điều kiện là hằng false, không sinh JMP_IF_TRUE
-        if (stmt->condition) {
-            auto literal = dynamic_cast<AST::LiteralExpr*>(stmt->condition.get());
-            bool always_false = false;
-            if (literal) {
-                if (std::holds_alternative<bool>(literal->value)) always_false = !std::get<bool>(literal->value);
-                else if (std::holds_alternative<int64_t>(literal->value)) always_false = std::get<int64_t>(literal->value) == 0;
-                else if (std::holds_alternative<double>(literal->value)) always_false = std::get<double>(literal->value) == 0.0;
-                else if (std::holds_alternative<std::string>(literal->value)) always_false = std::get<std::string>(literal->value).empty();
-            }
-            if (!always_false)
-                stmt->condition->accept(this);
-            if (!always_false)
-                emit_instr(OpCode::JMP_IF_TRUE, int64_t(loop_start), stmt->getLine(), stmt->getCol());
-        }
-    }
-
     void BytecodeEmitter::visitFunctionDeclStmt(AST::FunctionDeclStmt *stmt) {
         std::vector<FunctionParameter> function_params;
         
@@ -708,6 +711,14 @@ namespace Linh
         }
 #endif
         auto fn = create_function(stmt->name.lexeme, function_params, function_body);
+        
+        // Lưu function vào function table
+        FunctionInfo func_info;
+        func_info.code = function_body;
+        for (const auto& param : function_params) {
+            func_info.param_names.push_back(param.name);
+        }
+        functions[stmt->name.lexeme] = func_info;
         
         // Lưu function object vào biến
         int var_idx = get_var_index(stmt->name.lexeme);
@@ -959,6 +970,67 @@ namespace Linh
                 emit_instr(OpCode::CALL, std::string("bin"), expr->getLine(), expr->getCol());
                 return {};
             }
+            // Type conversion functions
+            if (id->name.lexeme == "int")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_INT, 0, expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("int"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "float")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_FLOAT, 0.0, expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("float"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "uint")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_UINT, uint64_t(0), expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("uint"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "str")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("str"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "bool")
+            {
+                if (!expr->arguments.empty())
+                    expr->arguments[0]->accept(this);
+                else
+                    emit_instr(OpCode::PUSH_BOOL, false, expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("bool"), expr->getLine(), expr->getCol());
+                return {};
+            }
+            if (id->name.lexeme == "sol")
+            {
+                // sol() luôn trả về giá trị sol (null/empty), bỏ qua arguments
+                if (!expr->arguments.empty()) {
+                    // Vẫn cần evaluate arguments để tránh lỗi stack, nhưng sẽ pop chúng
+                    for (auto &arg : expr->arguments) {
+                        if (arg) {
+                            arg->accept(this);
+                            emit_instr(OpCode::POP, {}, expr->getLine(), expr->getCol()); // Pop argument
+                        }
+                    }
+                }
+                emit_instr(OpCode::CALL, std::string("sol"), expr->getLine(), expr->getCol());
+                return {};
+            }
             // --- User-defined function call ---
             // Emit arguments trước
             for (auto &arg : expr->arguments)
@@ -1036,6 +1108,7 @@ namespace Linh
             {
                 if (member->object)
                     member->object->accept(this);
+                // Sử dụng ARRAY_CLEAR cho cả array và map, VM sẽ xử lý runtime
                 emit_instr(OpCode::ARRAY_CLEAR, {}, expr->getLine(), expr->getCol());
                 return {};
             }
@@ -1071,13 +1144,6 @@ namespace Linh
                 // Đánh giá argument (key)
                 expr->arguments[0]->accept(this);
                 emit_instr(OpCode::MAP_DELETE, {}, expr->getLine(), expr->getCol());
-                return {};
-            }
-            if (member->property == "clear" && expr->arguments.empty())
-            {
-                if (member->object)
-                    member->object->accept(this);
-                emit_instr(OpCode::MAP_CLEAR, {}, expr->getLine(), expr->getCol());
                 return {};
             }
             if (member->property == "keys" && expr->arguments.empty())
@@ -1298,9 +1364,57 @@ namespace Linh
         return {};
     }
 
-    void BytecodeEmitter::visitImportStmt(AST::ImportStmt * /*stmt*/)
+    void BytecodeEmitter::visitImportStmt(AST::ImportStmt *stmt)
     {
-        // Không sinh bytecode cho import (hoặc xử lý import module ở đây nếu cần)
+        // Generate bytecode for module import
+        std::string module_path = stmt->module_name.lexeme;
+        
+        // Emit IMPORT_MODULE instruction
+        chunk.emplace_back(OpCode::IMPORT_MODULE, module_path, stmt->import_kw.line, stmt->import_kw.column_start);
+        
+        // If importing specific symbols, emit LOAD_MODULE_SYMBOL for each
+        for (const auto& name : stmt->names)
+        {
+            chunk.emplace_back(OpCode::LOAD_MODULE_SYMBOL, name.lexeme, name.line, name.column_start);
+        }
+    }
+    
+    void BytecodeEmitter::visitExportStmt(AST::ExportStmt *stmt)
+    {
+        // First, emit the declaration
+        stmt->declaration->accept(this);
+        
+        // Then emit export instruction
+        // For function declarations, get the function name
+        if (auto func_decl = dynamic_cast<AST::FunctionDeclStmt*>(stmt->declaration.get()))
+        {
+            chunk.emplace_back(OpCode::EXPORT_SYMBOL, func_decl->name.lexeme, stmt->export_kw.line, stmt->export_kw.column_start);
+        }
+        // For variable declarations, get the variable name and value
+        else if (auto var_decl = dynamic_cast<AST::VarDeclStmt*>(stmt->declaration.get()))
+        {
+            // Store exported variable value
+            if (var_decl->initializer) {
+                // Evaluate the initializer to get the value
+                Value var_value;
+                if (auto literal = dynamic_cast<AST::LiteralExpr*>(var_decl->initializer.get())) {
+                    // Convert LiteralValue to Value
+                    std::visit([&var_value](auto&& arg) {
+                        using T = std::decay_t<decltype(arg)>;
+                        if constexpr (std::is_same_v<T, std::monostate>) {
+                            var_value = Value();
+                        } else {
+                            var_value = Value(arg);
+                        }
+                    }, literal->value);
+                } else {
+                    // For complex expressions, use default value for now
+                    var_value = Value("undefined");
+                }
+                exported_variables[var_decl->name.lexeme] = var_value;
+            }
+            chunk.emplace_back(OpCode::EXPORT_SYMBOL, var_decl->name.lexeme, stmt->export_kw.line, stmt->export_kw.column_start);
+        }
     }
 
     std::any BytecodeEmitter::visitMemberExpr(AST::MemberExpr *expr)

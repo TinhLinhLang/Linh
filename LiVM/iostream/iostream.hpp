@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
-#include "../type.hpp"
-#include "../Value/Value.hpp"
+#include "LiVM/Variable/type.hpp"
+#include "LiVM/Variable/Value.hpp"
 #include <fmt/format.h>
 
 namespace LinhIO

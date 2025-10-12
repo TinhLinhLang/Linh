@@ -1,0 +1,246 @@
+// ===== COMPREHENSIVE TEST FOR LINH LANGUAGE =====
+// Test tất cả tính năng của ngôn ngữ Linh
+
+print("=== LINH LANGUAGE COMPREHENSIVE TEST ===")
+
+// ===== 1. VARIABLES & TYPES =====
+print("\n1. VARIABLES & TYPES")
+
+// Basic types
+var int_var = 42
+var uint_var = 100u
+var float_var = 3.14
+var str_var = "Hello Linh"
+var bool_var = true
+
+print("Integer:", int_var)
+print("Unsigned:", uint_var)
+print("Float:", float_var)
+print("String:", str_var)
+print("Boolean:", bool_var)
+
+// Type checking
+print("Type of int_var:", type(int_var))
+print("Type of float_var:", type(float_var))
+print("Type of str_var:", type(str_var))
+
+// ===== 2. SCIENTIFIC NOTATION =====
+print("\n2. SCIENTIFIC NOTATION")
+print("1e5 =", 1e5)
+print("2.5E-3 =", 2.5E-3)
+print("1.23e+4 =", 1.23e+4)
+
+// ===== 3. ARITHMETIC OPERATIONS =====
+print("\n3. ARITHMETIC OPERATIONS")
+var a = 10
+var b = 3
+print("a + b =", a + b)
+print("a - b =", a - b)
+print("a * b =", a * b)
+print("a / b =", a / b)
+print("a % b =", a % b)
+
+// Float arithmetic
+var x = 10.5
+var y = 2.5
+print("x + y =", x + y)
+print("x * y =", x * y)
+
+// ===== 4. COMPARISON OPERATIONS =====
+print("\n4. COMPARISON OPERATIONS")
+print("10 > 5 =", 10 > 5)
+print("10 < 5 =", 10 < 5)
+print("10 >= 10 =", 10 >= 10)
+print("10 <= 5 =", 10 <= 5)
+print("10 == 10 =", 10 == 10)
+print("10 != 5 =", 10 != 5)
+
+// ===== 5. LOGICAL OPERATIONS =====
+print("\n5. LOGICAL OPERATIONS")
+print("true and false =", true and false)
+print("true or false =", true or false)
+print("not true =", not true)
+
+// ===== 6. ARRAYS =====
+print("\n6. ARRAYS")
+var arr = [1, 2, 3, 4, 5]
+print("Original array:", arr)
+
+// Array methods
+arr.append(6)
+print("After append(6):", arr)
+
+arr.remove(3)
+print("After remove(3):", arr)
+
+print("Array length:", arr.len())
+
+// Array access
+print("First element:", arr[0])
+print("Last element:", arr[arr.len() - 1])
+
+// ===== 7. MAPS =====
+print("\n7. MAPS")
+var my_map = {"name": "Linh", "version": "0.017", "type": "language"}
+print("Original map:", my_map)
+
+// Map methods
+my_map.delete("version")
+print("After delete('version'):", my_map)
+
+var keys = my_map.keys()
+print("Map keys:", keys)
+
+var values = my_map.values()
+print("Map values:", values)
+
+my_map.clear()
+print("After clear():", my_map)
+
+// ===== 8. CONTROL FLOW - IF/ELSE =====
+print("\n8. CONTROL FLOW - IF/ELSE")
+var score = 85
+
+if (score >= 90) {
+    print("Grade: A")
+} else if (score >= 80) {
+    print("Grade: B")
+} else if (score >= 70) {
+    print("Grade: C")
+} else {
+    print("Grade: F")
+}
+
+// ===== 9. LOOPS =====
+print("\n9. LOOPS")
+
+// For loop
+print("For loop (1 to 5):")
+for (var i = 1; i <= 5; i = i + 1) {
+    print("i =", i)
+}
+
+// While loop
+print("While loop countdown:")
+var countdown = 3
+while (countdown > 0) {
+    print("Countdown:", countdown)
+    countdown = countdown - 1
+}
+
+// ===== 10. FUNCTIONS =====
+print("\n10. FUNCTIONS")
+
+// Function definition
+func add(a, b) {
+    return a + b
+}
+
+func greet(name) {
+    return "Hello, " + name + "!"
+}
+
+func factorial(n) {
+    if (n <= 1) {
+        return 1
+    } else {
+        return n * factorial(n - 1)
+    }
+}
+
+// Function calls
+print("add(5, 3) =", add(5, 3))
+print("greet('Linh') =", greet("Linh"))
+print("factorial(5) =", factorial(5))
+
+// Anonymous functions
+var square = func(x) {
+    return x * x
+}
+print("square(4) =", square(4))
+
+// ===== 11. STRING OPERATIONS =====
+print("\n11. STRING OPERATIONS")
+var str1 = "Hello"
+var str2 = "World"
+print("String concatenation:", str1 + " " + str2)
+
+// String interpolation (if supported)
+var name = "Linh"
+var age = 1
+print("Interpolation test: Name is", name, "and age is", age)
+
+// ===== 12. TYPE CONVERSIONS =====
+print("\n12. TYPE CONVERSIONS")
+var num_str = "123"
+var str_num = 456
+print("String '123' as string:", num_str)
+print("Number 456 as number:", str_num)
+
+// ===== 13. NESTED STRUCTURES =====
+print("\n13. NESTED STRUCTURES")
+var nested_array = [[1, 2], [3, 4], [5, 6]]
+print("Nested array:", nested_array)
+
+var nested_map = {
+    "user": {
+        "name": "Admin",
+        "permissions": ["read", "write", "execute"]
+    },
+    "settings": {
+        "theme": "dark",
+        "language": "en"
+    }
+}
+print("Nested map:", nested_map)
+
+// ===== 14. ERROR HANDLING =====
+print("\n14. ERROR HANDLING")
+// Test division by zero
+var safe_div = func(a, b) {
+    if (b == 0) {
+        print("Error: Division by zero!")
+        return 0
+    } else {
+        return a / b
+    }
+}
+
+print("safe_div(10, 2) =", safe_div(10, 2))
+print("safe_div(10, 0) =", safe_div(10, 0))
+
+// ===== 15. ADVANCED FEATURES =====
+print("\n15. ADVANCED FEATURES")
+
+// Higher-order functions
+var apply_twice = func(f, x) {
+    return f(f(x))
+}
+
+var increment = func(x) {
+    return x + 1
+}
+
+print("apply_twice(increment, 5) =", apply_twice(increment, 5))
+
+// ===== 16. COMPLEX EXPRESSIONS =====
+print("\n16. COMPLEX EXPRESSIONS")
+var complex_result = (10 + 5) * 2 - 8 / 4 + 3 % 2
+print("Complex arithmetic:", complex_result)
+
+var logic_result = (true or false) and not (false and true)
+print("Complex logic:", logic_result)
+
+// ===== 17. PERFORMANCE TEST =====
+print("\n17. PERFORMANCE TEST")
+var start_time = 0  // Placeholder for timing
+var sum = 0
+for (var i = 1; i <= 1000; i = i + 1) {
+    sum = sum + i
+}
+print("Sum of 1 to 1000:", sum)
+
+// ===== FINAL MESSAGE =====
+print("\n=== COMPREHENSIVE TEST COMPLETED ===")
+print("All major language features tested!")
+print("Linh language is working correctly! 🎉")

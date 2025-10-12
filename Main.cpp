@@ -20,7 +20,7 @@
 #include "LinhC/Parsing/Semantic/SemanticAnalyzer.hpp"
 #include "LinhC/Bytecode/BytecodeEmitter.hpp"
 #include "LiVM/LiVM.hpp"
-#include "REPL.hpp" // Thêm dòng này
+#include "REPL/REPL.hpp" // Thêm dòng này
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,7 +31,7 @@
 #else
 #include <locale>
 #endif
-#include "config.hpp" // Thêm dòng này để lấy thông tin version
+#include "config/config.hpp" // Thêm dòng này để lấy thông tin version
 
 void force_console_utf8()
 {

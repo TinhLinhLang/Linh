@@ -1,5 +1,0 @@
-import math
-
-print("Testing math.abs(-5):")
-print(math.abs(-5))
-print("Done!") 

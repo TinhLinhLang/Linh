@@ -45,7 +45,6 @@ namespace Linh
             void visitBlockStmt(BlockStmt *stmt) override;
             void visitIfStmt(IfStmt *stmt) override;
             void visitWhileStmt(WhileStmt *stmt) override;
-            void visitDoWhileStmt(DoWhileStmt *stmt) override;
             void visitFunctionDeclStmt(FunctionDeclStmt *stmt) override;
             void visitReturnStmt(ReturnStmt *stmt) override;
             void visitBreakStmt(BreakStmt *stmt) override;

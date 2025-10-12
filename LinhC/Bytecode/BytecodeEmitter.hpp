@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <string>
 #include <optional>
-#include "../../LiVM/Value/Value.hpp"
+#include "LiVM/Variable/Value.hpp"
 
 namespace Linh
 {
@@ -19,11 +19,16 @@ namespace Linh
 
         BytecodeEmitter();
         void emit(const AST::StmtList &stmts);
+        void append_emit(const AST::StmtList &stmts); // Emit without clearing chunk
         const BytecodeChunk &get_chunk() const { return chunk; }
 
         // Getter for function table
         const std::unordered_map<std::string, FunctionInfo> &get_functions() const { return functions; }
-        std::unordered_map<std::string, FunctionInfo> &get_functions() { return functions; } // <--- Thêm dòng này
+        std::unordered_map<std::string, FunctionInfo> &get_functions() { return functions; }
+        
+        // Getter for variable table
+        const std::unordered_map<std::string, Value> &get_variables() const { return exported_variables; }
+        std::unordered_map<std::string, Value> &get_variables() { return exported_variables; }
 
         // Optimization methods
         void enable_constant_folding(bool enable = true) { constant_folding_enabled = enable; }
@@ -57,7 +62,6 @@ namespace Linh
         void visitBlockStmt(AST::BlockStmt *stmt) override;
         void visitIfStmt(AST::IfStmt *stmt) override;
         void visitWhileStmt(AST::WhileStmt *stmt) override;
-        void visitDoWhileStmt(AST::DoWhileStmt *stmt) override;
         void visitFunctionDeclStmt(AST::FunctionDeclStmt *stmt) override;
         void visitReturnStmt(AST::ReturnStmt *stmt) override;
         void visitBreakStmt(AST::BreakStmt *stmt) override;
@@ -67,6 +71,7 @@ namespace Linh
         void visitThrowStmt(AST::ThrowStmt *stmt) override;
         void visitTryStmt(AST::TryStmt *stmt) override;
         void visitImportStmt(AST::ImportStmt *stmt) override;
+        void visitExportStmt(AST::ExportStmt *stmt) override;
 
     private:
         BytecodeChunk chunk;
@@ -75,6 +80,9 @@ namespace Linh
 
         // --- Add for function support ---
         std::unordered_map<std::string, FunctionInfo> functions;
+        
+        // --- Add for variable export support ---
+        std::unordered_map<std::string, Value> exported_variables;
         // -------------------------------
 
         // Constant folding helper

@@ -43,8 +43,6 @@ namespace Linh
             return if_statement();
         if (match({TokenType::WHILE_KW}))
             return while_statement();
-        if (match({TokenType::DO_KW}))
-            return do_while_statement();
         if (match({TokenType::FOR_KW}))
             return for_statement();
         if (match({TokenType::SWITCH_KW}))
@@ -144,19 +142,6 @@ namespace Linh
         consume(TokenType::RPAREN, "Thiếu ')' sau điều kiện của while.");
         AST::StmtPtr body = statement(); // Body có thể là block hoặc câu lệnh đơn
         return std::make_unique<AST::WhileStmt>(std::move(keyword_while), std::move(condition), std::move(body));
-    }
-
-    AST::StmtPtr Parser::do_while_statement()
-    {
-        Token keyword_do = previous();   // DO_KW
-        AST::StmtPtr body = statement(); // Body có thể là block hoặc câu lệnh đơn
-        Token keyword_while_after_body = consume(TokenType::WHILE_KW, "Thiếu 'while' sau thân của do-while.");
-        consume(TokenType::LPAREN, "Thiếu '(' sau 'while' trong do-while.");
-        AST::ExprPtr condition = expression();
-        consume(TokenType::RPAREN, "Thiếu ')' sau điều kiện do-while.");
-        if (check(TokenType::SEMICOLON))
-            consume(TokenType::SEMICOLON, "");
-        return std::make_unique<AST::DoWhileStmt>(keyword_do, std::move(body), keyword_while_after_body, std::move(condition));
     }
 
     AST::StmtPtr Parser::for_statement()

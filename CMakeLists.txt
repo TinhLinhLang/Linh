@@ -1,5 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
+# Tinh Linh Language - Linh Interpreter
+# Part of the Tinh Linh language ecosystem:
+#   - Linh (this project): Interpreter implementation
+#   - Tinh: AOT compiler with runtime (similar to Go)
+#   - Lithium: Language standard specification
+
 project(TinhLinhLangProject CXX)
 
 # MSVC: ensure /FS is added to avoid PDB write conflicts when building with /MP and /Zi
@@ -120,12 +126,12 @@ target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson LinhModuleLib)
 # --- Std Package ---
 add_library(StdLib STATIC
     LiVM/Std/Std.cpp
-    LiVM/Std/Package/math.cpp
-    LiVM/Std/Package/time.cpp
-    LiVM/Std/Package/fs.cpp
-    LiVM/Std/Package/json.hpp
-    LiVM/Std/Package/os.cpp
-    LiVM/Std/Package/os.hpp
+    LiVM/Std/Package/math/math.cpp
+    LiVM/Std/Package/time/time.cpp
+    LiVM/Std/Package/fs/fs.cpp
+    LiVM/Std/Package/json/json.hpp
+    LiVM/Std/Package/os/os.cpp
+    LiVM/Std/Package/os/os.hpp
 )
 target_include_directories(StdLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}

@@ -1,4 +1,4 @@
-[INFO] Configuring CMake at CN, 12/10/2025 20:48:11,32 
+[INFO] Configuring CMake at T5, 16/10/2025 15:45:11,95 
 -- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
 -- {fmt} version: 11.0.2
 -- Build type: 
@@ -6,24 +6,36 @@
 -- fmt library added via CPM (archive, no git required)
 -- CPM: Adding package simdjson@3.9.5 (v3.9.5 at D:/Cpp/Cmake/cache/simdjson/9438)
 -- simdjson library added via CPM
--- Found Windows resource file: D:/Linh/Linh.cpp/resources/appicon.rc and icon: D:/Linh/Linh.cpp/resources/Linh.ico
--- Configuring done (0.3s)
--- Generating done (0.6s)
--- Build files have been written to: D:/Linh/Linh.cpp/build
-[INFO] Building project in Debug mode at CN, 12/10/2025 20:48:12,46 
+-- Found Windows resource file: D:/TinhLinh/Linh/resources/appicon.rc and icon: D:/TinhLinh/Linh/resources/Linh.ico
+-- Configuring done (0.2s)
+-- Generating done (0.7s)
+-- Build files have been written to: D:/TinhLinh/Linh/build
+[INFO] Building project in Debug mode at T5, 16/10/2025 15:45:13,02 
 MSBuild version 17.14.19+164abd434 for .NET Framework
 
-  fmt.vcxproj -> D:\Linh\Linh.cpp\build\_deps\fmt-build\Debug\fmtd.lib
-  simdjson.vcxproj -> D:\Linh\Linh.cpp\build\_deps\simdjson-build\Debug\simdjson.lib
-  LinhASTLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhASTLib.lib
-  LinhLexerLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhLexerLib.lib
-  LinhSemanticLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhSemanticLib.lib
-  StdLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\StdLib.lib
-  LinhParserLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhParserLib.lib
-  LinhModuleLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhModuleLib.lib
+  LinhSemanticLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhSemanticLib.lib
+  LinhParserLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhParserLib.lib
+  LinhLexerLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhLexerLib.lib
+  LinhASTLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhASTLib.lib
+  simdjson.vcxproj -> D:\TinhLinh\Linh\build\_deps\simdjson-build\Debug\simdjson.lib
+  fmt.vcxproj -> D:\TinhLinh\Linh\build\_deps\fmt-build\Debug\fmtd.lib
+  LinhModuleLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhModuleLib.lib
+  StdLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\StdLib.lib
   LiVM.cpp
-  LiVMLib.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LiVMLib.lib
+  LiVMLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LiVMLib.lib
+  Building Custom Rule D:/TinhLinh/Linh/CMakeLists.txt
+  Main.cpp
+  ParseType.cpp
+  ParseStatement.cpp
+  ParseDeclaration.cpp
+  ParserBase.cpp
+  SemanticAnalyzer.cpp
+  ASTPrinter.cpp
   BytecodeEmitter.cpp
-  LinhApp.vcxproj -> D:\Linh\Linh.cpp\build\Debug\LinhApp.exe
-  Built LinhApp: D:/Linh/Linh.cpp/build/Debug/LinhApp.exe
-[SUCCESS] Build completed successfully at CN, 12/10/2025 20:48:20,86 
+  REPL.cpp
+  config.cpp
+  Generating Code...
+  LinhApp.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhApp.exe
+  Built LinhApp: D:/TinhLinh/Linh/build/Debug/LinhApp.exe
+  Building Custom Rule D:/TinhLinh/Linh/CMakeLists.txt
+[SUCCESS] Build completed successfully at T5, 16/10/2025 15:45:28,63 

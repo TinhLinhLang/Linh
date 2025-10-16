@@ -1,14 +1,26 @@
-# Tinh Linh Programming Language (`Linh.cpp`)
+# Tinh Linh Programming Language - Linh Interpreter
 
-Tinh Linh (Linh) is a new programming language developed by the Sao Tin Developer Team, aiming for simplicity, modern syntax, and extensibility. This project is the reference implementation in C++.
+**Tinh Linh** is a modern programming language developed by the Sao Tin Developer Team, aiming for simplicity, modern syntax, and extensibility.
+
+## Architecture Overview
+
+The Tinh Linh language ecosystem consists of three main components:
+
+- **Linh** (this project): The interpreter implementation - provides fast development and testing capabilities
+- **Tinh**: The AOT (Ahead-of-Time) compiler with runtime, similar to Go's compilation model - optimized for production deployment
+- **Lithium**: The language standard specification - defines the core language features and semantics
+
+This repository contains **Linh**, the interpreter component of the Tinh Linh language, implemented in C++.
 
 ## Features
 
-- Modern, readable syntax.
-- Extended type system (int, float, str, array, map, etc.).
-- Strong static type checking.
-- Supports `vas`, `const`, and `var` declarations.
-- Semantic analyzer and sample bytecode compiler.
+- **Interpreter-based execution**: Fast iteration and development workflow
+- **Modern, readable syntax**: Clean and intuitive language design
+- **Extended type system**: Support for int, float, str, array, map, and more
+- **Strong static type checking**: Catch errors before runtime
+- **Variable declarations**: Supports `vas`, `const`, and `var` keywords
+- **Semantic analysis**: Built-in semantic analyzer and bytecode compiler
+- **Lithium standard compliant**: Follows the Tinh Linh language specification
 
 # Release Notes
 

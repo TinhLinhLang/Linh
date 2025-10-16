@@ -1,9 +1,15 @@
 #include "config.hpp"
 
+// Tinh Linh Language - Linh Interpreter
+// Part of the Tinh Linh language ecosystem:
+//   - Linh (this project): Interpreter implementation
+//   - Tinh: AOT compiler with runtime (similar to Go)
+//   - Lithium: Language standard specification
+
 std::string name = "Linh";
 std::string engine = "Linh.cpp";
-std::string version = "Beta 0.017 - Fix";
-std::string version_number = "0.017";
+std::string version = "Beta 0.018 - ";
+std::string version_number = "0.018";
 std::string language = "C++";
 
 std::string author = "Jkar / Sao Tin Developer Team";

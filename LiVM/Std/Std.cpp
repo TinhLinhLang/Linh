@@ -6,11 +6,11 @@
 #include "LiVM/Variable/Value.hpp"
 #include "LiVM/LiVM.hpp"
 #include "../../config/config.hpp"
-#include "Package/time.hpp"
-#include "Package/math.hpp"
-#include "Package/fs.hpp"
-#include "Package/json.hpp"
-#include "Package/os.hpp"
+#include "Package/time/time.hpp"
+#include "Package/math/math.hpp"
+#include "Package/fs/fs.hpp"
+#include "Package/json/json.hpp"
+#include "Package/os/os.hpp"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846

@@ -5,7 +5,7 @@
 #include "LiVM/Loop/Loop.hpp"
 #include "LiVM/Math/Math.hpp"
 #include "LiVM/Variable/type.hpp"
-#include "LiVM/Std/Package/json.hpp"
+#include "LiVM/Std/Package/json/json.hpp"
 #include "LiVM/Functional/Func.hpp"
 /*--- LinhC ---*/
 #include "LinhC/Module/ModuleManager.hpp"
@@ -403,7 +403,7 @@ namespace Linh
             return;
         }
         auto val = vm.pop();
-        LinhIO::linh_printf(val);
+        LinhIO::linh_printil(val);
     }
 
     static void handle_POP(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -1092,7 +1092,7 @@ namespace Linh
                     std::cerr << "[DEBUG] PRINTF: about to print: " << Linh::to_str(val) << std::endl;
                     std::cerr << "----- START PRINTF -----" << std::endl;
 #endif
-                    LinhIO::linh_printf(val);
+                    LinhIO::linh_printil(val);
 #ifdef _DEBUG
                     std::cerr << "----- END PRINTF -----" << std::endl;
 #endif
@@ -2242,7 +2242,7 @@ namespace Linh
                         case OpCode::PRINTF:
                         {
                             auto val = pop();
-                            LinhIO::linh_printf(val);
+                            LinhIO::linh_printil(val);
                             break;
                         }
                         case OpCode::INPUT:

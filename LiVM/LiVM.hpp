@@ -1,4 +1,10 @@
 #pragma once
+// LiVM - Virtual Machine for the Tinh Linh Language (Linh Interpreter)
+// Part of the Tinh Linh language ecosystem:
+//   - Linh (this project): Interpreter implementation
+//   - Tinh: AOT compiler with runtime (similar to Go)
+//   - Lithium: Language standard specification
+
 #include "LinhC/Bytecode/Bytecode.hpp"
 #include "LiVM/Variable/Value.hpp"
 #include <vector>

@@ -1,5 +1,10 @@
 /*
-<----------------Note-------------->
+<----------------Tinh Linh Language - Linh Interpreter-------------->
+// Part of the Tinh Linh language ecosystem:
+//   - Linh (this project): Interpreter implementation
+//   - Tinh: AOT compiler with runtime (similar to Go)
+//   - Lithium: Language standard specification
+//
 // Tinh Linh is a multi-typed language supporting both static (vas) and dynamic (var) typing, as well as const.
 // Tinh Linh does not allow the existence of null. Only 'sol' is used as the primitive 'no-value'.
 //
@@ -11,7 +16,7 @@
 // Primitive types (int, uint, float, bool, str, sol) are NOT objects and do not have methods or properties.
 // Only array/map are reference types (objects), but they are not class-based objects.
 // There is no class, prototype, or inheritance system. Linh is a statically-typed, value-oriented language.
-// <---------------------------------->
+// <------------------------------------------------------------------>
 */
 
 #include "LinhC/Parsing/Lexer/Lexer.hpp"

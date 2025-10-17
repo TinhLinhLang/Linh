@@ -1,41 +1,29 @@
-[INFO] Configuring CMake at T5, 16/10/2025 15:45:11,95 
+[INFO] Configuring CMake at T6, 17/10/2025 21:58:24,62 
 -- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
 -- {fmt} version: 11.0.2
--- Build type: 
+-- Build type: Release
 -- CPM: Adding package fmt@11.0.2 (11.0.2 at D:/Cpp/Cmake/cache/fmt/cccb)
 -- fmt library added via CPM (archive, no git required)
 -- CPM: Adding package simdjson@3.9.5 (v3.9.5 at D:/Cpp/Cmake/cache/simdjson/9438)
 -- simdjson library added via CPM
 -- Found Windows resource file: D:/TinhLinh/Linh/resources/appicon.rc and icon: D:/TinhLinh/Linh/resources/Linh.ico
 -- Configuring done (0.2s)
--- Generating done (0.7s)
+-- Generating done (0.6s)
 -- Build files have been written to: D:/TinhLinh/Linh/build
-[INFO] Building project in Debug mode at T5, 16/10/2025 15:45:13,02 
+[INFO] Building project in Debug mode at T6, 17/10/2025 21:58:25,62 
 MSBuild version 17.14.19+164abd434 for .NET Framework
 
   LinhSemanticLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhSemanticLib.lib
-  LinhParserLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhParserLib.lib
   LinhLexerLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhLexerLib.lib
+  LinhParserLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhParserLib.lib
+  LinhGCLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhGCLib.lib
   LinhASTLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhASTLib.lib
   simdjson.vcxproj -> D:\TinhLinh\Linh\build\_deps\simdjson-build\Debug\simdjson.lib
   fmt.vcxproj -> D:\TinhLinh\Linh\build\_deps\fmt-build\Debug\fmtd.lib
   LinhModuleLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhModuleLib.lib
   StdLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\StdLib.lib
-  LiVM.cpp
   LiVMLib.vcxproj -> D:\TinhLinh\Linh\build\Debug\LiVMLib.lib
-  Building Custom Rule D:/TinhLinh/Linh/CMakeLists.txt
-  Main.cpp
-  ParseType.cpp
-  ParseStatement.cpp
-  ParseDeclaration.cpp
-  ParserBase.cpp
-  SemanticAnalyzer.cpp
-  ASTPrinter.cpp
   BytecodeEmitter.cpp
-  REPL.cpp
-  config.cpp
-  Generating Code...
   LinhApp.vcxproj -> D:\TinhLinh\Linh\build\Debug\LinhApp.exe
   Built LinhApp: D:/TinhLinh/Linh/build/Debug/LinhApp.exe
-  Building Custom Rule D:/TinhLinh/Linh/CMakeLists.txt
-[SUCCESS] Build completed successfully at T5, 16/10/2025 15:45:28,63 
+[SUCCESS] Build completed successfully at T6, 17/10/2025 21:58:30,64 

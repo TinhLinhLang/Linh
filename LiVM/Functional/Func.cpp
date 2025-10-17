@@ -4,6 +4,11 @@
 #include <iostream>
 
 namespace Linh {
+    // FunctionObject constructor implementation
+    FunctionObject::FunctionObject(const std::string& n, const std::vector<FunctionParameter>& p, 
+                                  const BytecodeChunk& b, const ClosureEnvironment& env)
+        : name(n), params(p), body(b), environment(env), is_closure(true) {}
+
     // Tạo function object
     FunctionPtr create_function(const std::string& name, const std::vector<FunctionParameter>& params, const BytecodeChunk& body) {
         auto fn = std::make_shared<FunctionObject>();
@@ -45,8 +50,8 @@ namespace Linh {
             std::cerr << "[DEBUG] Restoring closure environment with " << fn->environment.size() << " variables" << std::endl;
             for (const auto& [var_name, var_value] : fn->environment) {
                 std::cerr << "[DEBUG] Closure env: " << var_name << " = ";
-                if (std::holds_alternative<int64_t>(var_value)) {
-                    std::cerr << std::get<int64_t>(var_value);
+                if (Linh::holds_alternative<int64_t>(var_value)) {
+                    std::cerr << Linh::get<int64_t>(var_value);
                 } else {
                     std::cerr << "(other type)";
                 }
@@ -61,8 +66,8 @@ namespace Linh {
                     vm.variables[0] = var_value; // Assume count is at index 0
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] Restored count to index 0 with value: ";
-                    if (std::holds_alternative<int64_t>(var_value)) {
-                        std::cerr << std::get<int64_t>(var_value);
+                    if (Linh::holds_alternative<int64_t>(var_value)) {
+                        std::cerr << Linh::get<int64_t>(var_value);
                     }
                     std::cerr << std::endl;
 #endif
@@ -84,7 +89,7 @@ namespace Linh {
         for (size_t i = 0; i < fn->params.size(); ++i) {
             // TODO: Thêm type checking cho static parameters (vas)
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] Binding parameter " << i << " with value index = " << args[i].index() << std::endl;
+            std::cerr << "[DEBUG] Binding parameter " << i << " with value index = " << args[i].get_type() << std::endl;
 #endif
             vm.variables[i] = args[i];
         }
@@ -112,8 +117,8 @@ namespace Linh {
                     fn->environment["var_0"] = var_value;
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] Updated closure environment: count = ";
-                    if (std::holds_alternative<int64_t>(var_value)) {
-                        std::cerr << std::get<int64_t>(var_value);
+                    if (Linh::holds_alternative<int64_t>(var_value)) {
+                        std::cerr << Linh::get<int64_t>(var_value);
                     }
                     std::cerr << std::endl;
 #endif

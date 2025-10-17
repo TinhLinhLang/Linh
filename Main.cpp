@@ -50,6 +50,7 @@ void force_console_utf8()
 }
 
 void runSource(const std::string &source_code,
+               const std::string &source_file_path = "",
                Linh::Semantic::SemanticAnalyzer *sema_ptr = nullptr,
                Linh::BytecodeEmitter *emitter_ptr = nullptr,
                Linh::LiVM *vm_ptr = nullptr);
@@ -69,7 +70,7 @@ void runFile(const std::string &filename)
     {
         source += line + "\n";
     }
-    runSource(source, nullptr, nullptr, nullptr);
+    runSource(source, filename, nullptr, nullptr, nullptr);
 }
 
 // Đặt biến này vào đúng namespace Linh::Semantic để tránh lỗi linker
@@ -82,6 +83,7 @@ namespace Linh
 }
 
 void runSource(const std::string &source_code,
+               const std::string &source_file_path,
                Linh::Semantic::SemanticAnalyzer *sema_ptr,
                Linh::BytecodeEmitter *emitter_ptr,
                Linh::LiVM *vm_ptr)
@@ -105,6 +107,13 @@ void runSource(const std::string &source_code,
     Linh::BytecodeEmitter emitter;
     Linh::Semantic::g_main_emitter = &emitter; // Đặt emitter chính trước khi semantic để import có thể merge
     Linh::Semantic::SemanticAnalyzer sema;
+    
+    // Set the current file path for proper module resolution
+    if (!source_file_path.empty())
+    {
+        sema.set_current_file_path(source_file_path);
+    }
+    
     sema.analyze(ast);
     if (!sema.errors.empty())
     {
@@ -133,6 +142,12 @@ void runSource(const std::string &source_code,
 
     // --- Run VM ---
     Linh::LiVM vm;
+    
+    // Set the current file path for VM module resolution
+    if (!source_file_path.empty())
+    {
+        vm.current_file_path = source_file_path;
+    }
 
     // --- Chuyển đổi function table ---
     std::unordered_map<std::string, Linh::LiVM::Function> vm_functions;
@@ -158,7 +173,7 @@ void runSource(const std::string &source_code,
 
 void runSource(const std::string &source_code)
 {
-    runSource(source_code, nullptr, nullptr, nullptr);
+    runSource(source_code, "", nullptr, nullptr, nullptr);
 }
 
 int main(int argc, char **argv)

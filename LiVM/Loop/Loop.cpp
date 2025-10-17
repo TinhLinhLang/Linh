@@ -5,19 +5,16 @@ namespace Linh
 {
     // Hàm kiểm tra điều kiện cho JMP_IF_TRUE/FALSE
     inline bool eval_condition(const Value& cond) {
-        return std::visit([](auto&& arg) -> bool {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::is_same_v<T, bool>)
-                return arg;
-            else if constexpr (std::is_same_v<T, int64_t>)
-                return arg != 0;
-            else if constexpr (std::is_same_v<T, double>)
-                return arg != 0.0;
-            else if constexpr (std::is_same_v<T, std::string>)
-                return !arg.empty();
-            else
-                return false;
-        }, cond);
+        if (Linh::holds_alternative<bool>(cond))
+            return Linh::get<bool>(cond);
+        else if (Linh::holds_alternative<int64_t>(cond))
+            return Linh::get<int64_t>(cond) != 0;
+        else if (Linh::holds_alternative<double>(cond))
+            return Linh::get<double>(cond) != 0.0;
+        else if (Linh::holds_alternative<std::string>(cond))
+            return !Linh::get<std::string>(cond).empty();
+        else
+            return false;
     }
 
     void handle_loop_opcode(LiVM &vm, const Instruction &instr, const BytecodeChunk &chunk, size_t &ip)

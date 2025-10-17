@@ -236,21 +236,18 @@ namespace Linh
         if (exported_variables.count(expr->name.lexeme)) {
             // Push the exported variable value directly
             const Value& exported_value = exported_variables[expr->name.lexeme];
-            std::visit([this, expr](auto&& arg) {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (std::is_same_v<T, std::string>) {
-                    emit_instr(OpCode::PUSH_STR, arg, expr->getLine(), expr->getCol());
-                } else if constexpr (std::is_same_v<T, int64_t>) {
-                    emit_instr(OpCode::PUSH_INT, arg, expr->getLine(), expr->getCol());
-                } else if constexpr (std::is_same_v<T, double>) {
-                    emit_instr(OpCode::PUSH_FLOAT, arg, expr->getLine(), expr->getCol());
-                } else if constexpr (std::is_same_v<T, bool>) {
-                    emit_instr(OpCode::PUSH_BOOL, arg, expr->getLine(), expr->getCol());
-                } else {
-                    // Default: push as string representation
-                    emit_instr(OpCode::PUSH_STR, std::string("undefined"), expr->getLine(), expr->getCol());
-                }
-            }, exported_value);
+            if (Linh::holds_alternative<std::string>(exported_value)) {
+                emit_instr(OpCode::PUSH_STR, Linh::get<std::string>(exported_value), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<int64_t>(exported_value)) {
+                emit_instr(OpCode::PUSH_INT, Linh::get<int64_t>(exported_value), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<double>(exported_value)) {
+                emit_instr(OpCode::PUSH_FLOAT, Linh::get<double>(exported_value), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<bool>(exported_value)) {
+                emit_instr(OpCode::PUSH_BOOL, Linh::get<bool>(exported_value), expr->getLine(), expr->getCol());
+            } else {
+                // Default: push as string representation
+                emit_instr(OpCode::PUSH_STR, std::string("undefined"), expr->getLine(), expr->getCol());
+            }
         } else {
             // Default behavior: load variable
             emit_instr(OpCode::LOAD_VAR, get_var_index(expr->name.lexeme), expr->getLine(), expr->getCol());
@@ -264,12 +261,12 @@ namespace Linh
         auto folded_result = try_constant_fold(expr);
         if (folded_result.has_value()) {
             // Emit the constant result directly
-            if (std::holds_alternative<int64_t>(*folded_result)) {
-                emit_instr(OpCode::PUSH_INT, std::get<int64_t>(*folded_result), expr->getLine(), expr->getCol());
-            } else if (std::holds_alternative<double>(*folded_result)) {
-                emit_instr(OpCode::PUSH_FLOAT, std::get<double>(*folded_result), expr->getLine(), expr->getCol());
-            } else if (std::holds_alternative<bool>(*folded_result)) {
-                emit_instr(OpCode::PUSH_BOOL, std::get<bool>(*folded_result), expr->getLine(), expr->getCol());
+            if (Linh::holds_alternative<int64_t>(*folded_result)) {
+                emit_instr(OpCode::PUSH_INT, Linh::get<int64_t>(*folded_result), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<double>(*folded_result)) {
+                emit_instr(OpCode::PUSH_FLOAT, Linh::get<double>(*folded_result), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<bool>(*folded_result)) {
+                emit_instr(OpCode::PUSH_BOOL, Linh::get<bool>(*folded_result), expr->getLine(), expr->getCol());
             }
             return {};
         }
@@ -358,12 +355,12 @@ namespace Linh
         auto folded_result = try_constant_fold(expr);
         if (folded_result.has_value()) {
             // Emit the constant result directly
-            if (std::holds_alternative<int64_t>(*folded_result)) {
-                emit_instr(OpCode::PUSH_INT, std::get<int64_t>(*folded_result), expr->getLine(), expr->getCol());
-            } else if (std::holds_alternative<double>(*folded_result)) {
-                emit_instr(OpCode::PUSH_FLOAT, std::get<double>(*folded_result), expr->getLine(), expr->getCol());
-            } else if (std::holds_alternative<bool>(*folded_result)) {
-                emit_instr(OpCode::PUSH_BOOL, std::get<bool>(*folded_result), expr->getLine(), expr->getCol());
+            if (Linh::holds_alternative<int64_t>(*folded_result)) {
+                emit_instr(OpCode::PUSH_INT, Linh::get<int64_t>(*folded_result), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<double>(*folded_result)) {
+                emit_instr(OpCode::PUSH_FLOAT, Linh::get<double>(*folded_result), expr->getLine(), expr->getCol());
+            } else if (Linh::holds_alternative<bool>(*folded_result)) {
+                emit_instr(OpCode::PUSH_BOOL, Linh::get<bool>(*folded_result), expr->getLine(), expr->getCol());
             }
             return {};
         }
@@ -940,7 +937,7 @@ namespace Linh
                     expr->arguments[0]->accept(this);
                 else
                     emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
-                emit_instr(OpCode::PRINTF, {}, expr->getLine(), expr->getCol());
+                emit_instr(OpCode::PRINTIL, {}, expr->getLine(), expr->getCol());
                 return {};
             }
             if (id->name.lexeme == "bytes")

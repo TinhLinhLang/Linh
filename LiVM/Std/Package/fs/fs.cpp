@@ -153,7 +153,7 @@ namespace Std {
         return open_files_.count(handle) > 0;
     }
 
-    bool FileManager::bWrite_file(int handle, const Array& data) {
+    bool FileManager::bWrite_file(int handle, const Value& data) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
         if (it == open_files_.end()) return false;
@@ -172,17 +172,18 @@ namespace Std {
 
         // Convert Array of Values to raw bytes
         std::vector<unsigned char> buffer;
-        buffer.reserve(data ? data->size() : 0);
-        if (data) {
-            for (const auto& v : *data) {
+        if (data.is_array()) {
+            const auto& arr = data.as_array_ref();
+            buffer.reserve(arr.size());
+            for (const auto& v : arr) {
                 uint64_t iv = 0;
-                if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
-                else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
-                else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
-                else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
-                else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
-                else if (std::holds_alternative<uint32_t>(v)) iv = std::get<uint32_t>(v);
-                else if (std::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(std::get<int32_t>(v));
+                if (Linh::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(Linh::get<int64_t>(v));
+                else if (Linh::holds_alternative<uint64_t>(v)) iv = Linh::get<uint64_t>(v);
+                else if (Linh::holds_alternative<double>(v)) iv = static_cast<uint64_t>(Linh::get<double>(v));
+                else if (Linh::holds_alternative<Byte>(v)) iv = Linh::get<Byte>(v);
+                else if (Linh::holds_alternative<bool>(v)) iv = Linh::get<bool>(v) ? 1u : 0u;
+                else if (Linh::holds_alternative<uint32_t>(v)) iv = Linh::get<uint32_t>(v);
+                else if (Linh::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(Linh::get<int32_t>(v));
                 // Clamp to 0..255
                 if (iv > 255) iv = 255;
                 buffer.push_back(static_cast<unsigned char>(iv & 0xFF));
@@ -198,24 +199,25 @@ namespace Std {
         return it->second->is_open();
     }
 
-    bool FileManager::bAppend_file(int handle, const Array& data) {
+    bool FileManager::bAppend_file(int handle, const Value& data) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
         if (it == open_files_.end()) return false;
         
         // Convert Array of Values to raw bytes
         std::vector<unsigned char> buffer;
-        buffer.reserve(data ? data->size() : 0);
-        if (data) {
-            for (const auto& v : *data) {
+        if (data.is_array()) {
+            const auto& arr = data.as_array_ref();
+            buffer.reserve(arr.size());
+            for (const auto& v : arr) {
                 uint64_t iv = 0;
-                if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
-                else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
-                else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
-                else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
-                else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
-                else if (std::holds_alternative<uint32_t>(v)) iv = std::get<uint32_t>(v);
-                else if (std::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(std::get<int32_t>(v));
+                if (Linh::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(Linh::get<int64_t>(v));
+                else if (Linh::holds_alternative<uint64_t>(v)) iv = Linh::get<uint64_t>(v);
+                else if (Linh::holds_alternative<double>(v)) iv = static_cast<uint64_t>(Linh::get<double>(v));
+                else if (Linh::holds_alternative<Byte>(v)) iv = Linh::get<Byte>(v);
+                else if (Linh::holds_alternative<bool>(v)) iv = Linh::get<bool>(v) ? 1u : 0u;
+                else if (Linh::holds_alternative<uint32_t>(v)) iv = Linh::get<uint32_t>(v);
+                else if (Linh::holds_alternative<int32_t>(v)) iv = static_cast<uint64_t>(Linh::get<int32_t>(v));
                 if (iv > 255) iv = 255;
                 buffer.push_back(static_cast<unsigned char>(iv & 0xFF));
             }
@@ -228,28 +230,29 @@ namespace Std {
         return true;
     }
 
-    Array FileManager::bRead_file(int handle) {
+    Value FileManager::bRead_file(int handle) {
         std::lock_guard<std::mutex> lock(mutex_);
         auto it = open_files_.find(handle);
-        if (it == open_files_.end()) return make_array();
+        if (it == open_files_.end()) return Value::make_array();
         std::fstream& file = *(it->second);
-        if (!file.is_open()) return make_array();
+        if (!file.is_open()) return Value::make_array();
     
         std::streampos current_pos = file.tellg();
         file.seekg(0, std::ios::end);
         std::streampos end_pos = file.tellg();
         file.seekg(current_pos);
     
-        if (end_pos <= current_pos) return make_array();
+        if (end_pos <= current_pos) return Value::make_array();
     
         size_t size_to_read = static_cast<size_t>(end_pos - current_pos);
         std::vector<unsigned char> buf(size_to_read);
         file.read(reinterpret_cast<char*>(buf.data()), size_to_read);
 
-        auto arr = make_array();
-        arr->reserve(buf.size());
+        Value arr = Value::make_array();
+        auto& arr_ref = arr.as_array_ref();
+        arr_ref.reserve(buf.size());
         for (unsigned char c : buf) {
-            arr->push_back(Value(static_cast<Byte>(c)));
+            arr_ref.push_back(Value(static_cast<Byte>(c)));
         }
         return arr;
     }
@@ -261,8 +264,8 @@ namespace Std {
     int current_file_handle = -1;
 
     Value fs_open(const Value& v) {
-        if (v.index() != 5) return Value(-1);
-        std::string filename = std::get<std::string>(v);
+        if (v.get_type() != ValueType::String) return Value(-1);
+        std::string filename = Linh::get<std::string>(v);
         if (filename.empty()) return Value(-1);
         FileManager& fm = FileManager::instance();
         int handle = fm.open_file(filename);
@@ -287,12 +290,13 @@ namespace Std {
     }
 
     Value fs_readlines(const Value& v) {
-        if (current_file_handle == -1) return Value::new_array();
+        if (current_file_handle == -1) return Value::make_array();
         FileManager& fm = FileManager::instance();
-        if (!fm.is_file_open(current_file_handle)) return Value::new_array();
+        if (!fm.is_file_open(current_file_handle)) return Value::make_array();
         std::vector<std::string> lines = fm.read_lines(current_file_handle);
-        Array array = make_array();
-        for (const auto& line : lines) array->push_back(Value(line));
+        Value array = Value::make_array();
+        auto& arr_ref = array.as_array_ref();
+        for (const auto& line : lines) arr_ref.push_back(Value(line));
         return Value(array);
     }
 
@@ -300,8 +304,8 @@ namespace Std {
         if (current_file_handle == -1) return Value(false);
         FileManager& fm = FileManager::instance();
         if (!fm.is_file_open(current_file_handle)) return Value(false);
-        if (v.index() != 5) return Value(false);
-        std::string s = std::get<std::string>(v);
+        if (v.get_type() != ValueType::String) return Value(false);
+        std::string s = Linh::get<std::string>(v);
         bool ok = fm.write_file(current_file_handle, s);
         return Value(ok);
     }
@@ -310,8 +314,8 @@ namespace Std {
         if (current_file_handle == -1) return Value(false);
         FileManager& fm = FileManager::instance();
         if (!fm.is_file_open(current_file_handle)) return Value(false);
-        if (v.index() != 5) return Value(false);
-        std::string s = std::get<std::string>(v);
+        if (v.get_type() != ValueType::String) return Value(false);
+        std::string s = Linh::get<std::string>(v);
         bool ok = fm.append_file(current_file_handle, s);
         return Value(ok);
     }
@@ -333,7 +337,7 @@ namespace Std {
         if (!fm.is_file_open(current_file_handle)) {
             return Value{};
         }
-        std::string encoding = std::holds_alternative<std::string>(v) ? std::get<std::string>(v) : "utf-8";
+        std::string encoding = Linh::holds_alternative<std::string>(v) ? Linh::get<std::string>(v) : "utf-8";
         bool success = fm.set_encoding(current_file_handle, encoding);
         return Value(success);
     }
@@ -347,12 +351,12 @@ namespace Std {
             return Value{};
         }
         long offset = 0;
-        if (std::holds_alternative<double>(v)) {
-            offset = static_cast<long>(std::get<double>(v));
-        } else if (std::holds_alternative<int64_t>(v)) {
-            offset = static_cast<long>(std::get<int64_t>(v));
-        } else if (std::holds_alternative<uint64_t>(v)) {
-            offset = static_cast<long>(std::get<uint64_t>(v));
+        if (Linh::holds_alternative<double>(v)) {
+            offset = static_cast<long>(Linh::get<double>(v));
+        } else if (Linh::holds_alternative<int64_t>(v)) {
+            offset = static_cast<long>(Linh::get<int64_t>(v));
+        } else if (Linh::holds_alternative<uint64_t>(v)) {
+            offset = static_cast<long>(Linh::get<uint64_t>(v));
         }
         bool success = fm.seek_file(current_file_handle, offset);
         return Value(success);
@@ -360,8 +364,8 @@ namespace Std {
 
     Value fs_size(const Value& v) {
         std::string filename = "";
-        if (std::holds_alternative<std::string>(v)) {
-            filename = std::get<std::string>(v);
+        if (Linh::holds_alternative<std::string>(v)) {
+            filename = Linh::get<std::string>(v);
         }
         if (filename.empty()) {
             return Value{};
@@ -373,8 +377,8 @@ namespace Std {
 
     Value fs_exists(const Value& v) {
         std::string path = "";
-        if (std::holds_alternative<std::string>(v)) {
-            path = std::get<std::string>(v);
+        if (Linh::holds_alternative<std::string>(v)) {
+            path = Linh::get<std::string>(v);
         }
         if (path.empty()) {
             return Value(false);
@@ -386,35 +390,35 @@ namespace Std {
 
     Value fs_bWrite(const Value& v) {
         if (current_file_handle == -1) return Value(false);
-        if (!std::holds_alternative<Array>(v)) return Value(false);
-        const auto& data = std::get<Array>(v);
+        if (!v.is_array()) return Value(false);
+        const auto& data = v.as_array_ref();
         FileManager& fm = FileManager::instance();
-        bool ok = fm.bWrite_file(current_file_handle, data);
+        bool ok = fm.bWrite_file(current_file_handle, v);
         return Value(ok);
     }
 
     Value fs_bAppend(const Value& v) {
         if (current_file_handle == -1) return Value(false);
-        if (!std::holds_alternative<Array>(v)) return Value(false);
-        const auto& data = std::get<Array>(v);
+        if (!v.is_array()) return Value(false);
+        const auto& data = v.as_array_ref();
         FileManager& fm = FileManager::instance();
-        bool ok = fm.bAppend_file(current_file_handle, data);
+        bool ok = fm.bAppend_file(current_file_handle, v);
         return Value(ok);
     }
 
     Value fs_bRead(const Value& v) {
         if (current_file_handle == -1) return Value{}; // Return nil
         FileManager& fm = FileManager::instance();
-        Array data = fm.bRead_file(current_file_handle);
+        Value data = fm.bRead_file(current_file_handle);
         return Value(data);
     }
 
     Value fs_listdir(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value::new_array();
-        std::string path = std::get<std::string>(v);
-        if (path.empty()) return Value::new_array();
+        if (!Linh::holds_alternative<std::string>(v)) return Value::make_array();
+        std::string path = Linh::get<std::string>(v);
+        if (path.empty()) return Value::make_array();
         
-        Array array = make_array();
+        Value array = Value::make_array();
         try {
             std::filesystem::path fs_path(path);
             if (!std::filesystem::exists(fs_path) || !std::filesystem::is_directory(fs_path)) {
@@ -422,7 +426,7 @@ namespace Std {
             }
             
             for (const auto& entry : std::filesystem::directory_iterator(fs_path)) {
-                array->push_back(Value(entry.path().filename().string()));
+                array.as_array_ref().push_back(Value(entry.path().filename().string()));
             }
         } catch (const std::exception&) {
             // Return empty array on error
@@ -431,8 +435,8 @@ namespace Std {
     }
 
     Value fs_mkdir(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -445,8 +449,8 @@ namespace Std {
     }
 
     Value fs_remove(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -459,8 +463,8 @@ namespace Std {
     }
 
     Value fs_rmdir(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -480,17 +484,17 @@ namespace Std {
         // and the first argument (src) should be on the stack
         // But since VM only passes one argument, we need to handle this differently
         // For now, let's expect an array with 2 elements as a workaround
-        if (std::holds_alternative<Array>(v)) {
-            const auto& array = std::get<Array>(v);
-            if (array->size() != 2) return Value(false);
+        if (v.is_array()) {
+            const auto& array = v.as_array_ref();
+            if (array.size() != 2) return Value(false);
             
-            if (!std::holds_alternative<std::string>((*array)[0]) || 
-                !std::holds_alternative<std::string>((*array)[1])) {
+            if (!Linh::holds_alternative<std::string>(array[0]) || 
+                !Linh::holds_alternative<std::string>(array[1])) {
                 return Value(false);
             }
             
-            std::string src = std::get<std::string>((*array)[0]);
-            std::string dst = std::get<std::string>((*array)[1]);
+            std::string src = Linh::get<std::string>(array[0]);
+            std::string dst = Linh::get<std::string>(array[1]);
             
             if (src.empty() || dst.empty()) return Value(false);
             
@@ -505,25 +509,25 @@ namespace Std {
         }
         
         // If not an array, treat as dst and expect src to be handled by VM
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string dst = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string dst = Linh::get<std::string>(v);
         
         // This is a temporary solution - we need VM to handle multiple args properly
         return Value(false);
     }
 
     Value fs_copy(const Value& v) {
-        if (std::holds_alternative<Array>(v)) {
-            const auto& array = std::get<Array>(v);
-            if (array->size() != 2) return Value(false);
+        if (v.is_array()) {
+            const auto& array = v.as_array_ref();
+            if (array.size() != 2) return Value(false);
             
-            if (!std::holds_alternative<std::string>((*array)[0]) || 
-                !std::holds_alternative<std::string>((*array)[1])) {
+            if (!Linh::holds_alternative<std::string>(array[0]) || 
+                !Linh::holds_alternative<std::string>(array[1])) {
                 return Value(false);
             }
             
-            std::string src = std::get<std::string>((*array)[0]);
-            std::string dst = std::get<std::string>((*array)[1]);
+            std::string src = Linh::get<std::string>(array[0]);
+            std::string dst = Linh::get<std::string>(array[1]);
             
             if (src.empty() || dst.empty()) return Value(false);
             
@@ -545,17 +549,17 @@ namespace Std {
     }
 
     Value fs_move(const Value& v) {
-        if (std::holds_alternative<Array>(v)) {
-            const auto& array = std::get<Array>(v);
-            if (array->size() != 2) return Value(false);
+        if (v.is_array()) {
+            const auto& array = v.as_array_ref();
+            if (array.size() != 2) return Value(false);
             
-            if (!std::holds_alternative<std::string>((*array)[0]) || 
-                !std::holds_alternative<std::string>((*array)[1])) {
+            if (!Linh::holds_alternative<std::string>(array[0]) || 
+                !Linh::holds_alternative<std::string>(array[1])) {
                 return Value(false);
             }
             
-            std::string src = std::get<std::string>((*array)[0]);
-            std::string dst = std::get<std::string>((*array)[1]);
+            std::string src = Linh::get<std::string>(array[0]);
+            std::string dst = Linh::get<std::string>(array[1]);
             
             if (src.empty() || dst.empty()) return Value(false);
             
@@ -576,11 +580,11 @@ namespace Std {
     }
 
     Value fs_stat(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value::new_map();
-        std::string path = std::get<std::string>(v);
-        if (path.empty()) return Value::new_map();
+        if (!Linh::holds_alternative<std::string>(v)) return Value::make_map();
+        std::string path = Linh::get<std::string>(v);
+        if (path.empty()) return Value::make_map();
         
-        Map stat_map = make_map();
+        Value stat_map = Value::make_map();
         try {
             std::filesystem::path fs_path(path);
             if (!std::filesystem::exists(fs_path)) {
@@ -598,10 +602,10 @@ namespace Std {
                 std::chrono::system_clock::now());
             auto time_t_value = std::chrono::system_clock::to_time_t(sctp);
             
-            (*stat_map)["size"] = Value(static_cast<double>(file_size));
-            (*stat_map)["is_file"] = Value(std::filesystem::is_regular_file(fs_path));
-            (*stat_map)["is_directory"] = Value(std::filesystem::is_directory(fs_path));
-            (*stat_map)["last_modified"] = Value(static_cast<double>(time_t_value));
+            stat_map.as_map_ref()["size"] = Value(static_cast<double>(file_size));
+            stat_map.as_map_ref()["is_file"] = Value(std::filesystem::is_regular_file(fs_path));
+            stat_map.as_map_ref()["is_directory"] = Value(std::filesystem::is_directory(fs_path));
+            stat_map.as_map_ref()["last_modified"] = Value(static_cast<double>(time_t_value));
             
         } catch (const std::exception&) {
             // Return empty map on error
@@ -610,8 +614,8 @@ namespace Std {
     }
 
     Value fs_isdir(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -625,8 +629,8 @@ namespace Std {
     }
 
     Value fs_isfile(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -640,8 +644,8 @@ namespace Std {
     }
 
     Value fs_isempty(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {
@@ -669,8 +673,8 @@ namespace Std {
     }
 
     Value fs_rmall(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value(false);
-        std::string path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value(false);
+        std::string path = Linh::get<std::string>(v);
         if (path.empty()) return Value(false);
         
         try {

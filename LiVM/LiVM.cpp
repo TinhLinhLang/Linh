@@ -304,8 +304,8 @@ namespace Linh
             return "MAP_CLEAR";
         case OpCode::PRINT_MULTIPLE:
             return "PRINT_MULTIPLE";
-        case OpCode::PRINTF:
-            return "PRINTF";
+        case OpCode::PRINTIL:
+            return "PRINTIL";
         case OpCode::CREATE_CLOSURE:
             return "CREATE_CLOSURE";
         case OpCode::CAPTURE_VAR:
@@ -372,7 +372,7 @@ namespace Linh
             ++ip;
     }
     static void handle_PRINT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
-        if (vm.stack.empty()) vm.stack.push_back(std::monostate{});
+        if (vm.stack.empty()) vm.stack.push_back(Value());
         auto val = vm.pop();
         LinhIO::linh_print(val);
     }
@@ -397,7 +397,7 @@ namespace Linh
         }
         LinhIO::linh_print(Value(result));
     }
-    static void handle_PRINTF(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+    static void handle_PRINTIL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         if (vm.stack.empty()) {
             std::cerr << "ERROR [Line " << instr.line << ", Col " << instr.col << "] RuntimeError : VM stack underflow" << std::endl;
             return;
@@ -438,10 +438,10 @@ namespace Linh
             std::cerr << "[DEBUG] PUSH_FUNCTION: operand index = " << instr.operand.index() << std::endl;
 #endif
             if (instr.operand.index() == 6) { // FunctionPtr is at index 6 in BytecodeValue
-                auto fn = std::get<6>(instr.operand);
+                FunctionPtr fn = std::get<FunctionPtr>(instr.operand);
                 Value function_value(fn);
 #ifdef _DEBUG
-                std::cerr << "[DEBUG] PUSH_FUNCTION: function_value index = " << function_value.index() << std::endl;
+                std::cerr << "[DEBUG] PUSH_FUNCTION: function_value index = " << function_value.get_type() << std::endl;
 #endif
                 vm.push(function_value);
 #ifdef _DEBUG
@@ -503,10 +503,10 @@ namespace Linh
                         Value src = vm.pop();  // First argument (source)
                         
                         // Create array with both arguments
-                        Array args = make_array();
-                        args->push_back(src);
-                        args->push_back(dst);
-                        Value result = fs_func(Value(args));
+                        Value args = make_array();
+                        args.as_array_ref().push_back(src);
+                        args.as_array_ref().push_back(dst);
+                        Value result = fs_func(args);
                         vm.push(result);
                         return;
                     } else {
@@ -552,15 +552,15 @@ namespace Linh
         auto function_value = vm.stack.back();
         vm.stack.pop_back();
 
-        if (function_value.index() != 15) { // FunctionPtr index
+        if (function_value.get_type() != ValueType::Function) { // FunctionPtr index
             std::cerr << "Error: CREATE_CLOSURE expected function object" << std::endl;
             return;
         }
 
-        auto fn = std::get<15>(function_value);
+        auto& fn = function_value.as_function_ref();
         
         // Create closure with current environment
-        auto closure = Linh::create_closure(fn->name, fn->params, fn->body, ClosureEnvironment{});
+        auto closure = Linh::create_closure(fn.name, fn.params, fn.body, ClosureEnvironment{});
         
         // Push closure onto stack
         vm.push(Value(closure));
@@ -689,7 +689,7 @@ namespace Linh
         table[static_cast<size_t>(OpCode::TRY)] = handle_TRY;
         table[static_cast<size_t>(OpCode::END_TRY)] = handle_END_TRY;
         table[static_cast<size_t>(OpCode::PRINT_MULTIPLE)] = handle_PRINT_MULTIPLE;
-        table[static_cast<size_t>(OpCode::PRINTF)] = handle_PRINTF;
+        table[static_cast<size_t>(OpCode::PRINTIL)] = handle_PRINTIL;
         table[static_cast<size_t>(OpCode::POP)] = handle_POP;
         table[static_cast<size_t>(OpCode::SWAP)] = handle_SWAP;
         table[static_cast<size_t>(OpCode::DUP)] = handle_DUP;
@@ -801,7 +801,7 @@ namespace Linh
                 case OpCode::PUSH_INT:
                     push(Value(static_cast<int32_t>(std::get<int64_t>(instr.operand))));
 #ifdef _DEBUG
-                    std::cerr << "[DEBUG] PUSH_INT: stack size = " << stack.size() << ", top index = " << stack.back().index() << std::endl;
+                    std::cerr << "[DEBUG] PUSH_INT: stack size = " << stack.size() << ", top index = " << stack.back().get_type() << std::endl;
 #endif
                     break;
                 case OpCode::PUSH_UINT:
@@ -854,10 +854,10 @@ namespace Linh
                 {
                     auto b = pop();
                     auto a = pop();
-                    if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b))
+                    if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b))
                     {
-                        bool av = std::get<bool>(a);
-                        bool bv = std::get<bool>(b);
+                        bool av = Linh::get<bool>(a);
+                        bool bv = Linh::get<bool>(b);
                         if (instr.opcode == OpCode::AND)
                             push(av && bv);
                         else
@@ -873,10 +873,10 @@ namespace Linh
                 case OpCode::NOT:
                 {
                     auto a = pop();
-                    if (std::holds_alternative<bool>(a))
-                        push(!std::get<bool>(a));
-                    else if (std::holds_alternative<int32_t>(a))
-                        push(~std::get<int32_t>(a)); // bitwise NOT
+                    if (Linh::holds_alternative<bool>(a))
+                        push(!Linh::get<bool>(a));
+                    else if (Linh::holds_alternative<int32_t>(a))
+                        push(~Linh::get<int32_t>(a)); // bitwise NOT
                     else {
                         std::cerr << "VM: NOT only supports bool or int" << std::endl;
                         push(false);
@@ -901,9 +901,9 @@ namespace Linh
 #endif
                     bool result = false;
                     // If either is string, compare as string
-                                                                    if (std::holds_alternative<std::string>(a) || std::holds_alternative<std::string>(b)) {
-                            std::string sa = std::holds_alternative<std::string>(a) ? std::get<std::string>(a) : Linh::to_str(a);
-                            std::string sb = std::holds_alternative<std::string>(b) ? std::get<std::string>(b) : Linh::to_str(b);
+                                                                    if (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b)) {
+                            std::string sa = Linh::holds_alternative<std::string>(a) ? Linh::get<std::string>(a) : Linh::to_str(a);
+                            std::string sb = Linh::holds_alternative<std::string>(b) ? Linh::get<std::string>(b) : Linh::to_str(b);
                         switch (instr.opcode) {
                             case OpCode::EQ: result = (sa == sb); break;
                             case OpCode::NEQ: result = (sa != sb); break;
@@ -917,9 +917,9 @@ namespace Linh
                         break;
                     }
                     // If both are bool
-                    if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b)) {
-                        bool av = std::get<bool>(a);
-                        bool bv = std::get<bool>(b);
+                    if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b)) {
+                        bool av = Linh::get<bool>(a);
+                        bool bv = Linh::get<bool>(b);
                         switch (instr.opcode) {
                             case OpCode::EQ: result = (av == bv); break;
                             case OpCode::NEQ: result = (av != bv); break;
@@ -933,20 +933,20 @@ namespace Linh
                         break;
                     }
                     // If both are numbers (int/float/uint)
-                    if ((std::holds_alternative<int32_t>(a) || std::holds_alternative<int64_t>(a) || std::holds_alternative<float>(a) || std::holds_alternative<uint32_t>(a) || std::holds_alternative<uint64_t>(a)) &&
-                        (std::holds_alternative<int32_t>(b) || std::holds_alternative<int64_t>(b) || std::holds_alternative<float>(b) || std::holds_alternative<uint32_t>(b) || std::holds_alternative<uint64_t>(b))) {
+                    if ((Linh::holds_alternative<int32_t>(a) || Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<float>(a) || Linh::holds_alternative<uint32_t>(a) || Linh::holds_alternative<uint64_t>(a)) &&
+                        (Linh::holds_alternative<int32_t>(b) || Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<float>(b) || Linh::holds_alternative<uint32_t>(b) || Linh::holds_alternative<uint64_t>(b))) {
                         long double av = 0.0;
                         long double bv = 0.0;
-                        if (std::holds_alternative<int32_t>(a))        av = static_cast<long double>(std::get<int32_t>(a));
-                        else if (std::holds_alternative<int64_t>(a))   av = static_cast<long double>(std::get<int64_t>(a));
-                        else if (std::holds_alternative<uint32_t>(a))  av = static_cast<long double>(std::get<uint32_t>(a));
-                        else if (std::holds_alternative<uint64_t>(a))  av = static_cast<long double>(std::get<uint64_t>(a));
-                        else if (std::holds_alternative<float>(a))     av = static_cast<long double>(std::get<float>(a));
-                        if (std::holds_alternative<int32_t>(b))        bv = static_cast<long double>(std::get<int32_t>(b));
-                        else if (std::holds_alternative<int64_t>(b))   bv = static_cast<long double>(std::get<int64_t>(b));
-                        else if (std::holds_alternative<uint32_t>(b))  bv = static_cast<long double>(std::get<uint32_t>(b));
-                        else if (std::holds_alternative<uint64_t>(b))  bv = static_cast<long double>(std::get<uint64_t>(b));
-                        else if (std::holds_alternative<float>(b))     bv = static_cast<long double>(std::get<float>(b));
+                        if (Linh::holds_alternative<int32_t>(a))        av = static_cast<long double>(Linh::get<int32_t>(a));
+                        else if (Linh::holds_alternative<int64_t>(a))   av = static_cast<long double>(Linh::get<int64_t>(a));
+                        else if (Linh::holds_alternative<uint32_t>(a))  av = static_cast<long double>(Linh::get<uint32_t>(a));
+                        else if (Linh::holds_alternative<uint64_t>(a))  av = static_cast<long double>(Linh::get<uint64_t>(a));
+                        else if (Linh::holds_alternative<float>(a))     av = static_cast<long double>(Linh::get<float>(a));
+                        if (Linh::holds_alternative<int32_t>(b))        bv = static_cast<long double>(Linh::get<int32_t>(b));
+                        else if (Linh::holds_alternative<int64_t>(b))   bv = static_cast<long double>(Linh::get<int64_t>(b));
+                        else if (Linh::holds_alternative<uint32_t>(b))  bv = static_cast<long double>(Linh::get<uint32_t>(b));
+                        else if (Linh::holds_alternative<uint64_t>(b))  bv = static_cast<long double>(Linh::get<uint64_t>(b));
+                        else if (Linh::holds_alternative<float>(b))     bv = static_cast<long double>(Linh::get<float>(b));
                         switch (instr.opcode) {
                             case OpCode::EQ: result = (av == bv); break;
                             case OpCode::NEQ: result = (av != bv); break;
@@ -984,11 +984,11 @@ namespace Linh
                     if (variables.count(idx)) {
                         auto value = variables[idx];
 #ifdef _DEBUG
-                        std::cerr << "[DEBUG] LOAD_VAR: loaded value index = " << value.index() << std::endl;
+                        std::cerr << "[DEBUG] LOAD_VAR: loaded value index = " << value.get_type() << std::endl;
 #endif
                         push(value);
 #ifdef _DEBUG
-                        std::cerr << "[DEBUG] LOAD_VAR: after push, stack size = " << stack.size() << ", top index = " << stack.back().index() << std::endl;
+                        std::cerr << "[DEBUG] LOAD_VAR: after push, stack size = " << stack.size() << ", top index = " << stack.back().get_type() << std::endl;
 #endif
                     } else {
                         // Nếu tên biến là error.message và error tồn tại, trả về error
@@ -1006,7 +1006,7 @@ namespace Linh
                     int idx = static_cast<int>(std::get<int64_t>(instr.operand));
                     if (stack.empty())
                     {
-                        stack.push_back(std::monostate{});
+                        stack.push_back(Value());
                     }
                     Value value = pop();
                     variables[idx] = value;
@@ -1026,7 +1026,7 @@ namespace Linh
                     if (stack.empty())
                     {
                         // Nếu stack rỗng, tự động push sol để không lỗi underflow
-                        stack.push_back(std::monostate{});
+                        stack.push_back(Value());
                     }
                     auto val = pop();
 #ifdef _DEBUG
@@ -1080,7 +1080,7 @@ namespace Linh
 #endif
                     break;
                 }
-                case OpCode::PRINTF:
+                case OpCode::PRINTIL:
                 {
                     if (stack.empty())
                     {
@@ -1089,12 +1089,12 @@ namespace Linh
                     }
                     auto val = pop();
 #ifdef _DEBUG
-                    std::cerr << "[DEBUG] PRINTF: about to print: " << Linh::to_str(val) << std::endl;
-                    std::cerr << "----- START PRINTF -----" << std::endl;
+                    std::cerr << "[DEBUG] PRINTIL: about to print: " << Linh::to_str(val) << std::endl;
+                    std::cerr << "----- START PRINTIL -----" << std::endl;
 #endif
                     LinhIO::linh_printil(val);
 #ifdef _DEBUG
-                    std::cerr << "----- END PRINTF -----" << std::endl;
+                    std::cerr << "----- END PRINTIL -----" << std::endl;
 #endif
                     break;
                 }
@@ -1102,8 +1102,8 @@ namespace Linh
                 {
                     auto prompt = pop();
                     std::string prompt_str;
-                    if (std::holds_alternative<std::string>(prompt))
-                        prompt_str = std::get<std::string>(prompt);
+                    if (Linh::holds_alternative<std::string>(prompt))
+                        prompt_str = Linh::get<std::string>(prompt);
                     else
                         prompt_str = "";
 #ifdef _DEBUG
@@ -1146,16 +1146,16 @@ namespace Linh
                         auto b = pop();
                         auto a = pop();
                         double av = 0, bv = 0;
-                        if (std::holds_alternative<int64_t>(a))
-                            av = static_cast<double>(std::get<int64_t>(a));
-                        else if (std::holds_alternative<double>(a))
-                            av = std::get<double>(a);
+                        if (Linh::holds_alternative<int64_t>(a))
+                            av = static_cast<double>(Linh::get<int64_t>(a));
+                        else if (Linh::holds_alternative<double>(a))
+                            av = Linh::get<double>(a);
                         else
                             av = 0;
-                        if (std::holds_alternative<int64_t>(b))
-                            bv = static_cast<double>(std::get<int64_t>(b));
-                        else if (std::holds_alternative<double>(b))
-                            bv = std::get<double>(b);
+                        if (Linh::holds_alternative<int64_t>(b))
+                            bv = static_cast<double>(Linh::get<int64_t>(b));
+                        else if (Linh::holds_alternative<double>(b))
+                            bv = Linh::get<double>(b);
                         else
                             bv = 0;
                         push(std::pow(av, bv));
@@ -1165,7 +1165,7 @@ namespace Linh
                     if (fname == "sol")
                     {
                         if (!stack.empty()) pop();
-                        push(std::monostate{});
+                        push(Value());
                         break;
                     }
                     if (fname == "str")
@@ -1190,39 +1190,39 @@ namespace Linh
                         };
                         bool is_neg = false;
                         std::string bits;
-                        if (std::holds_alternative<uint64_t>(val)) {
-                            bits = to_bin(std::get<uint64_t>(val));
-                        } else if (std::holds_alternative<int64_t>(val)) {
-                            int64_t iv = std::get<int64_t>(val);
+                        if (Linh::holds_alternative<uint64_t>(val)) {
+                            bits = to_bin(Linh::get<uint64_t>(val));
+                        } else if (Linh::holds_alternative<int64_t>(val)) {
+                            int64_t iv = Linh::get<int64_t>(val);
                             if (iv < 0) {
                                 is_neg = true;
                                 bits = to_bin(static_cast<uint64_t>(-iv));
                             } else {
                                 bits = to_bin(static_cast<uint64_t>(iv));
                             }
-                        } else if (std::holds_alternative<double>(val)) {
+                        } else if (Linh::holds_alternative<double>(val)) {
                             // For float, take integer part
-                            double dv = std::get<double>(val);
+                            double dv = Linh::get<double>(val);
                             if (dv < 0) {
                                 is_neg = true;
                                 bits = to_bin(static_cast<uint64_t>(-static_cast<int64_t>(dv)));
                             } else {
                                 bits = to_bin(static_cast<uint64_t>(dv));
                             }
-                        } else if (std::holds_alternative<bool>(val)) {
-                            bits = std::get<bool>(val) ? "1" : "0";
-                        } else if (std::holds_alternative<std::string>(val)) {
+                        } else if (Linh::holds_alternative<bool>(val)) {
+                            bits = Linh::get<bool>(val) ? "1" : "0";
+                        } else if (Linh::holds_alternative<std::string>(val)) {
                             // If input is string of decimal digits (optionally with leading -), parse; otherwise return empty
                             try {
-                                std::string s = std::get<std::string>(val);
+                                std::string s = Linh::get<std::string>(val);
                                 if (!s.empty() && s[0] == '-') { is_neg = true; s = s.substr(1); }
                                 uint64_t uv = std::stoull(s);
                                 bits = to_bin(uv);
                             } catch (...) {
                                 bits = ""; // invalid input
                             }
-                        } else if (std::holds_alternative<Byte>(val)) {
-                            bits = to_bin(static_cast<uint64_t>(std::get<Byte>(val)));
+                        } else if (Linh::holds_alternative<Byte>(val)) {
+                            bits = to_bin(static_cast<uint64_t>(Linh::get<Byte>(val)));
                         }
                         std::string out = (is_neg ? "-0b" : "0b") + bits;
                         push(out);
@@ -1344,23 +1344,23 @@ namespace Linh
                         }
                         auto arg = pop();
                         try {
-                            if (std::holds_alternative<Array>(arg)) {
-                                auto in_arr = std::get<Array>(arg);
+                            if (arg.is_array()) {
+                                auto& in_arr = arg.as_array_ref();
                                 auto bArr = make_array();
-                                bArr->reserve(in_arr->size());
-                                for (const auto &v : *in_arr) {
+                                bArr.as_array_ref().reserve(in_arr.size());
+                                for (const auto &v : in_arr) {
                                     uint64_t iv = 0;
-                                    if (std::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(std::get<int64_t>(v));
-                                    else if (std::holds_alternative<uint64_t>(v)) iv = std::get<uint64_t>(v);
-                                    else if (std::holds_alternative<double>(v)) iv = static_cast<uint64_t>(std::get<double>(v));
-                                    else if (std::holds_alternative<Byte>(v)) iv = std::get<Byte>(v);
-                                    else if (std::holds_alternative<bool>(v)) iv = std::get<bool>(v) ? 1u : 0u;
+                                    if (Linh::holds_alternative<int64_t>(v)) iv = static_cast<uint64_t>(Linh::get<int64_t>(v));
+                                    else if (Linh::holds_alternative<uint64_t>(v)) iv = Linh::get<uint64_t>(v);
+                                    else if (Linh::holds_alternative<double>(v)) iv = static_cast<uint64_t>(Linh::get<double>(v));
+                                    else if (Linh::holds_alternative<Byte>(v)) iv = Linh::get<Byte>(v);
+                                    else if (Linh::holds_alternative<bool>(v)) iv = Linh::get<bool>(v) ? 1u : 0u;
                                     // Clamp to 0..255
                                     if (iv > 255) iv = 255;
-                                    bArr->push_back(Value(static_cast<Byte>(iv & 0xFF)));
+                                    bArr.as_array_ref().push_back(Value(static_cast<Byte>(iv & 0xFF)));
                                 }
                                 push(Value(bArr));
-                            } else if (std::holds_alternative<std::string>(arg)) {
+                            } else if (Linh::holds_alternative<std::string>(arg)) {
                                 auto b = Linh::string_bytes(arg, "utf-8");
                                 push(Value(b));
                             } else {
@@ -1382,8 +1382,8 @@ namespace Linh
                         if (stack.size() >= 2) {
                             auto enc_val = pop();
                             sval = pop();
-                            if (std::holds_alternative<std::string>(enc_val))
-                                encoding = std::get<std::string>(enc_val);
+                            if (Linh::holds_alternative<std::string>(enc_val))
+                                encoding = Linh::get<std::string>(enc_val);
                         } else if (!stack.empty()) {
                             sval = pop();
                         } else {
@@ -1413,17 +1413,17 @@ namespace Linh
                         auto base = pop();
                         double basev = 0, exponentv = 0;
                         
-                        if (std::holds_alternative<int64_t>(base))
-                            basev = static_cast<double>(std::get<int64_t>(base));
-                        else if (std::holds_alternative<double>(base))
-                            basev = std::get<double>(base);
+                        if (Linh::holds_alternative<int64_t>(base))
+                            basev = static_cast<double>(Linh::get<int64_t>(base));
+                        else if (Linh::holds_alternative<double>(base))
+                            basev = Linh::get<double>(base);
                         else
                             basev = 0;
                             
-                        if (std::holds_alternative<int64_t>(exponent))
-                            exponentv = static_cast<double>(std::get<int64_t>(exponent));
-                        else if (std::holds_alternative<double>(exponent))
-                            exponentv = std::get<double>(exponent);
+                        if (Linh::holds_alternative<int64_t>(exponent))
+                            exponentv = static_cast<double>(Linh::get<int64_t>(exponent));
+                        else if (Linh::holds_alternative<double>(exponent))
+                            exponentv = Linh::get<double>(exponent);
                         else
                             exponentv = 0;
                             
@@ -1443,17 +1443,17 @@ namespace Linh
                         auto x = pop();
                         double xv = 0, yv = 0;
                         
-                        if (std::holds_alternative<int64_t>(x))
-                            xv = static_cast<double>(std::get<int64_t>(x));
-                        else if (std::holds_alternative<double>(x))
-                            xv = std::get<double>(x);
+                        if (Linh::holds_alternative<int64_t>(x))
+                            xv = static_cast<double>(Linh::get<int64_t>(x));
+                        else if (Linh::holds_alternative<double>(x))
+                            xv = Linh::get<double>(x);
                         else
                             xv = 0;
                             
-                        if (std::holds_alternative<int64_t>(y))
-                            yv = static_cast<double>(std::get<int64_t>(y));
-                        else if (std::holds_alternative<double>(y))
-                            yv = std::get<double>(y);
+                        if (Linh::holds_alternative<int64_t>(y))
+                            yv = static_cast<double>(Linh::get<int64_t>(y));
+                        else if (Linh::holds_alternative<double>(y))
+                            yv = Linh::get<double>(y);
                         else
                             yv = 0;
                             
@@ -1531,15 +1531,15 @@ namespace Linh
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] CALL: checking for function object on stack, size=" << stack.size() << std::endl;
                     if (!stack.empty()) {
-                        std::cerr << "[DEBUG] CALL: top of stack index = " << stack.back().index() << std::endl;
+                        std::cerr << "[DEBUG] CALL: top of stack index = " << stack.back().get_type() << std::endl;
                     }
 #endif
-                    if (!stack.empty() && stack.back().index() == 15) { // FunctionPtr is at index 15 in Value
+                    if (!stack.empty() && stack.back().get_type() == ValueType::Function) { // FunctionPtr is at index 15 in Value
 #ifdef _DEBUG
                         std::cerr << "[DEBUG] CALL: found function object, calling it" << std::endl;
 #endif
                         // Gọi function object
-                        auto fn = std::get<15>(stack.back());
+                        FunctionPtr fn = Linh::get<FunctionPtr>(stack.back());
                         pop(); // Pop function object
                         
                         // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
@@ -1640,14 +1640,14 @@ namespace Linh
                             std::cerr << "[DEBUG] Stack before pop (size=" << stack.size() << "): ";
                             for (const auto &v : stack)
                             {
-                                if (std::holds_alternative<int64_t>(v))
-                                    std::cerr << std::get<int64_t>(v) << " ";
-                                else if (std::holds_alternative<double>(v))
-                                    std::cerr << std::get<double>(v) << " ";
-                                else if (std::holds_alternative<std::string>(v))
-                                    std::cerr << "\"" << std::get<std::string>(v) << "\" ";
-                                else if (std::holds_alternative<bool>(v))
-                                    std::cerr << (std::get<bool>(v) ? "true" : "false") << " ";
+                                if (Linh::holds_alternative<int64_t>(v))
+                                    std::cerr << Linh::get<int64_t>(v) << " ";
+                                else if (Linh::holds_alternative<double>(v))
+                                    std::cerr << Linh::get<double>(v) << " ";
+                                else if (Linh::holds_alternative<std::string>(v))
+                                    std::cerr << "\"" << Linh::get<std::string>(v) << "\" ";
+                                else if (Linh::holds_alternative<bool>(v))
+                                    std::cerr << (Linh::get<bool>(v) ? "true" : "false") << " ";
                                 else
                                     std::cerr << "(?) ";
                             }
@@ -1658,60 +1658,60 @@ namespace Linh
 #ifdef _DEBUG
                             // Debug: In giá trị a, b
                             std::cerr << "[DEBUG] a=";
-                            if (std::holds_alternative<int64_t>(a))
-                                std::cerr << std::get<int64_t>(a);
-                            else if (std::holds_alternative<double>(a))
-                                std::cerr << std::get<double>(a);
-                            else if (std::holds_alternative<std::string>(a))
-                                std::cerr << "\"" << std::get<std::string>(a) << "\"";
-                            else if (std::holds_alternative<bool>(a))
-                                std::cerr << (std::get<bool>(a) ? "true" : "false");
+                            if (Linh::holds_alternative<int64_t>(a))
+                                std::cerr << Linh::get<int64_t>(a);
+                            else if (Linh::holds_alternative<double>(a))
+                                std::cerr << Linh::get<double>(a);
+                            else if (Linh::holds_alternative<std::string>(a))
+                                std::cerr << "\"" << Linh::get<std::string>(a) << "\"";
+                            else if (Linh::holds_alternative<bool>(a))
+                                std::cerr << (Linh::get<bool>(a) ? "true" : "false");
                             else
                                 std::cerr << "(?)";
                             std::cerr << ", b=";
-                            if (std::holds_alternative<int64_t>(b))
-                                std::cerr << std::get<int64_t>(b);
-                            else if (std::holds_alternative<double>(b))
-                                std::cerr << std::get<double>(b);
-                            else if (std::holds_alternative<std::string>(b))
-                                std::cerr << "\"" << std::get<std::string>(b) << "\"";
-                            else if (std::holds_alternative<bool>(b))
-                                std::cerr << (std::get<bool>(b) ? "true" : "false");
+                            if (Linh::holds_alternative<int64_t>(b))
+                                std::cerr << Linh::get<int64_t>(b);
+                            else if (Linh::holds_alternative<double>(b))
+                                std::cerr << Linh::get<double>(b);
+                            else if (Linh::holds_alternative<std::string>(b))
+                                std::cerr << "\"" << Linh::get<std::string>(b) << "\"";
+                            else if (Linh::holds_alternative<bool>(b))
+                                std::cerr << (Linh::get<bool>(b) ? "true" : "false");
                             else
                                 std::cerr << "(?)";
                             std::cerr << std::endl;
 #endif
                             // --- HỖ TRỢ NỐI CHUỖI ---
                             if (finstr.opcode == OpCode::ADD &&
-                                (std::holds_alternative<std::string>(a) || std::holds_alternative<std::string>(b)))
+                                (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b)))
                             {
                                 std::string sa, sb;
                                 // Chuyển a về string
-                                if (std::holds_alternative<std::string>(a))
-                                    sa = std::get<std::string>(a);
-                                else if (std::holds_alternative<int64_t>(a))
-                                    sa = std::to_string(std::get<int64_t>(a));
-                                else if (std::holds_alternative<double>(a))
-                                    sa = std::to_string(std::get<double>(a));
-                                else if (std::holds_alternative<bool>(a))
-                                    sa = std::get<bool>(a) ? "true" : "false";
+                                if (Linh::holds_alternative<std::string>(a))
+                                    sa = Linh::get<std::string>(a);
+                                else if (Linh::holds_alternative<int64_t>(a))
+                                    sa = std::to_string(Linh::get<int64_t>(a));
+                                else if (Linh::holds_alternative<double>(a))
+                                    sa = std::to_string(Linh::get<double>(a));
+                                else if (Linh::holds_alternative<bool>(a))
+                                    sa = Linh::get<bool>(a) ? "true" : "false";
                                 // Chuyển b về string
-                                if (std::holds_alternative<std::string>(b))
-                                    sb = std::get<std::string>(b);
-                                else if (std::holds_alternative<int64_t>(b))
-                                    sb = std::to_string(std::get<int64_t>(b));
-                                else if (std::holds_alternative<double>(b))
-                                    sb = std::to_string(std::get<double>(b));
-                                else if (std::holds_alternative<bool>(b))
-                                    sb = std::get<bool>(b) ? "true" : "false";
+                                if (Linh::holds_alternative<std::string>(b))
+                                    sb = Linh::get<std::string>(b);
+                                else if (Linh::holds_alternative<int64_t>(b))
+                                    sb = std::to_string(Linh::get<int64_t>(b));
+                                else if (Linh::holds_alternative<double>(b))
+                                    sb = std::to_string(Linh::get<double>(b));
+                                else if (Linh::holds_alternative<bool>(b))
+                                    sb = Linh::get<bool>(b) ? "true" : "false";
                                 push(sa + sb);
                                 break;
                             }
                             // --- KẾT THÚC HỖ TRỢ NỐI CHUỖI ---
-                            if (std::holds_alternative<int64_t>(a) && std::holds_alternative<int64_t>(b))
+                            if (Linh::holds_alternative<int64_t>(a) && Linh::holds_alternative<int64_t>(b))
                             {
-                                int64_t av = std::get<int64_t>(a);
-                                int64_t bv = std::get<int64_t>(b);
+                                int64_t av = Linh::get<int64_t>(a);
+                                int64_t bv = Linh::get<int64_t>(b);
                                 switch (finstr.opcode)
                                 {
                                 case OpCode::ADD:
@@ -1807,11 +1807,11 @@ namespace Linh
                                     break;
                                 }
                             }
-                            else if ((std::holds_alternative<int64_t>(a) || std::holds_alternative<double>(a)) &&
-                                     (std::holds_alternative<int64_t>(b) || std::holds_alternative<double>(b)))
+                            else if ((Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<double>(a)) &&
+                                     (Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<double>(b)))
                             {
-                                double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) : std::get<double>(a);
-                                double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) : std::get<double>(b);
+                                double av = Linh::holds_alternative<int64_t>(a) ? static_cast<double>(Linh::get<int64_t>(a)) : Linh::get<double>(a);
+                                double bv = Linh::holds_alternative<int64_t>(b) ? static_cast<double>(Linh::get<int64_t>(b)) : Linh::get<double>(b);
                                 switch (finstr.opcode)
                                 {
                                 case OpCode::ADD:
@@ -1919,10 +1919,10 @@ namespace Linh
                         {
                             auto b = pop();
                             auto a = pop();
-                            if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b))
+                            if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b))
                             {
-                                bool av = std::get<bool>(a);
-                                bool bv = std::get<bool>(b);
+                                bool av = Linh::get<bool>(a);
+                                bool bv = Linh::get<bool>(b);
                                 if (finstr.opcode == OpCode::AND)
                                     push(av && bv);
                                 else
@@ -1938,10 +1938,10 @@ namespace Linh
                         case OpCode::NOT:
                         {
                             auto a = pop();
-                            if (std::holds_alternative<bool>(a))
-                                push(!std::get<bool>(a));
-                            else if (std::holds_alternative<int64_t>(a))
-                                push(~std::get<int64_t>(a)); // bitwise NOT
+                            if (Linh::holds_alternative<bool>(a))
+                                push(!Linh::get<bool>(a));
+                            else if (Linh::holds_alternative<int64_t>(a))
+                                push(~Linh::get<int64_t>(a)); // bitwise NOT
                             else {
                                 std::cerr << "VM: NOT only supports bool or int" << std::endl;
                                 push(false);
@@ -1960,14 +1960,14 @@ namespace Linh
                             std::cerr << "[DEBUG] Stack before pop (size=" << stack.size() << "): ";
                             for (const auto &v : stack)
                             {
-                                if (std::holds_alternative<int64_t>(v))
-                                    std::cerr << std::get<int64_t>(v) << " ";
-                                else if (std::holds_alternative<double>(v))
-                                    std::cerr << std::get<double>(v) << " ";
-                                else if (std::holds_alternative<std::string>(v))
-                                    std::cerr << "\"" << std::get<std::string>(v) << "\" ";
-                                else if (std::holds_alternative<bool>(v))
-                                    std::cerr << (std::get<bool>(v) ? "true" : "false") << " ";
+                                if (Linh::holds_alternative<int64_t>(v))
+                                    std::cerr << Linh::get<int64_t>(v) << " ";
+                                else if (Linh::holds_alternative<double>(v))
+                                    std::cerr << Linh::get<double>(v) << " ";
+                                else if (Linh::holds_alternative<std::string>(v))
+                                    std::cerr << "\"" << Linh::get<std::string>(v) << "\" ";
+                                else if (Linh::holds_alternative<bool>(v))
+                                    std::cerr << (Linh::get<bool>(v) ? "true" : "false") << " ";
                                 else
                                     std::cerr << "(?) ";
                             }
@@ -1978,25 +1978,25 @@ namespace Linh
 #ifdef _DEBUG
                             // Debug: In giá trị a, b
                             std::cerr << "[DEBUG] a=";
-                            if (std::holds_alternative<int64_t>(a))
-                                std::cerr << std::get<int64_t>(a);
-                            else if (std::holds_alternative<double>(a))
-                                std::cerr << std::get<double>(a);
-                            else if (std::holds_alternative<std::string>(a))
-                                std::cerr << "\"" << std::get<std::string>(a) << "\"";
-                            else if (std::holds_alternative<bool>(a))
-                                std::cerr << (std::get<bool>(a) ? "true" : "false");
+                            if (Linh::holds_alternative<int64_t>(a))
+                                std::cerr << Linh::get<int64_t>(a);
+                            else if (Linh::holds_alternative<double>(a))
+                                std::cerr << Linh::get<double>(a);
+                            else if (Linh::holds_alternative<std::string>(a))
+                                std::cerr << "\"" << Linh::get<std::string>(a) << "\"";
+                            else if (Linh::holds_alternative<bool>(a))
+                                std::cerr << (Linh::get<bool>(a) ? "true" : "false");
                             else
                                 std::cerr << "(?)";
                             std::cerr << ", b=";
-                            if (std::holds_alternative<int64_t>(b))
-                                std::cerr << std::get<int64_t>(b);
-                            else if (std::holds_alternative<double>(b))
-                                std::cerr << std::get<double>(b);
-                            else if (std::holds_alternative<std::string>(b))
-                                std::cerr << "\"" << std::get<std::string>(b) << "\"";
-                            else if (std::holds_alternative<bool>(b))
-                                std::cerr << (std::get<bool>(b) ? "true" : "false");
+                            if (Linh::holds_alternative<int64_t>(b))
+                                std::cerr << Linh::get<int64_t>(b);
+                            else if (Linh::holds_alternative<double>(b))
+                                std::cerr << Linh::get<double>(b);
+                            else if (Linh::holds_alternative<std::string>(b))
+                                std::cerr << "\"" << Linh::get<std::string>(b) << "\"";
+                            else if (Linh::holds_alternative<bool>(b))
+                                std::cerr << (Linh::get<bool>(b) ? "true" : "false");
                             else
                                 std::cerr << "(?)";
                             std::cerr << std::endl;
@@ -2004,25 +2004,25 @@ namespace Linh
 
                             bool result = false;
                             // So sánh chuỗi nếu một trong hai là string
-                            if (std::holds_alternative<std::string>(a) || std::holds_alternative<std::string>(b))
+                            if (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b))
                             {
                                 std::string sa, sb;
-                                if (std::holds_alternative<std::string>(a))
-                                    sa = std::get<std::string>(a);
-                                else if (std::holds_alternative<int64_t>(a))
-                                    sa = std::to_string(std::get<int64_t>(a));
-                                else if (std::holds_alternative<double>(a))
-                                    sa = std::to_string(std::get<double>(a));
-                                else if (std::holds_alternative<bool>(a))
-                                    sa = std::get<bool>(a) ? "true" : "false";
-                                if (std::holds_alternative<std::string>(b))
-                                    sb = std::get<std::string>(b);
-                                else if (std::holds_alternative<int64_t>(b))
-                                    sb = std::to_string(std::get<int64_t>(b));
-                                else if (std::holds_alternative<double>(b))
-                                    sb = std::to_string(std::get<double>(b));
-                                else if (std::holds_alternative<bool>(b))
-                                    sb = std::get<bool>(b) ? "true" : "false";
+                                if (Linh::holds_alternative<std::string>(a))
+                                    sa = Linh::get<std::string>(a);
+                                else if (Linh::holds_alternative<int64_t>(a))
+                                    sa = std::to_string(Linh::get<int64_t>(a));
+                                else if (Linh::holds_alternative<double>(a))
+                                    sa = std::to_string(Linh::get<double>(a));
+                                else if (Linh::holds_alternative<bool>(a))
+                                    sa = Linh::get<bool>(a) ? "true" : "false";
+                                if (Linh::holds_alternative<std::string>(b))
+                                    sb = Linh::get<std::string>(b);
+                                else if (Linh::holds_alternative<int64_t>(b))
+                                    sb = std::to_string(Linh::get<int64_t>(b));
+                                else if (Linh::holds_alternative<double>(b))
+                                    sb = std::to_string(Linh::get<double>(b));
+                                else if (Linh::holds_alternative<bool>(b))
+                                    sb = Linh::get<bool>(b) ? "true" : "false";
                                 // Do NOT push(sa + sb) for comparison ops!
                                 // Instead, compare as strings:
                                 switch (instr.opcode)
@@ -2053,10 +2053,10 @@ namespace Linh
                                 break;
                             }
                             // So sánh bool nếu cả hai là bool
-                            if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b))
+                            if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b))
                             {
-                                bool av = std::get<bool>(a);
-                                bool bv = std::get<bool>(b);
+                                bool av = Linh::get<bool>(a);
+                                bool bv = Linh::get<bool>(b);
                                 switch (instr.opcode)
                                 {
                                 case OpCode::EQ:
@@ -2085,11 +2085,11 @@ namespace Linh
                                 break;
                             }
                             // So sánh số nếu cả hai là số
-                            if ((std::holds_alternative<int64_t>(a) || std::holds_alternative<double>(a)) &&
-                                (std::holds_alternative<int64_t>(b) || std::holds_alternative<double>(b)))
+                            if ((Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<double>(a)) &&
+                                (Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<double>(b)))
                             {
-                                double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) : std::get<double>(a);
-                                double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) : std::get<double>(b);
+                                double av = Linh::holds_alternative<int64_t>(a) ? static_cast<double>(Linh::get<int64_t>(a)) : Linh::get<double>(a);
+                                double bv = Linh::holds_alternative<int64_t>(b) ? static_cast<double>(Linh::get<int64_t>(b)) : Linh::get<double>(b);
                                 switch (instr.opcode)
                                 {
                                 case OpCode::EQ:
@@ -2120,25 +2120,25 @@ namespace Linh
                             // Nếu kiểu không khớp, chuyển về chuỗi rồi so sánh
                             std::string sa, sb;
                             // a
-                            if (std::holds_alternative<int64_t>(a))
-                                sa = std::to_string(std::get<int64_t>(a));
-                            else if (std::holds_alternative<double>(a))
-                                sa = std::to_string(std::get<double>(a));
-                            else if (std::holds_alternative<bool>(a))
-                                sa = std::get<bool>(a) ? "true" : "false";
-                            else if (std::holds_alternative<std::string>(a))
-                                sa = std::get<std::string>(a);
+                            if (Linh::holds_alternative<int64_t>(a))
+                                sa = std::to_string(Linh::get<int64_t>(a));
+                            else if (Linh::holds_alternative<double>(a))
+                                sa = std::to_string(Linh::get<double>(a));
+                            else if (Linh::holds_alternative<bool>(a))
+                                sa = Linh::get<bool>(a) ? "true" : "false";
+                            else if (Linh::holds_alternative<std::string>(a))
+                                sa = Linh::get<std::string>(a);
                             else
                                 sa = "";
                             // b
-                            if (std::holds_alternative<int64_t>(b))
-                                sb = std::to_string(std::get<int64_t>(b));
-                            else if (std::holds_alternative<double>(b))
-                                sb = std::to_string(std::get<double>(b));
-                            else if (std::holds_alternative<bool>(b))
-                                sb = std::get<bool>(b) ? "true" : "false";
-                            else if (std::holds_alternative<std::string>(b))
-                                sb = std::get<std::string>(b);
+                            if (Linh::holds_alternative<int64_t>(b))
+                                sb = std::to_string(Linh::get<int64_t>(b));
+                            else if (Linh::holds_alternative<double>(b))
+                                sb = std::to_string(Linh::get<double>(b));
+                            else if (Linh::holds_alternative<bool>(b))
+                                sb = Linh::get<bool>(b) ? "true" : "false";
+                            else if (Linh::holds_alternative<std::string>(b))
+                                sb = Linh::get<std::string>(b);
                             else
                                 sb = "";
                             switch (instr.opcode)
@@ -2188,7 +2188,7 @@ namespace Linh
                             int idx = std::get<int64_t>(finstr.operand);
                             if (stack.empty())
                             {
-                                stack.push_back(std::monostate{});
+                                stack.push_back(Value());
                             }
                             Value value = pop();
                             variables[idx] = value;
@@ -2239,7 +2239,7 @@ namespace Linh
                             LinhIO::linh_print(Value(result));
                             break;
                         }
-                        case OpCode::PRINTF:
+                        case OpCode::PRINTIL:
                         {
                             auto val = pop();
                             LinhIO::linh_printil(val);
@@ -2249,8 +2249,8 @@ namespace Linh
                         {
                             auto prompt = pop();
                             std::string prompt_str;
-                            if (std::holds_alternative<std::string>(prompt))
-                                prompt_str = std::get<std::string>(prompt);
+                            if (Linh::holds_alternative<std::string>(prompt))
+                                prompt_str = Linh::get<std::string>(prompt);
                             else
                                 prompt_str = "";
                             auto input_val = LinhIO::linh_input(prompt_str);
@@ -2267,7 +2267,7 @@ namespace Linh
                             // --- Fix: Always push a value to the stack before returning ---
                             if (stack.empty())
                             {
-                                stack.push_back(std::monostate{});
+                                stack.push_back(Value());
                             }
                             // Restore previous frame
                             if (!call_stack.empty())
@@ -2293,7 +2293,7 @@ namespace Linh
                     // --- Fix: Always push a value to the stack before returning from global code (should not happen, but for safety) ---
                     if (stack.empty())
                     {
-                        stack.push_back(std::monostate{});
+                        stack.push_back(Value());
                     }
                     return;
                 // --- Thêm xử lý TRY-CATCH-FINALLY ---
@@ -2337,15 +2337,15 @@ namespace Linh
                         push(Value{}); // push uninit
                         break;
                     }
-                    Array arr = make_array();
-                    arr->reserve(n);
+                    Value arr = make_array();
+                    arr.as_array_ref().reserve(n);
                     // Pop n phần tử (theo thứ tự ngược lại)
                     for (int64_t i = 0; i < n; ++i)
                     {
-                        arr->push_back(pop());
+                        arr.as_array_ref().push_back(pop());
                     }
                     // Đảo ngược lại để đúng thứ tự literal
-                    std::reverse(arr->begin(), arr->end());
+                    std::reverse(arr.as_array_ref().begin(), arr.as_array_ref().end());
                     push(arr);
                     break;
                 }
@@ -2358,24 +2358,24 @@ namespace Linh
                         push(Value{}); // push uninit
                         break;
                     }
-                    Map map = make_map();
+                    Value map = make_map();
                     // Pop n cặp (value trước, key sau)
                     for (int64_t i = 0; i < n; ++i)
                     {
                         Value value = pop();
                         Value key = pop();
                         std::string key_str;
-                        if (std::holds_alternative<std::string>(key))
-                            key_str = std::get<std::string>(key);
-                        else if (std::holds_alternative<int64_t>(key))
-                            key_str = std::to_string(std::get<int64_t>(key));
-                        else if (std::holds_alternative<double>(key))
-                            key_str = Linh::format_float(std::get<double>(key));
-                        else if (std::holds_alternative<bool>(key))
-                            key_str = std::get<bool>(key) ? "true" : "false";
+                        if (Linh::holds_alternative<std::string>(key))
+                            key_str = Linh::get<std::string>(key);
+                        else if (Linh::holds_alternative<int64_t>(key))
+                            key_str = std::to_string(Linh::get<int64_t>(key));
+                        else if (Linh::holds_alternative<double>(key))
+                            key_str = Linh::format_float(Linh::get<double>(key));
+                        else if (Linh::holds_alternative<bool>(key))
+                            key_str = Linh::get<bool>(key) ? "true" : "false";
                         else
                             key_str = "";
-                        (*map)[key_str] = value;
+                        map.as_map_ref()[key_str] = value;
                     }
                     push(map);
                     break;
@@ -2391,47 +2391,47 @@ namespace Linh
                     Value idx = pop();
                     Value obj = pop();
                     // Nếu là array
-                    if (std::holds_alternative<Array>(obj))
+                    if (obj.is_array())
                     {
-                        const auto &arr = std::get<Array>(obj);
+                        const auto& arr = obj.as_array_ref();
                         int64_t i = 0;
-                        if (std::holds_alternative<int64_t>(idx))
-                            i = std::get<int64_t>(idx);
-                        else if (std::holds_alternative<double>(idx))
-                            i = static_cast<int64_t>(std::get<double>(idx));
+                        if (Linh::holds_alternative<int64_t>(idx))
+                            i = Linh::get<int64_t>(idx);
+                        else if (Linh::holds_alternative<double>(idx))
+                            i = static_cast<int64_t>(Linh::get<double>(idx));
                         else
                         {
                             push(Value{}); // sol
                             break;
                         }
-                        if (i < 0 || static_cast<size_t>(i) >= arr->size())
+                        if (i < 0 || static_cast<size_t>(i) >= arr.size())
                         {
                             push(Value{}); // sol
                         }
                         else
                         {
-                            push((*arr)[i]);
+                            push(arr[i]);
                         }
                     }
-                    else if (std::holds_alternative<Map>(obj))
+                    else if (obj.is_map())
                     {
-                        const auto &map = std::get<Map>(obj);
+                        const auto& map = obj.as_map_ref();
                         std::string key;
-                        if (std::holds_alternative<std::string>(idx))
-                            key = std::get<std::string>(idx);
-                        else if (std::holds_alternative<int64_t>(idx))
-                            key = std::to_string(std::get<int64_t>(idx));
-                        else if (std::holds_alternative<double>(idx))
-                            key = std::to_string(std::get<double>(idx));
-                        else if (std::holds_alternative<bool>(idx))
-                            key = std::get<bool>(idx) ? "true" : "false";
+                        if (Linh::holds_alternative<std::string>(idx))
+                            key = Linh::get<std::string>(idx);
+                        else if (Linh::holds_alternative<int64_t>(idx))
+                            key = std::to_string(Linh::get<int64_t>(idx));
+                        else if (Linh::holds_alternative<double>(idx))
+                            key = std::to_string(Linh::get<double>(idx));
+                        else if (Linh::holds_alternative<bool>(idx))
+                            key = Linh::get<bool>(idx) ? "true" : "false";
                         else
                         {
                             push(Value{}); // sol
                             break;
                         }
-                        auto it = map->find(key);
-                        if (it != map->end())
+                        auto it = map.find(key);
+                        if (it != map.end())
                         {
                             push(it->second);
                         }
@@ -2457,15 +2457,15 @@ namespace Linh
                         const Value &val = stack.back();
                         std::string addr_str;
                         // For Array/Map: use the address of the underlying object
-                        if (std::holds_alternative<Array>(val))
+                        if (val.is_array())
                         {
-                            const auto &arr = std::get<Array>(val);
-                            addr_str = fmt::format("0x{:x}", reinterpret_cast<uintptr_t>(arr.get()));
+                            const auto& arr = val.as_array_ref();
+                            addr_str = fmt::format("0x{:x}", reinterpret_cast<uintptr_t>(&arr));
                         }
-                        else if (std::holds_alternative<Map>(val))
+                        else if (val.is_map())
                         {
-                            const auto &map = std::get<Map>(val);
-                            addr_str = fmt::format("0x{:x}", reinterpret_cast<uintptr_t>(map.get()));
+                            const auto& map = val.as_map_ref();
+                            addr_str = fmt::format("0x{:x}", reinterpret_cast<uintptr_t>(&map));
                         }
                         else
                         {
@@ -2486,11 +2486,10 @@ namespace Linh
                     }
                     Value val = pop();
                     Value arr_val = pop();
-                    if (std::holds_alternative<Array>(arr_val))
+                    if (arr_val.is_array())
                     {
-                        auto arr = std::get<Array>(arr_val);
-                        arr->push_back(val);
-                        push(arr); // push lại array
+                        arr_val.as_array_ref().push_back(val);
+                        push(arr_val); // push lại array
                     }
                     else
                     {
@@ -2515,12 +2514,12 @@ namespace Linh
                     std::cout << "[DEBUG] ARRAY_REMOVE: array before = " << Linh::to_str(arr_val) << std::endl;
                     #endif
                     
-                    if (std::holds_alternative<Array>(arr_val))
+                    if (arr_val.is_array())
                     {
-                        auto arr = std::get<Array>(arr_val);
+                        auto& arr = arr_val.as_array_ref();
                         bool found = false;
                         // Tìm và xóa phần tử đầu tiên sử dụng values_equal
-                        for (auto it = arr->begin(); it != arr->end(); ++it) {
+                        for (auto it = arr.begin(); it != arr.end(); ++it) {
                             #ifdef _DEBUG
                             std::cout << "[DEBUG] ARRAY_REMOVE: comparing " << Linh::to_str(*it) << " with " << Linh::to_str(val) << std::endl;
                             #endif
@@ -2528,15 +2527,15 @@ namespace Linh
                                 #ifdef _DEBUG
                                 std::cout << "[DEBUG] ARRAY_REMOVE: found match, removing element" << std::endl;
                                 #endif
-                                arr->erase(it);
+                                arr.erase(it);
                                 found = true;
                                 break;
                             }
                         }
                         #ifdef _DEBUG
-                        std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(Value(arr)) << ", found = " << found << std::endl;
+                        std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(arr_val) << ", found = " << found << std::endl;
                         #endif
-                        push(arr); // push lại array
+                        push(arr_val); // push lại array
                     }
                     else
                     {
@@ -2554,17 +2553,15 @@ namespace Linh
                         break;
                     }
                     Value val = pop();
-                    if (std::holds_alternative<Array>(val))
+                    if (val.is_array())
                     {
-                        auto arr = std::get<Array>(val);
-                        arr->clear();
-                        push(arr); // push lại array
+                        val.as_array_ref().clear();
+                        push(val); // push lại array
                     }
-                    else if (std::holds_alternative<Map>(val))
+                    else if (val.is_map())
                     {
-                        auto map = std::get<Map>(val);
-                        map->clear();
-                        push(map); // push lại map
+                        val.as_map_ref().clear();
+                        push(val); // push lại map
                     }
                     else
                     {
@@ -2582,11 +2579,11 @@ namespace Linh
                         break;
                     }
                     Value arr_val = pop();
-                    if (std::holds_alternative<Array>(arr_val))
+                    if (arr_val.is_array())
                     {
-                        auto arr = std::get<Array>(arr_val);
-                        auto arr_clone = make_array();
-                        *arr_clone = *arr;
+                        const auto& arr = arr_val.as_array_ref();
+                        Value arr_clone = make_array();
+                        arr_clone.as_array_ref() = arr;
                         push(arr_clone);
                     }
                     else
@@ -2606,15 +2603,16 @@ namespace Linh
                     }
                     Value maybe_idx_or_arr = pop();
                     // Nếu trên stack tiếp theo là array thì đây là dạng a.pop(index)
-                    if (!stack.empty() && std::holds_alternative<Array>(stack.back()))
+                    if (!stack.empty() && stack.back().is_array())
                     {
-                        auto arr = std::get<Array>(pop());
+                        Value arr_val = pop();
+                        auto arr = Linh::get<Array>(arr_val);
                         // Xác định index
                         int64_t idx = -1;
-                        if (std::holds_alternative<int64_t>(maybe_idx_or_arr))
-                            idx = std::get<int64_t>(maybe_idx_or_arr);
-                        else if (std::holds_alternative<double>(maybe_idx_or_arr))
-                            idx = static_cast<int64_t>(std::get<double>(maybe_idx_or_arr));
+                        if (Linh::holds_alternative<int64_t>(maybe_idx_or_arr))
+                            idx = Linh::get<int64_t>(maybe_idx_or_arr);
+                        else if (Linh::holds_alternative<double>(maybe_idx_or_arr))
+                            idx = static_cast<int64_t>(Linh::get<double>(maybe_idx_or_arr));
                         else
                         {
                             push(Value{}); // sol nếu index không hợp lệ
@@ -2631,14 +2629,14 @@ namespace Linh
                             push(popped);
                         }
                     }
-                    else if (std::holds_alternative<Array>(maybe_idx_or_arr))
+                    else if (maybe_idx_or_arr.is_array())
                     {
                         // Dạng a.pop() không có index
-                        auto arr = std::get<Array>(maybe_idx_or_arr);
-                        if (!arr->empty())
+                        auto& arr = maybe_idx_or_arr.as_array_ref();
+                        if (!arr.empty())
                         {
-                            Value popped = arr->back();
-                            arr->pop_back();
+                            Value popped = arr.back();
+                            arr.pop_back();
                             push(popped);
                         }
                         else
@@ -2663,22 +2661,22 @@ namespace Linh
                     }
                     Value key = pop();
                     Value map = pop();
-                    if (std::holds_alternative<Map>(map))
+                    if (map.is_map())
                     {
-                        const auto &m = std::get<Map>(map);
+                        const auto& m = map.as_map_ref();
                         std::string key_str;
-                        if (std::holds_alternative<std::string>(key))
-                            key_str = std::get<std::string>(key);
-                        else if (std::holds_alternative<int64_t>(key))
-                            key_str = std::to_string(std::get<int64_t>(key));
-                        else if (std::holds_alternative<double>(key))
-                            key_str = std::to_string(std::get<double>(key));
-                        else if (std::holds_alternative<bool>(key))
-                            key_str = std::get<bool>(key) ? "true" : "false";
+                        if (Linh::holds_alternative<std::string>(key))
+                            key_str = Linh::get<std::string>(key);
+                        else if (Linh::holds_alternative<int64_t>(key))
+                            key_str = std::to_string(Linh::get<int64_t>(key));
+                        else if (Linh::holds_alternative<double>(key))
+                            key_str = std::to_string(Linh::get<double>(key));
+                        else if (Linh::holds_alternative<bool>(key))
+                            key_str = Linh::get<bool>(key) ? "true" : "false";
                         else
                             key_str = "";
-                        auto it = m->find(key_str);
-                        if (it != m->end())
+                        auto it = m.find(key_str);
+                        if (it != m.end())
                             push(it->second);
                         else
                             push(Value{}); // sol
@@ -2700,21 +2698,20 @@ namespace Linh
                     Value value = pop();
                     Value key = pop();
                     Value map = pop();
-                    if (std::holds_alternative<Map>(map))
+                    if (map.is_map())
                     {
-                        auto m = std::get<Map>(map);
                         std::string key_str;
-                        if (std::holds_alternative<std::string>(key))
-                            key_str = std::get<std::string>(key);
-                        else if (std::holds_alternative<int64_t>(key))
-                            key_str = std::to_string(std::get<int64_t>(key));
-                        else if (std::holds_alternative<double>(key))
-                            key_str = std::to_string(std::get<double>(key));
-                        else if (std::holds_alternative<bool>(key))
-                            key_str = std::get<bool>(key) ? "true" : "false";
+                        if (Linh::holds_alternative<std::string>(key))
+                            key_str = Linh::get<std::string>(key);
+                        else if (Linh::holds_alternative<int64_t>(key))
+                            key_str = std::to_string(Linh::get<int64_t>(key));
+                        else if (Linh::holds_alternative<double>(key))
+                            key_str = std::to_string(Linh::get<double>(key));
+                        else if (Linh::holds_alternative<bool>(key))
+                            key_str = Linh::get<bool>(key) ? "true" : "false";
                         else
                             key_str = "";
-                        (*m)[key_str] = value;
+                        map.as_map_ref()[key_str] = value;
                         push(map); // push lại map
                     }
                     else
@@ -2734,22 +2731,21 @@ namespace Linh
                     }
                     Value key_val = pop();
                     Value map_val = pop();
-                    if (std::holds_alternative<Map>(map_val))
+                    if (map_val.is_map())
                     {
-                        auto map = std::get<Map>(map_val);
                         std::string key;
-                        if (std::holds_alternative<std::string>(key_val))
-                            key = std::get<std::string>(key_val);
-                        else if (std::holds_alternative<int64_t>(key_val))
-                            key = std::to_string(std::get<int64_t>(key_val));
-                        else if (std::holds_alternative<double>(key_val))
-                            key = std::to_string(std::get<double>(key_val));
-                        else if (std::holds_alternative<bool>(key_val))
-                            key = std::get<bool>(key_val) ? "true" : "false";
+                        if (Linh::holds_alternative<std::string>(key_val))
+                            key = Linh::get<std::string>(key_val);
+                        else if (Linh::holds_alternative<int64_t>(key_val))
+                            key = std::to_string(Linh::get<int64_t>(key_val));
+                        else if (Linh::holds_alternative<double>(key_val))
+                            key = std::to_string(Linh::get<double>(key_val));
+                        else if (Linh::holds_alternative<bool>(key_val))
+                            key = Linh::get<bool>(key_val) ? "true" : "false";
                         else
                             key = "";
-                        map->erase(key);
-                        push(map);
+                        map_val.as_map_ref().erase(key);
+                        push(map_val);
                     }
                     else
                     {
@@ -2767,11 +2763,10 @@ namespace Linh
                         break;
                     }
                     Value map_val = pop();
-                    if (std::holds_alternative<Map>(map_val))
+                    if (map_val.is_map())
                     {
-                        auto map = std::get<Map>(map_val);
-                        map->clear();
-                        push(map);
+                        map_val.as_map_ref().clear();
+                        push(map_val);
                     }
                     else
                     {
@@ -2789,13 +2784,13 @@ namespace Linh
                         break;
                     }
                     Value map_val = pop();
-                    if (std::holds_alternative<Map>(map_val))
+                    if (map_val.is_map())
                     {
-                        auto map = std::get<Map>(map_val);
-                        Array arr = make_array();
-                        for (const auto &kv : *map)
+                        const auto& map = map_val.as_map_ref();
+                        Value arr = make_array();
+                        for (const auto &kv : map)
                         {
-                            arr->push_back(kv.first);
+                            arr.as_array_ref().push_back(kv.first);
                         }
                         push(arr);
                     }
@@ -2815,13 +2810,13 @@ namespace Linh
                         break;
                     }
                     Value map_val = pop();
-                    if (std::holds_alternative<Map>(map_val))
+                    if (map_val.is_map())
                     {
-                        auto map = std::get<Map>(map_val);
-                        Array arr = make_array();
-                        for (const auto &kv : *map)
+                        const auto& map = map_val.as_map_ref();
+                        Value arr = make_array();
+                        for (const auto &kv : map)
                         {
-                            arr->push_back(kv.second);
+                            arr.as_array_ref().push_back(kv.second);
                         }
                         push(arr);
                     }
@@ -2932,13 +2927,13 @@ namespace Linh
             return;
         }
         const auto &val = stack.back();
-        if (std::holds_alternative<int64_t>(val))
+        if (Linh::holds_alternative<int64_t>(val))
             std::cout << "int" << std::endl;
-        else if (std::holds_alternative<double>(val))
+        else if (Linh::holds_alternative<double>(val))
             std::cout << "float" << std::endl;
-        else if (std::holds_alternative<std::string>(val))
+        else if (Linh::holds_alternative<std::string>(val))
             std::cout << "str" << std::endl;
-        else if (std::holds_alternative<bool>(val))
+        else if (Linh::holds_alternative<bool>(val))
             std::cout << "bool" << std::endl;
         else
             std::cout << "unknown" << std::endl;
@@ -2949,24 +2944,24 @@ namespace Linh
         auto a = vm.pop();
         bool result = false;
         // If either is string, compare as string
-        if (std::holds_alternative<std::string>(a) || std::holds_alternative<std::string>(b)) {
-            std::string sa = std::holds_alternative<std::string>(a) ? std::get<std::string>(a) : Linh::to_str(a);
-            std::string sb = std::holds_alternative<std::string>(b) ? std::get<std::string>(b) : Linh::to_str(b);
+        if (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b)) {
+            std::string sa = Linh::holds_alternative<std::string>(a) ? Linh::get<std::string>(a) : Linh::to_str(a);
+            std::string sb = Linh::holds_alternative<std::string>(b) ? Linh::get<std::string>(b) : Linh::to_str(b);
             result = (sa >= sb);
         }
         // If both are bool
-        else if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b)) {
-            bool av = std::get<bool>(a);
-            bool bv = std::get<bool>(b);
+        else if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b)) {
+            bool av = Linh::get<bool>(a);
+            bool bv = Linh::get<bool>(b);
             result = (av || !bv);
         }
         // If both are numbers (int/double/uint)
-        else if ((std::holds_alternative<int64_t>(a) || std::holds_alternative<double>(a) || std::holds_alternative<uint64_t>(a)) &&
-                 (std::holds_alternative<int64_t>(b) || std::holds_alternative<double>(b) || std::holds_alternative<uint64_t>(b))) {
-            double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) :
-                        (std::holds_alternative<uint64_t>(a) ? static_cast<double>(std::get<uint64_t>(a)) : std::get<double>(a));
-            double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) :
-                        (std::holds_alternative<uint64_t>(b) ? static_cast<double>(std::get<uint64_t>(b)) : std::get<double>(b));
+        else if ((Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<double>(a) || Linh::holds_alternative<uint64_t>(a)) &&
+                 (Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<double>(b) || Linh::holds_alternative<uint64_t>(b))) {
+            double av = Linh::holds_alternative<int64_t>(a) ? static_cast<double>(Linh::get<int64_t>(a)) :
+                        (Linh::holds_alternative<uint64_t>(a) ? static_cast<double>(Linh::get<uint64_t>(a)) : Linh::get<double>(a));
+            double bv = Linh::holds_alternative<int64_t>(b) ? static_cast<double>(Linh::get<int64_t>(b)) :
+                        (Linh::holds_alternative<uint64_t>(b) ? static_cast<double>(Linh::get<uint64_t>(b)) : Linh::get<double>(b));
             result = (av >= bv);
         }
         // Fallback: compare as string
@@ -2990,14 +2985,14 @@ namespace Linh
         std::cerr << "[DEBUG] handle_CALL: entering function" << std::endl;
         std::cerr << "[DEBUG] CALL: stack size = " << vm.stack.size() << std::endl;
         if (!vm.stack.empty()) {
-            std::cerr << "[DEBUG] CALL: top of stack index = " << vm.stack.back().index() << std::endl;
+            std::cerr << "[DEBUG] CALL: top of stack index = " << vm.stack.back().get_type() << std::endl;
         }
 #endif
         // Built-in explicit conversions used by declared types inside functions
         if (std::holds_alternative<std::string>(instr.operand)) {
             const std::string& fname = std::get<std::string>(instr.operand);
             auto convert_and_advance = [&](auto conv) {
-                if (vm.stack.empty()) { vm.push(std::monostate{}); ++ip; return true; }
+                if (vm.stack.empty()) { vm.push(Value()); ++ip; return true; }
                 auto v = vm.pop();
                 vm.push(conv(v));
                 ++ip;
@@ -3020,14 +3015,14 @@ namespace Linh
         if (!vm.stack.empty()) {
             auto& top_value = vm.stack.back();
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] CALL: top value index = " << top_value.index() << std::endl;
+            std::cerr << "[DEBUG] CALL: top value index = " << top_value.get_type() << std::endl;
 #endif
-            if (top_value.index() == 15) { // FunctionPtr is at index 15 in Value
+            if (top_value.get_type() == ValueType::Function) { // FunctionPtr is at index 15 in Value
 #ifdef _DEBUG
                 std::cerr << "[DEBUG] CALL: found function object on stack" << std::endl;
 #endif
                 // Gọi function object
-                auto fn = std::get<15>(vm.stack.back());
+                FunctionPtr fn = Linh::get<FunctionPtr>(vm.stack.back());
                 vm.pop(); // Pop function object
                 
                 // Thu thập arguments từ stack (arguments được push theo thứ tự ngược)
@@ -3095,7 +3090,7 @@ namespace Linh
         if (vm.variables.count(idx)) {
             auto value = vm.variables[idx];
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] LOAD_VAR: loaded value index = " << value.index() << std::endl;
+            std::cerr << "[DEBUG] LOAD_VAR: loaded value index = " << value.get_type() << std::endl;
 #endif
             vm.push(value);
             
@@ -3115,7 +3110,7 @@ namespace Linh
     static void handle_STORE_VAR(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         int idx = std::get<int64_t>(instr.operand);
         if (vm.stack.empty()) {
-            vm.stack.push_back(std::monostate{});
+            vm.stack.push_back(Value());
         }
         Value value = vm.pop();
         vm.variables[idx] = value;
@@ -3129,9 +3124,9 @@ namespace Linh
     static void handle_AND(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto b = vm.pop();
         auto a = vm.pop();
-        if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b)) {
-            bool av = std::get<bool>(a);
-            bool bv = std::get<bool>(b);
+        if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b)) {
+            bool av = Linh::get<bool>(a);
+            bool bv = Linh::get<bool>(b);
             vm.push(av && bv);
         } else {
             std::cerr << "ERROR [Line: 0, Col: 0] RuntimeError: AND only supports bool" << std::endl;
@@ -3141,9 +3136,9 @@ namespace Linh
     static void handle_OR(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto b = vm.pop();
         auto a = vm.pop();
-        if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b)) {
-            bool av = std::get<bool>(a);
-            bool bv = std::get<bool>(b);
+        if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b)) {
+            bool av = Linh::get<bool>(a);
+            bool bv = Linh::get<bool>(b);
             vm.push(av || bv);
         } else {
             std::cerr << "ERROR [Line: 0, Col: 0] RuntimeError: OR only supports bool" << std::endl;
@@ -3152,10 +3147,10 @@ namespace Linh
     }
     static void handle_NOT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto a = vm.pop();
-        if (std::holds_alternative<bool>(a))
-            vm.push(!std::get<bool>(a));
-        else if (std::holds_alternative<int64_t>(a))
-            vm.push(~std::get<int64_t>(a)); // bitwise NOT
+        if (Linh::holds_alternative<bool>(a))
+            vm.push(!Linh::get<bool>(a));
+        else if (Linh::holds_alternative<int64_t>(a))
+            vm.push(~Linh::get<int64_t>(a)); // bitwise NOT
         else {
             std::cerr << "VM: NOT only supports bool or int" << std::endl;
             vm.push(false);
@@ -3164,8 +3159,8 @@ namespace Linh
     static void handle_INPUT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto prompt = vm.pop();
         std::string prompt_str;
-        if (std::holds_alternative<std::string>(prompt))
-            prompt_str = std::get<std::string>(prompt);
+        if (Linh::holds_alternative<std::string>(prompt))
+            prompt_str = Linh::get<std::string>(prompt);
         else
             prompt_str = "";
         auto input_val = LinhIO::linh_input(prompt_str);
@@ -3180,7 +3175,7 @@ namespace Linh
         } else {
             auto val = vm.pop();
 #ifdef _DEBUG
-            std::cerr << "[DEBUG] TYPEOF: value index = " << val.index() << std::endl;
+            std::cerr << "[DEBUG] TYPEOF: value index = " << val.get_type() << std::endl;
 #endif
             std::string type_str = type_of(val);
 #ifdef _DEBUG
@@ -3195,11 +3190,11 @@ namespace Linh
     static void handle_ARRAY_GET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto idx = vm.pop();
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
+        if (arr_val.is_array()) {
+            const auto& arr = arr_val.as_array_ref();
             int64_t i = Linh::to_int(idx);
-            if (i >= 0 && i < (int64_t)arr->size())
-                vm.push((*arr)[i]);
+            if (i >= 0 && i < (int64_t)arr.size())
+                vm.push(arr[i]);
             else
                 vm.push(Value{}); // sol
         } else {
@@ -3210,21 +3205,21 @@ namespace Linh
         auto idx = vm.pop();
         auto arr_val = vm.pop();
         auto value = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
+        if (arr_val.is_array()) {
+            auto& arr = arr_val.as_array_ref();
             int64_t i = Linh::to_int(idx);
-            if (i >= 0 && i < (int64_t)arr->size())
-                (*arr)[i] = value;
-            vm.push(arr);
+            if (i >= 0 && i < (int64_t)arr.size())
+                arr[i] = value;
+            vm.push(arr_val);
         } else {
             vm.push(Value{}); // sol
         }
     }
     static void handle_ARRAY_LEN(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
-            vm.push((int64_t)arr->size());
+        if (arr_val.is_array()) {
+            const auto& arr = arr_val.as_array_ref();
+            vm.push((int64_t)arr.size());
         } else {
             vm.push(int64_t(0));
         }
@@ -3232,10 +3227,9 @@ namespace Linh
     static void handle_ARRAY_APPEND(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto val = vm.pop();
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
-            arr->push_back(val);
-            vm.push(arr);
+        if (arr_val.is_array()) {
+            arr_val.as_array_ref().push_back(val);
+            vm.push(arr_val);
         } else {
             vm.push(Value{}); // sol
         }
@@ -3249,11 +3243,11 @@ namespace Linh
         std::cout << "[DEBUG] ARRAY_REMOVE: array before = " << Linh::to_str(arr_val) << std::endl;
         #endif
         
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
+        if (arr_val.is_array()) {
+            auto& arr = arr_val.as_array_ref();
             bool found = false;
             // Find and remove the first occurrence of the value
-            for (auto it = arr->begin(); it != arr->end(); ++it) {
+            for (auto it = arr.begin(); it != arr.end(); ++it) {
                 #ifdef _DEBUG
                 std::cout << "[DEBUG] ARRAY_REMOVE: comparing " << Linh::to_str(*it) << " with " << Linh::to_str(value_to_remove) << std::endl;
                 #endif
@@ -3261,35 +3255,34 @@ namespace Linh
                     #ifdef _DEBUG
                     std::cout << "[DEBUG] ARRAY_REMOVE: found match, removing element" << std::endl;
                     #endif
-                    arr->erase(it);
+                    arr.erase(it);
                     found = true;
                     break; // Remove only the first occurrence
                 }
             }
             #ifdef _DEBUG
-            std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(Value(arr)) << ", found = " << found << std::endl;
+            std::cout << "[DEBUG] ARRAY_REMOVE: array after = " << Linh::to_str(arr_val) << ", found = " << found << std::endl;
             #endif
-            vm.push(arr);
+            vm.push(arr_val);
         } else {
             vm.push(Value{}); // sol
         }
     }
     static void handle_ARRAY_CLEAR(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
-            arr->clear();
-            vm.push(arr);
+        if (arr_val.is_array()) {
+            arr_val.as_array_ref().clear();
+            vm.push(arr_val);
         } else {
             vm.push(Value{}); // sol
         }
     }
     static void handle_ARRAY_CLONE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
-            auto new_arr = make_array();
-            *new_arr = *arr;
+        if (arr_val.is_array()) {
+            const auto& arr = arr_val.as_array_ref();
+            Value new_arr = make_array();
+            new_arr.as_array_ref() = arr;
             vm.push(new_arr);
         } else {
             vm.push(Value{}); // sol
@@ -3297,11 +3290,11 @@ namespace Linh
     }
     static void handle_ARRAY_POP(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto arr_val = vm.pop();
-        if (std::holds_alternative<Array>(arr_val)) {
-            auto arr = std::get<Array>(arr_val);
-            if (!arr->empty())
-                arr->pop_back();
-            vm.push(arr);
+        if (arr_val.is_array()) {
+            auto& arr = arr_val.as_array_ref();
+            if (!arr.empty())
+                arr.pop_back();
+            vm.push(arr_val);
         } else {
             vm.push(Value{}); // sol
         }
@@ -3312,11 +3305,11 @@ namespace Linh
     static void handle_MAP_GET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto idx = vm.pop();
         auto map_val = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
+        if (map_val.is_map()) {
+            const auto& map = map_val.as_map_ref();
             std::string key = Linh::to_str(idx);
-            auto it = map->find(key);
-            if (it != map->end())
+            auto it = map.find(key);
+            if (it != map.end())
                 vm.push(it->second);
             else
                 vm.push(Value{}); // sol
@@ -3328,22 +3321,21 @@ namespace Linh
         auto idx = vm.pop();
         auto map_val = vm.pop();
         auto value = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
+        if (map_val.is_map()) {
             std::string key = Linh::to_str(idx);
-            (*map)[key] = value;
-            vm.push(map);
+            map_val.as_map_ref()[key] = value;
+            vm.push(map_val);
         } else {
             vm.push(Value{}); // sol
         }
     }
     static void handle_MAP_KEYS(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto map_val = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
-            auto arr = make_array();
-            for (const auto& kv : *map) {
-                arr->push_back(kv.first);
+        if (map_val.is_map()) {
+            const auto& map = map_val.as_map_ref();
+            Value arr = make_array();
+            for (const auto& kv : map) {
+                arr.as_array_ref().push_back(kv.first);
             }
             vm.push(arr);
         } else {
@@ -3352,11 +3344,11 @@ namespace Linh
     }
     static void handle_MAP_VALUES(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto map_val = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
-            auto arr = make_array();
-            for (const auto& kv : *map) {
-                arr->push_back(kv.second);
+        if (map_val.is_map()) {
+            const auto& map = map_val.as_map_ref();
+            Value arr = make_array();
+            for (const auto& kv : map) {
+                arr.as_array_ref().push_back(kv.second);
             }
             vm.push(arr);
         } else {
@@ -3366,21 +3358,19 @@ namespace Linh
     static void handle_MAP_DELETE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto idx = vm.pop();
         auto map_val = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
+        if (map_val.is_map()) {
             std::string key = Linh::to_str(idx);
-            map->erase(key);
-            vm.push(map);
+            map_val.as_map_ref().erase(key);
+            vm.push(map_val);
         } else {
             vm.push(Value{}); // sol
         }
     }
     static void handle_MAP_CLEAR(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto map_val = vm.pop();
-        if (std::holds_alternative<Map>(map_val)) {
-            auto map = std::get<Map>(map_val);
-            map->clear();
-            vm.push(map);
+        if (map_val.is_map()) {
+            map_val.as_map_ref().clear();
+            vm.push(map_val);
         } else {
             vm.push(Value{}); // sol
         }
@@ -3406,8 +3396,8 @@ namespace Linh
             if (instr.opcode == OpCode::CALL) {
                 std::cerr << "[DEBUG] run_chunk: about to execute CALL, stack size = " << this->stack.size() << std::endl;
                 if (this->stack.size() >= 2) {
-                    std::cerr << "[DEBUG] run_chunk: top of stack index = " << this->stack.back().index() << std::endl;
-                    std::cerr << "[DEBUG] run_chunk: second from top index = " << this->stack[this->stack.size()-2].index() << std::endl;
+                    std::cerr << "[DEBUG] run_chunk: top of stack index = " << this->stack.back().get_type() << std::endl;
+                    std::cerr << "[DEBUG] run_chunk: second from top index = " << this->stack[this->stack.size()-2].get_type() << std::endl;
                 }
             }
 #endif

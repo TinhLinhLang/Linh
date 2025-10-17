@@ -8,7 +8,7 @@
 
 std::string name = "Linh";
 std::string engine = "Linh.cpp";
-std::string version = "Beta 0.018 - ";
+std::string version = "Beta 0.018 - ABI restructuring";
 std::string version_number = "0.018";
 std::string language = "C++";
 

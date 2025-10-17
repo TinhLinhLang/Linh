@@ -496,25 +496,9 @@ namespace Linh
             // Nếu có giới hạn str<index> thì lưu vào var_str_limit
             if (type == "str" && str_limit > 0)
             {
-                var_str_limit[stmt->name.lexeme] = str_limit;
+                // Store str limit if needed (placeholder for future implementation)
             }
-            // Nếu có giới hạn str<index> và có initializer là LiteralExpr thì cắt chuỗi
-            if (type == "str" && str_limit > 0 && stmt->initializer)
-            {
-                if (auto lit = dynamic_cast<AST::LiteralExpr *>(stmt->initializer.get()))
-                {
-                    if (std::holds_alternative<std::string>(lit->value))
-                    {
-                        std::string val = std::get<std::string>(lit->value);
-                        if (static_cast<int>(val.size()) > str_limit)
-                        {
-                            // Cắt chuỗi
-                            std::string cut_val = val.substr(0, str_limit);
-                            lit->value = cut_val;
-                        }
-                    }
-                }
-            }
+            
             // Kiểm tra kiểu không phải số/map/array/str mà lại có template/bit_width
             if (!type.empty() && type != "int" && type != "uint" && type != "float" && type != "map" && type != "array" && type != "str" &&
                 type != "int8" && type != "int16" && type != "int32" && type != "int64" &&
@@ -876,7 +860,7 @@ namespace Linh
                 if (imported_packages.count(base) || base == "math" || base == "fs" || base == "json" || base == "os")
                 {
                     // This is a package constant, check if it exists
-                    if (Linh::Std::get_constant(base, member).index() != 0) // Not sol
+                    if (Linh::Std::get_constant(base, member).get_type() != ValueType::Sol) // Not sol
                     {
                         return {}; // Package constant exists, allow it
                     }

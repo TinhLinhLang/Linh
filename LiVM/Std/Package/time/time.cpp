@@ -32,12 +32,12 @@ namespace Std {
         double milliseconds = 0.0;
         
         // Chuyển đổi giá trị đầu vào thành millisecond
-        if (std::holds_alternative<int64_t>(v)) {
-            milliseconds = static_cast<double>(std::get<int64_t>(v));
-        } else if (std::holds_alternative<double>(v)) {
-            milliseconds = std::get<double>(v);
-        } else if (std::holds_alternative<uint64_t>(v)) {
-            milliseconds = static_cast<double>(std::get<uint64_t>(v));
+        if (Linh::holds_alternative<int64_t>(v)) {
+            milliseconds = static_cast<double>(Linh::get<int64_t>(v));
+        } else if (Linh::holds_alternative<double>(v)) {
+            milliseconds = Linh::get<double>(v);
+        } else if (Linh::holds_alternative<uint64_t>(v)) {
+            milliseconds = static_cast<double>(Linh::get<uint64_t>(v));
         } else {
             return Value{}; // Trả về sol nếu không phải số
         }

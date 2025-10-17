@@ -9,8 +9,8 @@
 // Forward declarations
 namespace Linh {
     class LiVM;
-    using BytecodeChunk = std::vector<struct Instruction>;
     struct Instruction;
+    using BytecodeChunk = std::vector<Instruction>;
 }
 
 namespace Linh {
@@ -39,8 +39,7 @@ namespace Linh {
         
         // Constructor for closures
         FunctionObject(const std::string& n, const std::vector<FunctionParameter>& p, 
-                      const BytecodeChunk& b, const ClosureEnvironment& env)
-            : name(n), params(p), body(b), environment(env), is_closure(true) {}
+                      const BytecodeChunk& b, const ClosureEnvironment& env);
     };
 
     using FunctionPtr = std::shared_ptr<FunctionObject>;

@@ -81,7 +81,7 @@ namespace Linh
         friend void handle_TRY(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_END_TRY(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_PRINT_MULTIPLE(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
-        friend void handle_PRINTF(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_PRINTIL(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_POP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_SWAP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_DUP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);

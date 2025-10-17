@@ -106,6 +106,16 @@ target_include_directories(LinhSemanticLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
 
+# --- GC Library ---
+add_library(LinhGCLib STATIC
+    LiVM/GC/GC.cpp
+)
+target_include_directories(LinhGCLib PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
+    ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
+)
+
 # --- LiVM VM ---
 add_library(LiVMLib STATIC
     LiVM/LiVM.cpp
@@ -121,7 +131,7 @@ target_include_directories(LiVMLib PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/LinhC
     ${CMAKE_CURRENT_SOURCE_DIR}/LiVM
 )
-target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson LinhModuleLib)
+target_link_libraries(LiVMLib PUBLIC fmt::fmt simdjson::simdjson LinhModuleLib LinhGCLib)
 
 # --- Std Package ---
 add_library(StdLib STATIC

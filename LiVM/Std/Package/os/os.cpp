@@ -80,8 +80,8 @@ namespace Std {
 
     // Change current working directory
     Value os_chdir(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value{}; // expect string path
-        const auto& path = std::get<std::string>(v);
+        if (!Linh::holds_alternative<std::string>(v)) return Value{}; // expect string path
+        const auto& path = Linh::get<std::string>(v);
         int rc = linh_chdir(path.c_str());
         if (rc == 0) return Value(true);
         return Value(false);

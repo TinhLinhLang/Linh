@@ -32,20 +32,22 @@ namespace Std {
         switch (el.type()) {
             case element_type::OBJECT: {
                 auto obj = el.get_object().value_unsafe();
-                Map map = make_map();
+                Value map = Value::make_map();
+                auto& map_ref = map.as_map_ref();
                 for (auto [k, v] : obj) {
                     // k is std::string_view
-                    (*map)[std::string(k)] = from_json_element(v);
+                    map_ref[std::string(k)] = from_json_element(v);
                 }
-                return Value(map);
+                return map;
             }
             case element_type::ARRAY: {
                 auto arr = el.get_array().value_unsafe();
-                Array a = make_array();
+                Value a = Value::make_array();
+                auto& arr_ref = a.as_array_ref();
                 for (auto v : arr) {
-                    a->push_back(from_json_element(v));
+                    arr_ref.push_back(from_json_element(v));
                 }
-                return Value(a);
+                return a;
             }
             case element_type::STRING: {
                 std::string_view sv = el.get_string().value_unsafe();
@@ -100,44 +102,73 @@ namespace Std {
         out.push_back('"');
     }
 
-    // Helper: encode Value -> JSON recursively (use std::visit to avoid index fragility)
+    // Helper: encode Value -> JSON recursively
     inline void encode_value(std::string& out, const Value& v) {
-        const VariantType& var = static_cast<const VariantType&>(v);
-        std::visit([&](const auto& x) {
-            using T = std::decay_t<decltype(x)>;
-            if constexpr (std::is_same_v<T, std::monostate>) {
+        switch (v.get_type()) {
+            case ValueType::Sol:
                 out += "null";
-            } else if constexpr (std::is_same_v<T, bool>) {
-                out += (x ? "true" : "false");
-            } else if constexpr (std::is_same_v<T, int8_t> ||
-                                 std::is_same_v<T, int16_t> ||
-                                 std::is_same_v<T, int32_t> ||
-                                 std::is_same_v<T, int64_t>) {
-                out += std::to_string(static_cast<long long>(x));
-            } else if constexpr (std::is_same_v<T, uint8_t> ||
-                                 std::is_same_v<T, uint16_t> ||
-                                 std::is_same_v<T, uint32_t> ||
-                                 std::is_same_v<T, uint64_t>) {
-                out += std::to_string(static_cast<unsigned long long>(x));
-            } else if constexpr (std::is_same_v<T, float> || std::is_same_v<T, double>) {
-                std::ostringstream oss; oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
-                oss << std::setprecision(15) << static_cast<double>(x);
+                break;
+            case ValueType::Bool:
+                out += (v.data.as_bool ? "true" : "false");
+                break;
+            case ValueType::Int8:
+                out += std::to_string(static_cast<long long>(v.data.as_int8));
+                break;
+            case ValueType::Int16:
+                out += std::to_string(static_cast<long long>(v.data.as_int16));
+                break;
+            case ValueType::Int32:
+                out += std::to_string(static_cast<long long>(v.data.as_int32));
+                break;
+            case ValueType::Int64:
+                out += std::to_string(static_cast<long long>(v.data.as_int64));
+                break;
+            case ValueType::UInt8:
+                out += std::to_string(static_cast<unsigned long long>(v.data.as_uint8));
+                break;
+            case ValueType::UInt16:
+                out += std::to_string(static_cast<unsigned long long>(v.data.as_uint16));
+                break;
+            case ValueType::UInt32:
+                out += std::to_string(static_cast<unsigned long long>(v.data.as_uint32));
+                break;
+            case ValueType::UInt64:
+                out += std::to_string(static_cast<unsigned long long>(v.data.as_uint64));
+                break;
+            case ValueType::Float32: {
+                std::ostringstream oss; 
+                oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
+                oss << std::setprecision(15) << static_cast<double>(v.data.as_float32);
                 out += oss.str();
-            } else if constexpr (std::is_same_v<T, std::string>) {
-                escape_json_string(x, out);
-            } else if constexpr (std::is_same_v<T, Array>) {
+                break;
+            }
+            case ValueType::Float64: {
+                std::ostringstream oss; 
+                oss.setf(std::ios::fmtflags(0), std::ios::floatfield);
+                oss << std::setprecision(15) << v.data.as_float64;
+                out += oss.str();
+                break;
+            }
+            case ValueType::String:
+                escape_json_string(v.as_string_ref(), out);
+                break;
+            case ValueType::Array: {
                 out.push_back('[');
                 bool first = true;
-                for (const auto& item : *x) {
+                const auto& arr = v.as_array_ref();
+                for (const auto& item : arr) {
                     if (!first) out.push_back(',');
                     first = false;
                     encode_value(out, item);
                 }
                 out.push_back(']');
-            } else if constexpr (std::is_same_v<T, Map>) {
+                break;
+            }
+            case ValueType::Map: {
                 out.push_back('{');
                 bool first = true;
-                for (const auto& kv : *x) {
+                const auto& map = v.as_map_ref();
+                for (const auto& kv : map) {
                     if (!first) out.push_back(',');
                     first = false;
                     escape_json_string(kv.first, out);
@@ -145,19 +176,22 @@ namespace Std {
                     encode_value(out, kv.second);
                 }
                 out.push_back('}');
-            } else if constexpr (std::is_same_v<T, std::shared_ptr<FunctionObject>>) {
+                break;
+            }
+            case ValueType::Function:
                 // Functions are not serializable, emit null
                 out += "null";
-            } else {
+                break;
+            default:
                 out += "null";
-            }
-        }, var);
+                break;
+        }
     }
 
     // json.decode(string) -> any (map/array/primitive)
     inline Value json_decode(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value{}; // sol if not string
-        const auto& json_str = std::get<std::string>(v);
+        if (!v.is_string()) return Value{}; // sol if not string
+        const auto& json_str = v.as_string_ref();
         try {
             static thread_local simdjson::dom::parser parser;
             simdjson::dom::element doc = parser.parse(json_str);

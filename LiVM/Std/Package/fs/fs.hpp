@@ -71,9 +71,9 @@ namespace Std {
         bool is_file_open(int handle);
 
         // Binary file operations (use array<byte>)
-        bool bWrite_file(int handle, const Array& data);
-        bool bAppend_file(int handle, const Array& data);
-        Array bRead_file(int handle);
+        bool bWrite_file(int handle, const Value& data);
+        bool bAppend_file(int handle, const Value& data);
+        Value bRead_file(int handle);
 
     private:
         FileManager() = default;

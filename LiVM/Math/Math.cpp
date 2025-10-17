@@ -38,13 +38,13 @@ namespace Linh
         // - uint8/16/32 -> uint64_t
         // - float32     -> float64 (double)
         auto normalize_number = [](const Value& x) -> Value {
-            if (std::holds_alternative<int8_t>(x))   return Value(static_cast<int64_t>(std::get<int8_t>(x)));
-            if (std::holds_alternative<int16_t>(x))  return Value(static_cast<int64_t>(std::get<int16_t>(x)));
-            if (std::holds_alternative<int32_t>(x))  return Value(static_cast<int64_t>(std::get<int32_t>(x)));
-            if (std::holds_alternative<uint8_t>(x))  return Value(static_cast<uint64_t>(std::get<uint8_t>(x)));
-            if (std::holds_alternative<uint16_t>(x)) return Value(static_cast<uint64_t>(std::get<uint16_t>(x)));
-            if (std::holds_alternative<uint32_t>(x)) return Value(static_cast<uint64_t>(std::get<uint32_t>(x)));
-            if (std::holds_alternative<float>(x))    return Value(static_cast<double>(std::get<float>(x)));
+            if (Linh::holds_alternative<int8_t>(x))   return Value(static_cast<int64_t>(Linh::get<int8_t>(x)));
+            if (Linh::holds_alternative<int16_t>(x))  return Value(static_cast<int64_t>(Linh::get<int16_t>(x)));
+            if (Linh::holds_alternative<int32_t>(x))  return Value(static_cast<int64_t>(Linh::get<int32_t>(x)));
+            if (Linh::holds_alternative<uint8_t>(x))  return Value(static_cast<uint64_t>(Linh::get<uint8_t>(x)));
+            if (Linh::holds_alternative<uint16_t>(x)) return Value(static_cast<uint64_t>(Linh::get<uint16_t>(x)));
+            if (Linh::holds_alternative<uint32_t>(x)) return Value(static_cast<uint64_t>(Linh::get<uint32_t>(x)));
+            if (Linh::holds_alternative<float>(x))    return Value(static_cast<double>(Linh::get<float>(x)));
             return x;
         };
         a = normalize_number(a);
@@ -54,80 +54,80 @@ namespace Linh
         if (instr.opcode == OpCode::ADD)
         {
             // Nếu một trong hai toán hạng là bool thì không cho phép cộng
-            if (std::holds_alternative<bool>(a) || std::holds_alternative<bool>(b))
+            if (Linh::holds_alternative<bool>(a) || Linh::holds_alternative<bool>(b))
             {
 #ifdef _DEBUG
                 std::cerr << "[ERROR] Invalid operand types for '+' (bool is not allowed): ";
-                if (std::holds_alternative<bool>(a))
-                    std::cerr << (std::get<bool>(a) ? "true" : "false");
-                else if (std::holds_alternative<std::string>(a))
-                    std::cerr << '"' << std::get<std::string>(a) << '"';
-                else if (std::holds_alternative<int64_t>(a))
-                    std::cerr << std::get<int64_t>(a);
-                else if (std::holds_alternative<uint64_t>(a))
-                    std::cerr << std::get<uint64_t>(a);
-                else if (std::holds_alternative<double>(a))
-                    std::cerr << std::get<double>(a);
+                if (Linh::holds_alternative<bool>(a))
+                    std::cerr << (Linh::get<bool>(a) ? "true" : "false");
+                else if (Linh::holds_alternative<std::string>(a))
+                    std::cerr << '"' << Linh::get<std::string>(a) << '"';
+                else if (Linh::holds_alternative<int64_t>(a))
+                    std::cerr << Linh::get<int64_t>(a);
+                else if (Linh::holds_alternative<uint64_t>(a))
+                    std::cerr << Linh::get<uint64_t>(a);
+                else if (Linh::holds_alternative<double>(a))
+                    std::cerr << Linh::get<double>(a);
                 else
                     std::cerr << "(?)";
                 std::cerr << " + ";
-                if (std::holds_alternative<bool>(b))
-                    std::cerr << (std::get<bool>(b) ? "true" : "false");
-                else if (std::holds_alternative<std::string>(b))
-                    std::cerr << '"' << std::get<std::string>(b) << '"';
-                else if (std::holds_alternative<int64_t>(b))
-                    std::cerr << std::get<int64_t>(b);
-                else if (std::holds_alternative<uint64_t>(b))
-                    std::cerr << std::get<uint64_t>(b);
-                else if (std::holds_alternative<double>(b))
-                    std::cerr << std::get<double>(b);
+                if (Linh::holds_alternative<bool>(b))
+                    std::cerr << (Linh::get<bool>(b) ? "true" : "false");
+                else if (Linh::holds_alternative<std::string>(b))
+                    std::cerr << '"' << Linh::get<std::string>(b) << '"';
+                else if (Linh::holds_alternative<int64_t>(b))
+                    std::cerr << Linh::get<int64_t>(b);
+                else if (Linh::holds_alternative<uint64_t>(b))
+                    std::cerr << Linh::get<uint64_t>(b);
+                else if (Linh::holds_alternative<double>(b))
+                    std::cerr << Linh::get<double>(b);
                 else
                     std::cerr << "(?)";
                 std::cerr << std::endl;
 #endif
-                vm.push(std::monostate{});
+                vm.push(Value());
                 return;
             }
         }
         // --- HỖ TRỢ NỐI CHUỖI ---
         if (instr.opcode == OpCode::ADD &&
-            (std::holds_alternative<std::string>(a) || std::holds_alternative<std::string>(b)))
+            (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b)))
         {
             // Nếu một trong hai toán hạng là bool thì không cho phép nối chuỗi
-            if (std::holds_alternative<bool>(a) || std::holds_alternative<bool>(b))
+            if (Linh::holds_alternative<bool>(a) || Linh::holds_alternative<bool>(b))
             {
 #ifdef _DEBUG
                 std::cerr << "[ERROR] Invalid operand types for string concatenation: cannot concatenate string and bool." << std::endl;
 #endif
-                vm.push(std::monostate{});
+                vm.push(Value());
                 return;
             }
             std::string sa, sb;
-            if (std::holds_alternative<std::string>(a))
-                sa = std::get<std::string>(a);
-            else if (std::holds_alternative<int64_t>(a))
-                sa = std::to_string(std::get<int64_t>(a));
-            else if (std::holds_alternative<double>(a))
+            if (Linh::holds_alternative<std::string>(a))
+                sa = Linh::get<std::string>(a);
+            else if (Linh::holds_alternative<int64_t>(a))
+                sa = std::to_string(Linh::get<int64_t>(a));
+            else if (Linh::holds_alternative<double>(a))
                 sa = Linh::to_str(a);
-            else if (std::holds_alternative<uint64_t>(a))
-                sa = std::to_string(std::get<uint64_t>(a));
-            if (std::holds_alternative<std::string>(b))
-                sb = std::get<std::string>(b);
-            else if (std::holds_alternative<int64_t>(b))
-                sb = std::to_string(std::get<int64_t>(b));
-            else if (std::holds_alternative<double>(b))
+            else if (Linh::holds_alternative<uint64_t>(a))
+                sa = std::to_string(Linh::get<uint64_t>(a));
+            if (Linh::holds_alternative<std::string>(b))
+                sb = Linh::get<std::string>(b);
+            else if (Linh::holds_alternative<int64_t>(b))
+                sb = std::to_string(Linh::get<int64_t>(b));
+            else if (Linh::holds_alternative<double>(b))
                 sb = Linh::to_str(b);
-            else if (std::holds_alternative<uint64_t>(b))
-                sb = std::to_string(std::get<uint64_t>(b));
+            else if (Linh::holds_alternative<uint64_t>(b))
+                sb = std::to_string(Linh::get<uint64_t>(b));
             vm.push(sa + sb);
             return;
         }
         // --- KẾT THÚC HỖ TRỢ NỐI CHUỖI ---
         // Ưu tiên xử lý uint64_t trước
-        if (std::holds_alternative<uint64_t>(a) && std::holds_alternative<uint64_t>(b))
+        if (Linh::holds_alternative<uint64_t>(a) && Linh::holds_alternative<uint64_t>(b))
         {
-            uint64_t av = std::get<uint64_t>(a);
-            uint64_t bv = std::get<uint64_t>(b);
+            uint64_t av = Linh::get<uint64_t>(a);
+            uint64_t bv = Linh::get<uint64_t>(b);
             switch (instr.opcode)
             {
             case OpCode::ADD:
@@ -229,10 +229,10 @@ namespace Linh
                 break;
             }
         }
-        else if (std::holds_alternative<int64_t>(a) && std::holds_alternative<int64_t>(b))
+        else if (Linh::holds_alternative<int64_t>(a) && Linh::holds_alternative<int64_t>(b))
         {
-            int64_t av = std::get<int64_t>(a);
-            int64_t bv = std::get<int64_t>(b);
+            int64_t av = Linh::get<int64_t>(a);
+            int64_t bv = Linh::get<int64_t>(b);
             switch (instr.opcode)
             {
             case OpCode::ADD:
@@ -330,11 +330,11 @@ namespace Linh
                 break;
             }
         }
-        else if ((std::holds_alternative<int64_t>(a) || std::holds_alternative<double>(a)) &&
-                 (std::holds_alternative<int64_t>(b) || std::holds_alternative<double>(b)))
+        else if ((Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<double>(a)) &&
+                 (Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<double>(b)))
         {
-            double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) : std::get<double>(a);
-            double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) : std::get<double>(b);
+            double av = Linh::holds_alternative<int64_t>(a) ? static_cast<double>(Linh::get<int64_t>(a)) : Linh::get<double>(a);
+            double bv = Linh::holds_alternative<int64_t>(b) ? static_cast<double>(Linh::get<int64_t>(b)) : Linh::get<double>(b);
             switch (instr.opcode)
             {
             case OpCode::ADD:
@@ -411,12 +411,12 @@ namespace Linh
                 break;
             }
         }
-        else if ((std::holds_alternative<int64_t>(a) && std::holds_alternative<uint64_t>(b)) ||
-                 (std::holds_alternative<uint64_t>(a) && std::holds_alternative<int64_t>(b)))
+        else if ((Linh::holds_alternative<int64_t>(a) && Linh::holds_alternative<uint64_t>(b)) ||
+                 (Linh::holds_alternative<uint64_t>(a) && Linh::holds_alternative<int64_t>(b)))
         {
             // Trộn int và uint: thăng cấp sang double để thực hiện số học và so sánh an toàn
-            double av = std::holds_alternative<int64_t>(a) ? static_cast<double>(std::get<int64_t>(a)) : static_cast<double>(std::get<uint64_t>(a));
-            double bv = std::holds_alternative<int64_t>(b) ? static_cast<double>(std::get<int64_t>(b)) : static_cast<double>(std::get<uint64_t>(b));
+            double av = Linh::holds_alternative<int64_t>(a) ? static_cast<double>(Linh::get<int64_t>(a)) : static_cast<double>(Linh::get<uint64_t>(a));
+            double bv = Linh::holds_alternative<int64_t>(b) ? static_cast<double>(Linh::get<int64_t>(b)) : static_cast<double>(Linh::get<uint64_t>(b));
             switch (instr.opcode)
             {
             case OpCode::ADD:
@@ -493,12 +493,12 @@ namespace Linh
                 break;
             }
         }
-        else if ((std::holds_alternative<uint64_t>(a) || std::holds_alternative<double>(a)) &&
-                 (std::holds_alternative<uint64_t>(b) || std::holds_alternative<double>(b)))
+        else if ((Linh::holds_alternative<uint64_t>(a) || Linh::holds_alternative<double>(a)) &&
+                 (Linh::holds_alternative<uint64_t>(b) || Linh::holds_alternative<double>(b)))
         {
             // Nếu một bên là double thì ép sang double, còn lại đã xử lý uint64_t ở trên
-            double av = std::holds_alternative<uint64_t>(a) ? static_cast<double>(std::get<uint64_t>(a)) : std::get<double>(a);
-            double bv = std::holds_alternative<uint64_t>(b) ? static_cast<double>(std::get<uint64_t>(b)) : std::get<double>(b);
+            double av = Linh::holds_alternative<uint64_t>(a) ? static_cast<double>(Linh::get<uint64_t>(a)) : Linh::get<double>(a);
+            double bv = Linh::holds_alternative<uint64_t>(b) ? static_cast<double>(Linh::get<uint64_t>(b)) : Linh::get<double>(b);
             switch (instr.opcode)
             {
             case OpCode::ADD:
@@ -575,10 +575,10 @@ namespace Linh
                 break;
             }
         }
-        else if (std::holds_alternative<std::string>(a) && std::holds_alternative<std::string>(b))
+        else if (Linh::holds_alternative<std::string>(a) && Linh::holds_alternative<std::string>(b))
         {
-            const std::string &av = std::get<std::string>(a);
-            const std::string &bv = std::get<std::string>(b);
+            const std::string &av = Linh::get<std::string>(a);
+            const std::string &bv = Linh::get<std::string>(b);
             switch (instr.opcode)
             {
             case OpCode::EQ:
@@ -600,14 +600,14 @@ namespace Linh
                 vm.push(av >= bv);
                 break;
             default:
-                vm.push(std::monostate{});
+                vm.push(Value());
                 break;
             }
         }
-        else if (std::holds_alternative<bool>(a) && std::holds_alternative<bool>(b))
+        else if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b))
         {
-            bool av = std::get<bool>(a);
-            bool bv = std::get<bool>(b);
+            bool av = Linh::get<bool>(a);
+            bool bv = Linh::get<bool>(b);
             switch (instr.opcode)
             {
             case OpCode::EQ:
@@ -617,7 +617,7 @@ namespace Linh
                 vm.push(av != bv);
                 break;
             default:
-                vm.push(std::monostate{});
+                vm.push(Value());
                 break;
             }
         }
@@ -626,7 +626,7 @@ namespace Linh
 #ifdef _DEBUG
             std::cerr << "Invalid operand types for arithmetic or comparison" << std::endl;
 #endif
-            vm.push(std::monostate{});
+            vm.push(Value());
         }
     }
 }

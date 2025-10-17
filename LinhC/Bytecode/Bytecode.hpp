@@ -76,7 +76,7 @@ namespace Linh
         INPUT,
         TYPEOF,
         HALT,
-        PRINTF, // Thêm opcode PRINTF cho hàm printil của LinhC
+        PRINTIL, // Thêm opcode PRINTIL cho hàm printil của LinhC
         PUSH_ARRAY,
         PUSH_MAP,
         ARRAY_GET,

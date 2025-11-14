@@ -1,5 +1,8 @@
-var fn = func(){
-return "Hello func"
+func factorial(n) {
+    if (n <= 1) {
+        return 1
+    } else {
+        return n * factorial(n - 1)
+    }
 }
-print(fn())
-print(type(fn))
+print(factorial(5))

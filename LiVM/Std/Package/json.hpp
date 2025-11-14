@@ -156,14 +156,14 @@ namespace Std {
 
     // json.decode(string) -> any (map/array/primitive)
     inline Value json_decode(const Value& v) {
-        if (!std::holds_alternative<std::string>(v)) return Value{}; // sol if not string
+        if (!std::holds_alternative<std::string>(v)) return Value{}; // nothingif not string
         const auto& json_str = std::get<std::string>(v);
         try {
             static thread_local simdjson::dom::parser parser;
             simdjson::dom::element doc = parser.parse(json_str);
             return from_json_element(doc);
         } catch (...) {
-            return Value{}; // sol on error
+            return Value{}; // nothingon error
         }
     }
 

@@ -68,13 +68,13 @@ namespace Std {
         if (linh_getcwd(buffer, MAX_PATH)) {
             return Value(std::string(buffer));
         }
-        return Value{}; // sol on failure
+        return Value{}; // nothingon failure
     #else
         char buffer[PATH_MAX];
         if (linh_getcwd(buffer, sizeof(buffer))) {
             return Value(std::string(buffer));
         }
-        return Value{}; // sol on failure
+        return Value{}; // nothingon failure
     #endif
     }
 

@@ -198,7 +198,7 @@ namespace Linh
     {
         switch (val.get_type()) {
             case ValueType::Sol:
-                return "sol";
+                return "nothing";
             case ValueType::Bool:
                 return val.data.as_bool ? "true" : "false";
             case ValueType::Int8:

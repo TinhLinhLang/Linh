@@ -1,0 +1,370 @@
+--- Source Code Being Parsed ---
+// Test file for specific bugs found during comprehensive testing.
+// Based on bug_report.md
+
+print("--- Starting Isolated Bug Tests ---")
+
+// --- Test Case 1: Array access at index 0 after remove() ---
+print("\n[TEST 1] Array access at index 0 after remove()")
+var arr = [1, 2, 3, 4, 5, 6]
+print("Initial array:", arr)
+
+// Remove an element from the middle of the array
+arr.remove(3) 
+print("After remove(3):", arr)
+print("Array length:", len(arr))
+
+// This is the line that failed in the comprehensive test.
+// Expected: "Accessing first element (arr[0]): 1"
+// Actual (Bug): "Accessing first element (arr[0]): nothing"
+print("Accessing first element (arr[0]):", arr[0]) 
+
+print("--- Test 1 Finished ---\n")
+
+
+// --- Test Case 2: map.clear() method dispatch ---
+print("[TEST 2] map.clear() functionality")
+var my_map = {"name": "Linh", "version": "0.017", "type": "language"}
+print("Initial map:", my_map)
+my_map.clear()
+print("After clear():", my_map)
+print("Expected after clear: {}")
+print("--- Test 2 Finished ---")
+
+--------------------------------
+PARSER_INIT: Parser initialized with 110 tokens.
+PARSER_INIT: First token: 'print' (Type: PRINT_KW, Line: 4, Col: 1)
+PARSER_INIT: Last token: 'EOF' (Type: EOF, Line: 32, Col: 1)
+[DEBUG] Found DOT token, next token: remove (type: 41)
+[DEBUG] MemberExpr created with property: remove
+[DEBUG] Found DOT token, next token: clear (type: 41)
+[DEBUG] MemberExpr created with property: clear
+[DEBUG] BytecodeEmitter::append_emit: processing 16 statements
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+[DEBUG] BytecodeEmitter::append_emit: processing statement type
+
+--- Function Table After Import Merge ---
+------------------------------------------
+[DEBUG] VM::run() started with 57 instructions
+=== VM Bytecode Dump ===
+[0] OpCode: 4 (PUSH_STR), Operand: --- Starting Isolated Bug Tests ---
+[1] OpCode: 40 (PRINT), Operand: 0
+[2] OpCode: 4 (PUSH_STR), Operand: 
+[TEST 1] Array access at index 0 after remove()
+[3] OpCode: 40 (PRINT), Operand: 0
+[4] OpCode: 1 (PUSH_INT), Operand: 1
+[5] OpCode: 1 (PUSH_INT), Operand: 2
+[6] OpCode: 1 (PUSH_INT), Operand: 3
+[7] OpCode: 1 (PUSH_INT), Operand: 4
+[8] OpCode: 1 (PUSH_INT), Operand: 5
+[9] OpCode: 1 (PUSH_INT), Operand: 6
+[10] OpCode: 46 (PUSH_ARRAY), Operand: 6
+[11] OpCode: 30 (STORE_VAR), Operand: 0
+[12] OpCode: 4 (PUSH_STR), Operand: Initial array:
+[13] OpCode: 29 (LOAD_VAR), Operand: 0
+[14] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[15] OpCode: 29 (LOAD_VAR), Operand: 0
+[16] OpCode: 1 (PUSH_INT), Operand: 3
+[17] OpCode: 54 (ARRAY_REMOVE), Operand: 0
+[18] OpCode: 6 (POP), Operand: 0
+[19] OpCode: 4 (PUSH_STR), Operand: After remove(3):
+[20] OpCode: 29 (LOAD_VAR), Operand: 0
+[21] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[22] OpCode: 4 (PUSH_STR), Operand: Array length:
+[23] OpCode: 29 (LOAD_VAR), Operand: 0
+[24] OpCode: 34 (CALL), Operand: len
+[25] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[26] OpCode: 4 (PUSH_STR), Operand: Accessing first element (arr[0]):
+[27] OpCode: 29 (LOAD_VAR), Operand: 0
+[28] OpCode: 1 (PUSH_INT), Operand: 0
+[29] OpCode: 48 (ARRAY_GET), Operand: 0
+[30] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[31] OpCode: 4 (PUSH_STR), Operand: --- Test 1 Finished ---
+
+[32] OpCode: 40 (PRINT), Operand: 0
+[33] OpCode: 4 (PUSH_STR), Operand: [TEST 2] map.clear() functionality
+[34] OpCode: 40 (PRINT), Operand: 0
+[35] OpCode: 4 (PUSH_STR), Operand: name
+[36] OpCode: 4 (PUSH_STR), Operand: Linh
+[37] OpCode: 4 (PUSH_STR), Operand: version
+[38] OpCode: 4 (PUSH_STR), Operand: 0.017
+[39] OpCode: 4 (PUSH_STR), Operand: type
+[40] OpCode: 4 (PUSH_STR), Operand: language
+[41] OpCode: 47 (PUSH_MAP), Operand: 3
+[42] OpCode: 30 (STORE_VAR), Operand: 1
+[43] OpCode: 4 (PUSH_STR), Operand: Initial map:
+[44] OpCode: 29 (LOAD_VAR), Operand: 1
+[45] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[46] OpCode: 29 (LOAD_VAR), Operand: 1
+[47] OpCode: 55 (CONTAINER_CLEAR), Operand: 0
+[48] OpCode: 6 (POP), Operand: 0
+[49] OpCode: 4 (PUSH_STR), Operand: After clear():
+[50] OpCode: 29 (LOAD_VAR), Operand: 1
+[51] OpCode: 41 (PRINT_MULTIPLE), Operand: 2
+[52] OpCode: 4 (PUSH_STR), Operand: Expected after clear: {}
+[53] OpCode: 40 (PRINT), Operand: 0
+[54] OpCode: 4 (PUSH_STR), Operand: --- Test 2 Finished ---
+[55] OpCode: 40 (PRINT), Operand: 0
+[56] OpCode: 44 (HALT), Operand: 0
+=== End Bytecode Dump ===
+[DEBUG] VM executing instruction 0: PUSH_STR
+[DEBUG][ip=0] OpCode: 4 (PUSH_STR), Operand index: --- Starting Isolated Bug Tests ---, Stack size: 0
+[DEBUG] VM executing instruction 1: PRINT
+[DEBUG][ip=1] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: --- Starting Isolated Bug Tests ---
+----- START PRINT -----
+--- Starting Isolated Bug Tests ---
+----- END PRINT -----
+[DEBUG] VM executing instruction 2: PUSH_STR
+[DEBUG][ip=2] OpCode: 4 (PUSH_STR), Operand index: 
+[TEST 1] Array access at index 0 after remove(), Stack size: 0
+[DEBUG] VM executing instruction 3: PRINT
+[DEBUG][ip=3] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: 
+[TEST 1] Array access at index 0 after remove()
+----- START PRINT -----
+
+[TEST 1] Array access at index 0 after remove()
+----- END PRINT -----
+[DEBUG] VM executing instruction 4: PUSH_INT
+[DEBUG][ip=4] OpCode: 1 (PUSH_INT), Operand index: 1, Stack size: 0
+[DEBUG] PUSH_INT: stack size = 1, top index = 4
+[DEBUG] VM executing instruction 5: PUSH_INT
+[DEBUG][ip=5] OpCode: 1 (PUSH_INT), Operand index: 2, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 6: PUSH_INT
+[DEBUG][ip=6] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 7: PUSH_INT
+[DEBUG][ip=7] OpCode: 1 (PUSH_INT), Operand index: 4, Stack size: 3
+[DEBUG] PUSH_INT: stack size = 4, top index = 4
+[DEBUG] VM executing instruction 8: PUSH_INT
+[DEBUG][ip=8] OpCode: 1 (PUSH_INT), Operand index: 5, Stack size: 4
+[DEBUG] PUSH_INT: stack size = 5, top index = 4
+[DEBUG] VM executing instruction 9: PUSH_INT
+[DEBUG][ip=9] OpCode: 1 (PUSH_INT), Operand index: 6, Stack size: 5
+[DEBUG] PUSH_INT: stack size = 6, top index = 4
+[DEBUG] VM executing instruction 10: PUSH_ARRAY
+[DEBUG][ip=10] OpCode: 46 (PUSH_ARRAY), Operand index: 6, Stack size: 6
+[DEBUG] VM executing instruction 11: STORE_VAR
+[DEBUG][ip=11] OpCode: 30 (STORE_VAR), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 12: PUSH_STR
+[DEBUG][ip=12] OpCode: 4 (PUSH_STR), Operand index: Initial array:, Stack size: 0
+[DEBUG] VM executing instruction 13: LOAD_VAR
+[DEBUG][ip=13] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 14: PRINT_MULTIPLE
+[DEBUG][ip=14] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [1, 2, 3, 4, 5, 6]
+[DEBUG] PRINT_MULTIPLE: popped value 1: Initial array:
+[DEBUG] PRINT_MULTIPLE: final result: 'Initial array: [1, 2, 3, 4, 5, 6]'
+----- START PRINT -----
+Initial array: [1, 2, 3, 4, 5, 6]
+----- END PRINT -----
+[DEBUG] VM executing instruction 15: LOAD_VAR
+[DEBUG][ip=15] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 13
+[DEBUG] VM executing instruction 16: PUSH_INT
+[DEBUG][ip=16] OpCode: 1 (PUSH_INT), Operand index: 3, Stack size: 1
+[DEBUG] PUSH_INT: stack size = 2, top index = 4
+[DEBUG] VM executing instruction 17: ARRAY_REMOVE
+[DEBUG][ip=17] OpCode: 54 (ARRAY_REMOVE), Operand index: 0, Stack size: 2
+[DEBUG] ARRAY_REMOVE: value_to_remove = 3
+[DEBUG] ARRAY_REMOVE: array before = [1, 2, 3, 4, 5, 6]
+[DEBUG] ARRAY_REMOVE: comparing 1 with 3
+[DEBUG] ARRAY_REMOVE: comparing 2 with 3
+[DEBUG] ARRAY_REMOVE: comparing 3 with 3
+[DEBUG] ARRAY_REMOVE: found match, removing element
+[DEBUG] ARRAY_REMOVE: array after = [1, 2, 4, 5, 6], found = 1
+[DEBUG] VM executing instruction 18: POP
+[DEBUG][ip=18] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 19: PUSH_STR
+[DEBUG][ip=19] OpCode: 4 (PUSH_STR), Operand index: After remove(3):, Stack size: 0
+[DEBUG] VM executing instruction 20: LOAD_VAR
+[DEBUG][ip=20] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 21: PRINT_MULTIPLE
+[DEBUG][ip=21] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: [1, 2, 4, 5, 6]
+[DEBUG] PRINT_MULTIPLE: popped value 1: After remove(3):
+[DEBUG] PRINT_MULTIPLE: final result: 'After remove(3): [1, 2, 4, 5, 6]'
+----- START PRINT -----
+After remove(3): [1, 2, 4, 5, 6]
+----- END PRINT -----
+[DEBUG] VM executing instruction 22: PUSH_STR
+[DEBUG][ip=22] OpCode: 4 (PUSH_STR), Operand index: Array length:, Stack size: 0
+[DEBUG] VM executing instruction 23: LOAD_VAR
+[DEBUG][ip=23] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 24: CALL
+[DEBUG][ip=24] OpCode: 34 (CALL), Operand index: len, Stack size: 2
+[DEBUG] VM executing instruction 25: PRINT_MULTIPLE
+[DEBUG][ip=25] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 5
+[DEBUG] PRINT_MULTIPLE: popped value 1: Array length:
+[DEBUG] PRINT_MULTIPLE: final result: 'Array length: 5'
+----- START PRINT -----
+Array length: 5
+----- END PRINT -----
+[DEBUG] VM executing instruction 26: PUSH_STR
+[DEBUG][ip=26] OpCode: 4 (PUSH_STR), Operand index: Accessing first element (arr[0]):, Stack size: 0
+[DEBUG] VM executing instruction 27: LOAD_VAR
+[DEBUG][ip=27] OpCode: 29 (LOAD_VAR), Operand index: 0, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 0
+[DEBUG] LOAD_VAR: variables.size() = 1
+[DEBUG] LOAD_VAR: loaded value index = 13
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 13
+[DEBUG] VM executing instruction 28: PUSH_INT
+[DEBUG][ip=28] OpCode: 1 (PUSH_INT), Operand index: 0, Stack size: 2
+[DEBUG] PUSH_INT: stack size = 3, top index = 4
+[DEBUG] VM executing instruction 29: ARRAY_GET
+[DEBUG][ip=29] OpCode: 48 (ARRAY_GET), Operand index: 0, Stack size: 3
+[DEBUG] VM executing instruction 30: PRINT_MULTIPLE
+[DEBUG][ip=30] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: 1
+[DEBUG] PRINT_MULTIPLE: popped value 1: Accessing first element (arr[0]):
+[DEBUG] PRINT_MULTIPLE: final result: 'Accessing first element (arr[0]): 1'
+----- START PRINT -----
+Accessing first element (arr[0]): 1
+----- END PRINT -----
+[DEBUG] VM executing instruction 31: PUSH_STR
+[DEBUG][ip=31] OpCode: 4 (PUSH_STR), Operand index: --- Test 1 Finished ---
+, Stack size: 0
+[DEBUG] VM executing instruction 32: PRINT
+[DEBUG][ip=32] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: --- Test 1 Finished ---
+
+----- START PRINT -----
+--- Test 1 Finished ---
+
+----- END PRINT -----
+[DEBUG] VM executing instruction 33: PUSH_STR
+[DEBUG][ip=33] OpCode: 4 (PUSH_STR), Operand index: [TEST 2] map.clear() functionality, Stack size: 0
+[DEBUG] VM executing instruction 34: PRINT
+[DEBUG][ip=34] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: [TEST 2] map.clear() functionality
+----- START PRINT -----
+[TEST 2] map.clear() functionality
+----- END PRINT -----
+[DEBUG] VM executing instruction 35: PUSH_STR
+[DEBUG][ip=35] OpCode: 4 (PUSH_STR), Operand index: name, Stack size: 0
+[DEBUG] VM executing instruction 36: PUSH_STR
+[DEBUG][ip=36] OpCode: 4 (PUSH_STR), Operand index: Linh, Stack size: 1
+[DEBUG] VM executing instruction 37: PUSH_STR
+[DEBUG][ip=37] OpCode: 4 (PUSH_STR), Operand index: version, Stack size: 2
+[DEBUG] VM executing instruction 38: PUSH_STR
+[DEBUG][ip=38] OpCode: 4 (PUSH_STR), Operand index: 0.017, Stack size: 3
+[DEBUG] VM executing instruction 39: PUSH_STR
+[DEBUG][ip=39] OpCode: 4 (PUSH_STR), Operand index: type, Stack size: 4
+[DEBUG] VM executing instruction 40: PUSH_STR
+[DEBUG][ip=40] OpCode: 4 (PUSH_STR), Operand index: language, Stack size: 5
+[DEBUG] VM executing instruction 41: PUSH_MAP
+[DEBUG][ip=41] OpCode: 47 (PUSH_MAP), Operand index: 3, Stack size: 6
+[DEBUG] VM executing instruction 42: STORE_VAR
+[DEBUG][ip=42] OpCode: 30 (STORE_VAR), Operand index: 1, Stack size: 1
+[DEBUG] VM executing instruction 43: PUSH_STR
+[DEBUG][ip=43] OpCode: 4 (PUSH_STR), Operand index: Initial map:, Stack size: 0
+[DEBUG] VM executing instruction 44: LOAD_VAR
+[DEBUG][ip=44] OpCode: 29 (LOAD_VAR), Operand index: 1, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 1
+[DEBUG] LOAD_VAR: variables.size() = 2
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 45: PRINT_MULTIPLE
+[DEBUG][ip=45] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {"type": "language", "version": "0.017", "name": "Linh"}
+[DEBUG] PRINT_MULTIPLE: popped value 1: Initial map:
+[DEBUG] PRINT_MULTIPLE: final result: 'Initial map: {"type": "language", "version": "0.017", "name": "Linh"}'
+----- START PRINT -----
+Initial map: {"type": "language", "version": "0.017", "name": "Linh"}
+----- END PRINT -----
+[DEBUG] VM executing instruction 46: LOAD_VAR
+[DEBUG][ip=46] OpCode: 29 (LOAD_VAR), Operand index: 1, Stack size: 0
+[DEBUG] LOAD_VAR: loading variable index 1
+[DEBUG] LOAD_VAR: variables.size() = 2
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 1, top index = 14
+[DEBUG] VM executing instruction 47: CONTAINER_CLEAR
+[DEBUG][ip=47] OpCode: 55 (CONTAINER_CLEAR), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 48: POP
+[DEBUG][ip=48] OpCode: 6 (POP), Operand index: 0, Stack size: 1
+[DEBUG] VM executing instruction 49: PUSH_STR
+[DEBUG][ip=49] OpCode: 4 (PUSH_STR), Operand index: After clear():, Stack size: 0
+[DEBUG] VM executing instruction 50: LOAD_VAR
+[DEBUG][ip=50] OpCode: 29 (LOAD_VAR), Operand index: 1, Stack size: 1
+[DEBUG] LOAD_VAR: loading variable index 1
+[DEBUG] LOAD_VAR: variables.size() = 2
+[DEBUG] LOAD_VAR: loaded value index = 14
+[DEBUG] LOAD_VAR: after push, stack size = 2, top index = 14
+[DEBUG] VM executing instruction 51: PRINT_MULTIPLE
+[DEBUG][ip=51] OpCode: 41 (PRINT_MULTIPLE), Operand index: 2, Stack size: 2
+[DEBUG] PRINT_MULTIPLE in second switch case
+[DEBUG] PRINT_MULTIPLE: count=2, stack_size=2
+[DEBUG] PRINT_MULTIPLE: popped value 0: {}
+[DEBUG] PRINT_MULTIPLE: popped value 1: After clear():
+[DEBUG] PRINT_MULTIPLE: final result: 'After clear(): {}'
+----- START PRINT -----
+After clear(): {}
+----- END PRINT -----
+[DEBUG] VM executing instruction 52: PUSH_STR
+[DEBUG][ip=52] OpCode: 4 (PUSH_STR), Operand index: Expected after clear: {}, Stack size: 0
+[DEBUG] VM executing instruction 53: PRINT
+[DEBUG][ip=53] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: Expected after clear: {}
+----- START PRINT -----
+Expected after clear: {}
+----- END PRINT -----
+[DEBUG] VM executing instruction 54: PUSH_STR
+[DEBUG][ip=54] OpCode: 4 (PUSH_STR), Operand index: --- Test 2 Finished ---, Stack size: 0
+[DEBUG] VM executing instruction 55: PRINT
+[DEBUG][ip=55] OpCode: 40 (PRINT), Operand index: 0, Stack size: 1
+[DEBUG] PRINT opcode executed
+[DEBUG] PRINT: about to print: --- Test 2 Finished ---
+----- START PRINT -----
+--- Test 2 Finished ---
+----- END PRINT -----
+[DEBUG] VM executing instruction 56: HALT
+[DEBUG][ip=56] OpCode: 44 (HALT), Operand index: 0, Stack size: 0
+
+Parse succeeded!

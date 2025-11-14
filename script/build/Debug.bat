@@ -64,15 +64,6 @@ echo +-------------------------------+
 echo [SUCCESS] Build completed successfully at %date% %time% >> "%ROOT_DIR%\build.log"
 echo(
 
-REM Automatically run Debug executable if build succeeded
-set EXE_PATH=%BUILD_DIR%\Debug\LinhApp.exe
-if exist "%EXE_PATH%" goto :run_debug
-echo [WARNING] Debug executable not found: %EXE_PATH%
-goto :eof_dbg
-:run_debug
-echo Running Debug build: %EXE_PATH%
-"%EXE_PATH%"
-:eof_dbg
 goto :eof
 
 :conf_error

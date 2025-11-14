@@ -114,7 +114,7 @@ namespace Linh
         
         // Type checking
         ValueType get_type() const noexcept { return type; }
-        bool is_sol() const noexcept { return type == ValueType::Sol; }
+        bool is_nothing() const noexcept { return type == ValueType::Sol; }
         bool is_bool() const noexcept { return type == ValueType::Bool; }
         bool is_int() const noexcept { return type >= ValueType::Int8 && type <= ValueType::Int64; }
         bool is_uint() const noexcept { return type >= ValueType::UInt8 && type <= ValueType::UInt64; }

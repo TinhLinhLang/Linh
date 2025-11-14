@@ -190,14 +190,14 @@ namespace Std {
 
     // json.decode(string) -> any (map/array/primitive)
     inline Value json_decode(const Value& v) {
-        if (!v.is_string()) return Value{}; // sol if not string
+        if (!v.is_string()) return Value{}; // nothingif not string
         const auto& json_str = v.as_string_ref();
         try {
             static thread_local simdjson::dom::parser parser;
             simdjson::dom::element doc = parser.parse(json_str);
             return from_json_element(doc);
         } catch (...) {
-            return Value{}; // sol on error
+            return Value{}; // nothingon error
         }
     }
 

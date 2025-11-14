@@ -9,7 +9,7 @@ namespace Linh
     {
         if (!type_node)
         {
-            Token uninit_token(TokenType::SOL_KW, "sol", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
+            Token uninit_token(TokenType::SOL_KW, "nothing", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
             return std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_token));
         }
 
@@ -44,20 +44,20 @@ namespace Linh
             }
             case TokenType::SOL_KW:
             {
-                Token uninit_token(TokenType::SOL_KW, "sol", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
+                Token uninit_token(TokenType::SOL_KW, "nothing", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
                 return std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_token));
             }
             case TokenType::VOID_KW:
                 throw error(base_type->type_keyword_token, "Cannot create zero value for type 'void'.");
             case TokenType::ANY_KW:
             {
-                Token uninit_any_token(TokenType::SOL_KW, "sol", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
+                Token uninit_any_token(TokenType::SOL_KW, "nothing", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
                 return std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_any_token));
             }
             default:
             { // Bao gồm IDENTIFIER
-                std::cerr << "WARNING [Line: 0, Col: 0] ParserWarning: Cannot determine zero value for base type '" << base_type->type_keyword_token.lexeme << "' at parse time. Defaulting to sol." << std::endl;
-                Token uninit_default_token(TokenType::SOL_KW, "sol", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
+                std::cerr << "WARNING [Line: 0, Col: 0] ParserWarning: Cannot determine zero value for base type '" << base_type->type_keyword_token.lexeme << "' at parse time. Defaulting to nothing." << std::endl;
+                Token uninit_default_token(TokenType::SOL_KW, "nothing", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
                 return std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_default_token));
             }
             }
@@ -93,7 +93,7 @@ namespace Linh
             std::cerr << "WARNING [Line: 0, Col: 0] ParserWarning: Empty union or first type is null when creating zero value. Defaulting to uninit." << std::endl;
         }
 
-        Token uninit_fallback_token(TokenType::SOL_KW, "sol", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
+        Token uninit_fallback_token(TokenType::SOL_KW, "nothing", std::monostate{}, reference_token_for_pos.line, reference_token_for_pos.column_start);
         return std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_fallback_token));
     }
 
@@ -159,9 +159,9 @@ namespace Linh
                 }
                 else
                 {
-                    Token uninit_type_token(TokenType::SOL_KW, "sol", std::monostate{}, name_token.line, name_token.column_start);
+                    Token uninit_type_token(TokenType::SOL_KW, "nothing", std::monostate{}, name_token.line, name_token.column_start);
                     declared_type_node_opt = std::make_unique<AST::BaseTypeNode>(uninit_type_token);
-                    Token uninit_val_token(TokenType::SOL_KW, "sol", std::monostate{}, name_token.line, name_token.column_start);
+                    Token uninit_val_token(TokenType::SOL_KW, "nothing", std::monostate{}, name_token.line, name_token.column_start);
                     initializer_expr = std::make_unique<AST::UninitLiteralExpr>(uninit_val_token);
                 }
             }

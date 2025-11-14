@@ -6,14 +6,14 @@
 //   - Lithium: Language standard specification
 //
 // Tinh Linh is a multi-typed language supporting both static (vas) and dynamic (var) typing, as well as const.
-// Tinh Linh does not allow the existence of null. Only 'sol' is used as the primitive 'no-value'.
+// Tinh Linh does not allow the existence of null. Only 'nothing' is used as the primitive 'no-value'.
 //
 // The id(x) function returns the id of the value, not a unique id for each variable.
 // For primitive types (int, float, bool, string), id(x) is the same if the value is the same.
 // For array/map, id(x) is the memory address (reference), so it is the same if they refer to the same object.
 //
 // IMPORTANT: Linh is NOT Python or JavaScript. Not everything is an object.
-// Primitive types (int, uint, float, bool, str, sol) are NOT objects and do not have methods or properties.
+// Primitive types (int, uint, float, bool, str, nothing) are NOT objects and do not have methods or properties.
 // Only array/map are reference types (objects), but they are not class-based objects.
 // There is no class, prototype, or inheritance system. Linh is a statically-typed, value-oriented language.
 // <------------------------------------------------------------------>

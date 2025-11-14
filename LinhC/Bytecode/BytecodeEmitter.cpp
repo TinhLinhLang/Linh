@@ -1,6 +1,7 @@
 #include "BytecodeEmitter.hpp"
 #include <unordered_set>
 #include <iostream>
+#include <algorithm>
 #include "LiVM/Variable/Value.hpp" // Để sử dụng Value cho constant folding
 
 namespace Linh
@@ -179,6 +180,10 @@ namespace Linh
     void BytecodeEmitter::emit(const AST::StmtList &stmts)
     {
         chunk.clear();
+        var_table.clear();
+        exported_variables.clear();
+        functions.clear();
+        next_var_index = 0;
         append_emit(stmts);
     }
 
@@ -652,6 +657,16 @@ namespace Linh
         chunk[jmp_if_false_pos].operand = int64_t(end_pos);
     }
 
+    void BytecodeEmitter::initialize_function_scope(BytecodeEmitter &body_emitter, const std::vector<FunctionParameter> &params)
+    {
+        body_emitter.var_table = var_table;
+        body_emitter.next_var_index = std::max<int>(static_cast<int>(params.size()), next_var_index);
+        for (size_t i = 0; i < params.size(); ++i)
+        {
+            body_emitter.var_table[params[i].name] = static_cast<int>(i);
+        }
+    }
+
     void BytecodeEmitter::visitFunctionDeclStmt(AST::FunctionDeclStmt *stmt) {
         std::vector<FunctionParameter> function_params;
         
@@ -668,10 +683,23 @@ namespace Linh
             function_params.emplace_back(param.name.lexeme, param_type, param.is_static);
         }
         
+        int function_var_index = 0;
+        if (auto it = var_table.find(stmt->name.lexeme); it != var_table.end()) {
+            function_var_index = it->second;
+        } else {
+            int min_index = static_cast<int>(function_params.size());
+            if (next_var_index < min_index) {
+                next_var_index = min_index;
+            }
+            function_var_index = next_var_index++;
+            var_table[stmt->name.lexeme] = function_var_index;
+        }
+
         // Tạo bytecode cho thân hàm
         BytecodeChunk function_body;
         {
             BytecodeEmitter body_emitter;
+            initialize_function_scope(body_emitter, function_params);
             if (stmt->body) {
                 for (const auto& body_stmt : stmt->body->statements) {
                     if (body_stmt) {
@@ -679,20 +707,7 @@ namespace Linh
                     }
                 }
             }
-            
-            // Thêm SWAP instruction nếu có CALL và stack có 2 elements
-            // Điều này đảm bảo function object ở trên cùng trước khi gọi CALL
-            if (!body_emitter.chunk.empty()) {
-                for (size_t i = 0; i < body_emitter.chunk.size(); ++i) {
-                    if (body_emitter.chunk[i].opcode == OpCode::CALL) {
-                        // Thêm SWAP trước CALL để đảm bảo function object ở trên cùng
-                        body_emitter.chunk.insert(body_emitter.chunk.begin() + i, 
-                            Instruction{OpCode::SWAP, {}, stmt->getLine(), stmt->getCol()});
-                        break;
-                    }
-                }
-            }
-            
+
             // Thêm RET instruction nếu không có return statement
             if (body_emitter.chunk.empty() || body_emitter.chunk.back().opcode != OpCode::RET) {
                 body_emitter.emit_instr(OpCode::RET, {}, stmt->getLine(), stmt->getCol());
@@ -718,8 +733,6 @@ namespace Linh
         functions[stmt->name.lexeme] = func_info;
         
         // Lưu function object vào biến
-        int var_idx = get_var_index(stmt->name.lexeme);
-        
         // Push function object lên stack
 #ifdef _DEBUG
         std::cerr << "[DEBUG] visitFunctionDeclStmt: creating function object for " << stmt->name.lexeme << std::endl;
@@ -727,7 +740,7 @@ namespace Linh
         emit_instr(OpCode::PUSH_FUNCTION, fn, stmt->getLine(), stmt->getCol());
         
         // Store vào biến
-        emit_instr(OpCode::STORE_VAR, var_idx, stmt->getLine(), stmt->getCol());
+        emit_instr(OpCode::STORE_VAR, function_var_index, stmt->getLine(), stmt->getCol());
     }
     void BytecodeEmitter::visitReturnStmt(AST::ReturnStmt *stmt)
     {
@@ -951,10 +964,12 @@ namespace Linh
             }
             if (id->name.lexeme == "len")
             {
-                if (!expr->arguments.empty())
+                // Builtin len(x) only returns array/map/string length. No arguments -> 0.
+                if (!expr->arguments.empty()) {
                     expr->arguments[0]->accept(this);
-                else
-                    emit_instr(OpCode::PUSH_STR, std::string(""), expr->getLine(), expr->getCol());
+                } else {
+                    emit_instr(OpCode::PUSH_INT, int64_t(0), expr->getLine(), expr->getCol());
+                }
                 emit_instr(OpCode::CALL, std::string("len"), expr->getLine(), expr->getCol());
                 return {};
             }
@@ -1013,9 +1028,9 @@ namespace Linh
                 emit_instr(OpCode::CALL, std::string("bool"), expr->getLine(), expr->getCol());
                 return {};
             }
-            if (id->name.lexeme == "sol")
+            if (id->name.lexeme == "nothing")
             {
-                // sol() luôn trả về giá trị sol (null/empty), bỏ qua arguments
+                // nothing() luôn trả về giá trị nothing (null/empty), bỏ qua arguments
                 if (!expr->arguments.empty()) {
                     // Vẫn cần evaluate arguments để tránh lỗi stack, nhưng sẽ pop chúng
                     for (auto &arg : expr->arguments) {
@@ -1025,7 +1040,7 @@ namespace Linh
                         }
                     }
                 }
-                emit_instr(OpCode::CALL, std::string("sol"), expr->getLine(), expr->getCol());
+                emit_instr(OpCode::CALL, std::string("nothing"), expr->getLine(), expr->getCol());
                 return {};
             }
             // --- User-defined function call ---
@@ -1091,6 +1106,13 @@ namespace Linh
                 emit_instr(OpCode::ARRAY_APPEND, {}, expr->getLine(), expr->getCol());
                 return {};
             }
+            if (member->property == "len" && expr->arguments.empty())
+            {
+                if (member->object)
+                    member->object->accept(this);
+                emit_instr(OpCode::CALL, std::string("len"), expr->getLine(), expr->getCol());
+                return {};
+            }
             if (member->property == "remove" && expr->arguments.size() == 1)
             {
                 // Đánh giá object (array)
@@ -1105,8 +1127,8 @@ namespace Linh
             {
                 if (member->object)
                     member->object->accept(this);
-                // Sử dụng ARRAY_CLEAR cho cả array và map, VM sẽ xử lý runtime
-                emit_instr(OpCode::ARRAY_CLEAR, {}, expr->getLine(), expr->getCol());
+                // Sử dụng CONTAINER_CLEAR cho cả array và map, VM sẽ xử lý runtime
+                emit_instr(OpCode::CONTAINER_CLEAR, {}, expr->getLine(), expr->getCol());
                 return {};
             }
             if (member->property == "clone" && expr->arguments.empty())
@@ -1228,10 +1250,10 @@ namespace Linh
 
     std::any BytecodeEmitter::visitUninitLiteralExpr(AST::UninitLiteralExpr *expr)
     {
-        // Emit a neutral placeholder then convert it to 'sol' via builtin call.
+        // Emit a neutral placeholder then convert it to 'nothing' via builtin call.
         // This avoids consuming any previously pushed values (e.g., map keys).
         emit_instr(OpCode::PUSH_INT, int64_t(0), expr->keyword.line, expr->keyword.column_start);
-        emit_instr(OpCode::CALL, std::string("sol"), expr->keyword.line, expr->keyword.column_start);
+        emit_instr(OpCode::CALL, std::string("nothing"), expr->keyword.line, expr->keyword.column_start);
         return {};
     }
 
@@ -1300,11 +1322,11 @@ namespace Linh
             }
         }
         
-        // Choose opcode based on index form: string or identifier -> MAP_GET, otherwise ARRAY_GET
+        // Choose opcode based on index form: string or identifier -> MAP_GET, otherwise CONTAINER_GET
         if (use_map_get) {
             emit_instr(OpCode::MAP_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
         } else {
-            emit_instr(OpCode::ARRAY_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
+            emit_instr(OpCode::CONTAINER_GET, {}, expr->l_bracket_token.line, expr->l_bracket_token.column_start);
         }
         return {};
     }
@@ -1595,48 +1617,19 @@ namespace Linh
         
         BytecodeChunk function_body;
         BytecodeEmitter body_emitter;
-        body_emitter.var_table = var_table; // inherit outer var table for closure
+        initialize_function_scope(body_emitter, function_params);
         
         // Check if function body uses variables from outer scope
-        bool needs_closure = false;
-        std::unordered_set<std::string> captured_vars;
-        
-        // Simple heuristic: if function body references variables not in its own scope
-        // and those variables exist in the outer scope, we need a closure
-        // This is a simplified approach - a more sophisticated implementation would
-        // do proper static analysis of variable usage
-        
         if (expr->body) {
             expr->body->accept(&body_emitter);
-            
-            // Check if any variables from outer scope are used
-            for (const auto& [var_name, var_index] : var_table) {
-                // If variable exists in outer scope and might be used in function
-                // (This is a simplified check - in practice you'd do proper analysis)
-                if (var_index < next_var_index) {
-                    captured_vars.insert(var_name);
-                    needs_closure = true;
-                }
-            }
         }
-        
         function_body = body_emitter.chunk;
         
         // Tên hàm rỗng cho anonymous
         auto fn = create_function("", function_params, function_body);
         emit_instr(OpCode::PUSH_FUNCTION, fn, expr->getLine(), expr->getCol());
         
-        // If closure is needed, create it
-        if (needs_closure) {
-            // Emit CAPTURE_VAR for each captured variable
-            for (const auto& var_name : captured_vars) {
-                emit_instr(OpCode::CAPTURE_VAR, var_name, expr->getLine(), expr->getCol());
-            }
-            
-            // Create closure from the function
-            emit_instr(OpCode::CREATE_CLOSURE, {}, expr->getLine(), expr->getCol());
-        }
-        
+        // TODO: re-enable closures when capture analysis is implemented
         return {};
     }
     

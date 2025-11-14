@@ -39,7 +39,7 @@ namespace Std {
         } else if (std::holds_alternative<uint64_t>(v)) {
             milliseconds = static_cast<double>(std::get<uint64_t>(v));
         } else {
-            return Value{}; // Trả về sol nếu không phải số
+            return Value{}; // Trả về nothingnếu không phải số
         }
         
         // Kiểm tra giá trị hợp lệ

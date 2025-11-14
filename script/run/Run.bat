@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 
 REM Check if input file is provided
 if "%~1"=="" (
@@ -19,25 +19,26 @@ if not exist "%INPUT_FILE%" (
 
 REM Find LinhApp.exe
 set EXE_PATH=build\Debug\LinhApp.exe
-if exist "%EXE_PATH%" (
-    echo Running: %EXE_PATH% %INPUT_FILE%
-    echo Saving output to: %LOG_FILE%
-    echo.
-    "%EXE_PATH%" "%INPUT_FILE%" > "%LOG_FILE%" 2>&1
-    echo.
-    echo === Execution completed. Check %LOG_FILE% for output ===
-) else (
+if not exist "%EXE_PATH%" (
     set EXE_PATH=build\Release\LinhApp.exe
-    if exist "%EXE_PATH%" (
-        echo Running: %EXE_PATH% %INPUT_FILE%
-        echo Saving output to: %LOG_FILE%
-        echo.
-        "%EXE_PATH%" "%INPUT_FILE%" > "%LOG_FILE%" 2>&1
-        echo.
-        echo === Execution completed. Check %LOG_FILE% for output ===
-    ) else (
+    if not exist "%EXE_PATH%" (
         echo [ERROR] LinhApp.exe not found in Debug or Release folder!
         exit /b 1
     )
 )
+
+echo Running: %EXE_PATH% %INPUT_FILE%
+echo Saving output to: %LOG_FILE%
+echo.
+"%EXE_PATH%" "%INPUT_FILE%" > "%LOG_FILE%" 2>&1
+set "EXIT_CODE=!ERRORLEVEL!"
+if not "!EXIT_CODE!"=="0" (
+    echo [ERROR] LinhApp exited with code !EXIT_CODE!. Check %LOG_FILE% for details.
+    echo. >>"%LOG_FILE%"
+    echo [ERROR] ScriptRun : LinhApp exited with code !EXIT_CODE!. >>"%LOG_FILE%"
+    exit /b !EXIT_CODE!
+)
+
+echo.
+echo === Execution completed. Check %LOG_FILE% for output ===
 endlocal

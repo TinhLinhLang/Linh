@@ -522,7 +522,7 @@ namespace Linh
                 // --- Sửa ở đây: nếu thiếu value thì tự động chèn UninitLiteralExpr ---
                 if (check(TokenType::COMMA) || check(TokenType::RBRACE))
                 {
-                    Token uninit_token(TokenType::SOL_KW, "sol", std::monostate{}, colon_token.line, colon_token.column_start + 1);
+                    Token uninit_token(TokenType::SOL_KW, "nothing", std::monostate{}, colon_token.line, colon_token.column_start + 1);
                     AST::ExprPtr value_expr = std::unique_ptr<AST::Expr>(new AST::UninitLiteralExpr(uninit_token));
                     entries.emplace_back(std::move(key_expr), colon_token, std::move(value_expr));
                 }

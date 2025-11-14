@@ -3,9 +3,87 @@
 #include <stdexcept>
 #include <cstring>
 #include <utility>
+#include <unordered_map>
 
 namespace Linh
 {
+    namespace
+    {
+        using ArrayPtr = std::vector<Value>*;
+        using MapPtr = std::unordered_map<std::string, Value>*;
+
+        std::unordered_map<ArrayPtr, size_t> g_array_ref_counts;
+        std::unordered_map<MapPtr, size_t> g_map_ref_counts;
+
+        void register_array(ArrayPtr ptr)
+        {
+            if (!ptr)
+                return;
+            g_array_ref_counts[ptr] = 1;
+        }
+
+        void register_map(MapPtr ptr)
+        {
+            if (!ptr)
+                return;
+            g_map_ref_counts[ptr] = 1;
+        }
+
+        void inc_array_ref(ArrayPtr ptr)
+        {
+            if (!ptr)
+                return;
+            auto [it, inserted] = g_array_ref_counts.emplace(ptr, 0);
+            it->second = inserted ? 1 : it->second + 1;
+        }
+
+        void inc_map_ref(MapPtr ptr)
+        {
+            if (!ptr)
+                return;
+            auto [it, inserted] = g_map_ref_counts.emplace(ptr, 0);
+            it->second = inserted ? 1 : it->second + 1;
+        }
+
+        void dec_array_ref(ArrayPtr ptr)
+        {
+            if (!ptr)
+                return;
+            auto it = g_array_ref_counts.find(ptr);
+            if (it == g_array_ref_counts.end())
+            {
+                delete ptr;
+                return;
+            }
+            if (it->second > 1)
+            {
+                --(it->second);
+                return;
+            }
+            g_array_ref_counts.erase(it);
+            delete ptr;
+        }
+
+        void dec_map_ref(MapPtr ptr)
+        {
+            if (!ptr)
+                return;
+            auto it = g_map_ref_counts.find(ptr);
+            if (it == g_map_ref_counts.end())
+            {
+                delete ptr;
+                return;
+            }
+            if (it->second > 1)
+            {
+                --(it->second);
+                return;
+            }
+            g_map_ref_counts.erase(it);
+            delete ptr;
+        }
+    }
+
     // ============================================================================
     // Value Constructors and Destructor
     // ============================================================================
@@ -132,14 +210,18 @@ namespace Linh
     Value Value::make_array() {
         Value v;
         v.type = ValueType::Array;
-        v.data.as_array = new std::vector<Value>();
+        auto* arr = new std::vector<Value>();
+        v.data.as_array = arr;
+        register_array(arr);
         return v;
     }
     
     Value Value::make_map() {
         Value v;
         v.type = ValueType::Map;
-        v.data.as_map = new std::unordered_map<std::string, Value>();
+        auto* map = new std::unordered_map<std::string, Value>();
+        v.data.as_map = map;
+        register_map(map);
         return v;
     }
     
@@ -257,12 +339,15 @@ namespace Linh
         switch (type) {
             case ValueType::String:
                 delete static_cast<std::string*>(data.as_string);
+                data.as_string = nullptr;
                 break;
             case ValueType::Array:
-                delete static_cast<std::vector<Value>*>(data.as_array);
+                dec_array_ref(static_cast<std::vector<Value>*>(data.as_array));
+                data.as_array = nullptr;
                 break;
             case ValueType::Map:
-                delete static_cast<std::unordered_map<std::string, Value>*>(data.as_map);
+                dec_map_ref(static_cast<std::unordered_map<std::string, Value>*>(data.as_map));
+                data.as_map = nullptr;
                 break;
             case ValueType::Function:
                 // Functions are managed externally, don't delete
@@ -284,12 +369,12 @@ namespace Linh
                 data.as_string = new std::string(*static_cast<std::string*>(other.data.as_string));
                 break;
             case ValueType::Array:
-                data.as_array = new std::vector<Value>(*static_cast<std::vector<Value>*>(other.data.as_array));
+                data.as_array = static_cast<std::vector<Value>*>(other.data.as_array);
+                inc_array_ref(static_cast<std::vector<Value>*>(data.as_array));
                 break;
             case ValueType::Map:
-                data.as_map = new std::unordered_map<std::string, Value>(
-                    *static_cast<std::unordered_map<std::string, Value>*>(other.data.as_map)
-                );
+                data.as_map = static_cast<std::unordered_map<std::string, Value>*>(other.data.as_map);
+                inc_map_ref(static_cast<std::unordered_map<std::string, Value>*>(data.as_map));
                 break;
             default:
                 // For primitives and function pointers, just copy the data
@@ -301,8 +386,25 @@ namespace Linh
     void Value::move_from(Value&& other) noexcept {
         type = other.type;
         std::memcpy(_padding, other._padding, sizeof(_padding));
-        data = other.data;
-        
+
+        switch (type) {
+            case ValueType::String:
+                data.as_string = other.data.as_string;
+                other.data.as_string = nullptr;
+                break;
+            case ValueType::Array:
+                data.as_array = other.data.as_array;
+                other.data.as_array = nullptr;
+                break;
+            case ValueType::Map:
+                data.as_map = other.data.as_map;
+                other.data.as_map = nullptr;
+                break;
+            default:
+                data = other.data;
+                break;
+        }
+
         // Reset other to Sol state
         other.type = ValueType::Sol;
         other.data.as_int64 = 0;

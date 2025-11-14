@@ -152,7 +152,7 @@ namespace Linh
         if (stack.empty())
         {
             std::cerr << "ERROR [Line: 0, Col: 0] RuntimeError : VM stack underflow" << std::endl;
-            return Value{}; // trả về sol
+            return Value{}; // trả về nothing
         }
         auto val = stack.back();
         stack.pop_back();
@@ -274,8 +274,8 @@ namespace Linh
             return "PUSH_ARRAY";
         case OpCode::PUSH_MAP:
             return "PUSH_MAP";
-        case OpCode::ARRAY_GET:
-            return "ARRAY_GET";
+        case OpCode::CONTAINER_GET:
+            return "CONTAINER_GET";
         case OpCode::ARRAY_SET:
             return "ARRAY_SET";
         case OpCode::MAP_GET:
@@ -288,8 +288,8 @@ namespace Linh
             return "ARRAY_APPEND";
         case OpCode::ARRAY_REMOVE:
             return "ARRAY_REMOVE";
-        case OpCode::ARRAY_CLEAR:
-            return "ARRAY_CLEAR";
+        case OpCode::CONTAINER_CLEAR:
+            return "CONTAINER_CLEAR";
         case OpCode::ARRAY_CLONE:
             return "ARRAY_CLONE";
         case OpCode::ARRAY_POP:
@@ -327,16 +327,16 @@ namespace Linh
     static void handle_PUSH_FLOAT(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         vm.push(Value(static_cast<float>(std::get<double>(instr.operand))));
     }
-    static void handle_ADD(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+    void handle_ADD(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         Linh::math_binary_op(vm, instr);
     }
-    static void handle_SUB(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+    void handle_SUB(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         Linh::math_binary_op(vm, instr);
     }
-    static void handle_MUL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+    void handle_MUL(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         Linh::math_binary_op(vm, instr);
     }
-    static void handle_DIV(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+    void handle_DIV(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         Linh::math_binary_op(vm, instr);
     }
     static void handle_MOD(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
@@ -465,7 +465,7 @@ namespace Linh
         size_t dot_pos = full_name.find('.');
         if (dot_pos == std::string::npos) {
             std::cerr << "ERROR: Invalid package constant format: " << full_name << std::endl;
-            vm.push(Value{}); // Push sol
+            vm.push(Value{}); // Push nothing
             return;
         }
         
@@ -629,7 +629,7 @@ namespace Linh
         std::string symbol_name = std::get<std::string>(instr.operand);
         
         // For now, just push the symbol name as a placeholder
-        // In a full implementation, this would resolve the actual symbol value
+        // In a full implementation, this would renothingve the actual symbol value
         vm.push(Value(symbol_name));
     }
 
@@ -671,12 +671,12 @@ namespace Linh
         table[static_cast<size_t>(OpCode::TYPEOF)] = handle_TYPEOF;
         table[static_cast<size_t>(OpCode::PRINT)] = handle_PRINT;
         table[static_cast<size_t>(OpCode::PUSH_ARRAY)] = handle_PUSH_ARRAY;
-        table[static_cast<size_t>(OpCode::ARRAY_GET)] = handle_ARRAY_GET;
+        table[static_cast<size_t>(OpCode::CONTAINER_GET)] = handle_CONTAINER_GET;
         table[static_cast<size_t>(OpCode::ARRAY_SET)] = handle_ARRAY_SET;
         table[static_cast<size_t>(OpCode::ARRAY_LEN)] = handle_ARRAY_LEN;
         table[static_cast<size_t>(OpCode::ARRAY_APPEND)] = handle_ARRAY_APPEND;
         table[static_cast<size_t>(OpCode::ARRAY_REMOVE)] = handle_ARRAY_REMOVE;
-        table[static_cast<size_t>(OpCode::ARRAY_CLEAR)] = handle_ARRAY_CLEAR;
+        table[static_cast<size_t>(OpCode::CONTAINER_CLEAR)] = handle_CONTAINER_CLEAR;
         table[static_cast<size_t>(OpCode::ARRAY_CLONE)] = handle_ARRAY_CLONE;
         table[static_cast<size_t>(OpCode::ARRAY_POP)] = handle_ARRAY_POP;
         table[static_cast<size_t>(OpCode::PUSH_MAP)] = handle_PUSH_MAP;
@@ -1025,7 +1025,7 @@ namespace Linh
 #endif
                     if (stack.empty())
                     {
-                        // Nếu stack rỗng, tự động push sol để không lỗi underflow
+                        // Nếu stack rỗng, tự động push nothingđể không lỗi underflow
                         stack.push_back(Value());
                     }
                     auto val = pop();
@@ -1162,7 +1162,7 @@ namespace Linh
                         break;
                     }
                     // --- Built-in conversion functions ---
-                    if (fname == "sol")
+                    if (fname == "nothing")
                     {
                         if (!stack.empty()) pop();
                         push(Value());
@@ -1387,7 +1387,7 @@ namespace Linh
                         } else if (!stack.empty()) {
                             sval = pop();
                         } else {
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                             break;
                         }
                         try {
@@ -1395,7 +1395,7 @@ namespace Linh
                             push(Value(barr));
                         } catch (const std::exception& e) {
                             std::cerr << "VM: string.bytes error: " << e.what() << std::endl;
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                         }
                         break;
                     }
@@ -1406,7 +1406,7 @@ namespace Linh
                         if (stack.size() < 2)
                         {
                             std::cerr << "VM: Math function 'pow' requires 2 arguments\n";
-                            push(Value{}); // Return sol
+                            push(Value{}); // Return nothing
                             break;
                         }
                         auto exponent = pop();
@@ -1436,7 +1436,7 @@ namespace Linh
                         if (stack.size() < 2)
                         {
                             std::cerr << "VM: Math function 'atan2' requires 2 arguments\n";
-                            push(Value{}); // Return sol
+                            push(Value{}); // Return nothing
                             break;
                         }
                         auto y = pop();
@@ -1467,7 +1467,7 @@ namespace Linh
                         if (stack.empty())
                         {
                             std::cerr << "VM: Math function '" << fname << "' requires an argument\n";
-                            push(Value{}); // Return sol
+                            push(Value{}); // Return nothing
                             break;
                         }
                         auto val = pop();
@@ -1482,7 +1482,7 @@ namespace Linh
                         if (stack.empty())
                         {
                             std::cerr << "VM: Time function '" << fname << "' requires an argument\n";
-                            push(Value{}); // Return sol
+                            push(Value{}); // Return nothing
                             break;
                         }
                         auto val = pop();
@@ -2380,12 +2380,12 @@ namespace Linh
                     push(map);
                     break;
                 }
-                case OpCode::ARRAY_GET:
+                case OpCode::CONTAINER_GET:
                 {
                     if (stack.size() < 2)
                     {
-                        std::cerr << "VM: ARRAY_GET stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        std::cerr << "VM: CONTAINER_GET stack underflow" << std::endl;
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value idx = pop();
@@ -2395,18 +2395,18 @@ namespace Linh
                     {
                         const auto& arr = obj.as_array_ref();
                         int64_t i = 0;
-                        if (Linh::holds_alternative<int64_t>(idx))
-                            i = Linh::get<int64_t>(idx);
-                        else if (Linh::holds_alternative<double>(idx))
-                            i = static_cast<int64_t>(Linh::get<double>(idx));
+                        if (idx.is_number())
+                        {
+                            i = Linh::to_int64(idx);
+                        }
                         else
                         {
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                             break;
                         }
                         if (i < 0 || static_cast<size_t>(i) >= arr.size())
                         {
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                         }
                         else
                         {
@@ -2416,20 +2416,7 @@ namespace Linh
                     else if (obj.is_map())
                     {
                         const auto& map = obj.as_map_ref();
-                        std::string key;
-                        if (Linh::holds_alternative<std::string>(idx))
-                            key = Linh::get<std::string>(idx);
-                        else if (Linh::holds_alternative<int64_t>(idx))
-                            key = std::to_string(Linh::get<int64_t>(idx));
-                        else if (Linh::holds_alternative<double>(idx))
-                            key = std::to_string(Linh::get<double>(idx));
-                        else if (Linh::holds_alternative<bool>(idx))
-                            key = Linh::get<bool>(idx) ? "true" : "false";
-                        else
-                        {
-                            push(Value{}); // sol
-                            break;
-                        }
+                        std::string key = Linh::to_str(idx);
                         auto it = map.find(key);
                         if (it != map.end())
                         {
@@ -2437,12 +2424,12 @@ namespace Linh
                         }
                         else
                         {
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                         }
                     }
                     else
                     {
-                        push(Value{}); // sol
+                        push(Value{}); // nothing
                     }
                     break;
                 }
@@ -2481,7 +2468,7 @@ namespace Linh
                     if (stack.size() < 2)
                     {
                         std::cerr << "VM: ARRAY_APPEND stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value val = pop();
@@ -2494,7 +2481,7 @@ namespace Linh
                     else
                     {
                         std::cerr << "VM: ARRAY_APPEND target is not array" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
@@ -2503,7 +2490,7 @@ namespace Linh
                     if (stack.size() < 2)
                     {
                         std::cerr << "VM: ARRAY_REMOVE stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value val = pop();
@@ -2540,16 +2527,16 @@ namespace Linh
                     else
                     {
                         std::cerr << "VM: ARRAY_REMOVE target is not array" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
-                case OpCode::ARRAY_CLEAR:
+                case OpCode::CONTAINER_CLEAR:
                 {
                     if (stack.empty())
                     {
-                        std::cerr << "VM: ARRAY_CLEAR stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        std::cerr << "VM: CONTAINER_CLEAR stack underflow" << std::endl;
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value val = pop();
@@ -2565,8 +2552,8 @@ namespace Linh
                     }
                     else
                     {
-                        std::cerr << "VM: ARRAY_CLEAR target is not array or map" << std::endl;
-                        push(Value{}); // push sol
+                        std::cerr << "VM: CONTAINER_CLEAR target is not array or map" << std::endl;
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
@@ -2575,7 +2562,7 @@ namespace Linh
                     if (stack.empty())
                     {
                         std::cerr << "VM: ARRAY_CLONE stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value arr_val = pop();
@@ -2589,7 +2576,7 @@ namespace Linh
                     else
                     {
                         std::cerr << "VM: ARRAY_CLONE target is not array" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
@@ -2598,7 +2585,7 @@ namespace Linh
                     if (stack.empty())
                     {
                         std::cerr << "VM: ARRAY_POP stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value maybe_idx_or_arr = pop();
@@ -2615,12 +2602,12 @@ namespace Linh
                             idx = static_cast<int64_t>(Linh::get<double>(maybe_idx_or_arr));
                         else
                         {
-                            push(Value{}); // sol nếu index không hợp lệ
+                            push(Value{}); // nothingnếu index không hợp lệ
                             break;
                         }
                         if (idx < 0 || static_cast<size_t>(idx) >= arr->size())
                         {
-                            push(Value{}); // sol nếu index out of range
+                            push(Value{}); // nothingnếu index out of range
                         }
                         else
                         {
@@ -2641,13 +2628,13 @@ namespace Linh
                         }
                         else
                         {
-                            push(Value{}); // sol nếu mảng rỗng
+                            push(Value{}); // nothingnếu mảng rỗng
                         }
                     }
                     else
                     {
                         std::cerr << "VM: ARRAY_POP target is not array" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
@@ -2656,7 +2643,7 @@ namespace Linh
                     if (stack.size() < 2)
                     {
                         std::cerr << "VM: MAP_GET stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value key = pop();
@@ -2679,11 +2666,11 @@ namespace Linh
                         if (it != m.end())
                             push(it->second);
                         else
-                            push(Value{}); // sol
+                            push(Value{}); // nothing
                     }
                     else
                     {
-                        push(Value{}); // sol
+                        push(Value{}); // nothing
                     }
                     break;
                 }
@@ -2692,7 +2679,7 @@ namespace Linh
                     if (stack.size() < 3)
                     {
                         std::cerr << "VM: MAP_SET stack underflow" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                         break;
                     }
                     Value value = pop();
@@ -2717,7 +2704,7 @@ namespace Linh
                     else
                     {
                         std::cerr << "VM: MAP_SET target is not map" << std::endl;
-                        push(Value{}); // push sol
+                        push(Value{}); // push nothing
                     }
                     break;
                 }
@@ -2845,7 +2832,7 @@ namespace Linh
                     }
                     else
                     {
-                        push(Value{}); // sol
+                        push(Value{}); // nothing
                     }
                     break;
                 }
@@ -2980,7 +2967,7 @@ namespace Linh
         else
             ++ip;
     }
-    static void handle_CALL(LiVM& vm, const Instruction& instr, const BytecodeChunk& chunk, size_t& ip) {
+    void handle_CALL(LiVM& vm, const Instruction& instr, const BytecodeChunk& chunk, size_t& ip) {
 #ifdef _DEBUG
         std::cerr << "[DEBUG] handle_CALL: entering function" << std::endl;
         std::cerr << "[DEBUG] CALL: stack size = " << vm.stack.size() << std::endl;
@@ -3046,7 +3033,7 @@ namespace Linh
                 
                 // Gọi function object
                 auto result = call_function(fn, args, vm);
-                vm.push(result);
+                // Result is already pushed by call_function, no need to push again
                 ++ip;
             } else {
 #ifdef _DEBUG
@@ -3121,6 +3108,100 @@ namespace Linh
         std::string var_name = "var_" + std::to_string(idx);
         vm.current_environment[var_name] = value;
     }
+
+    void handle_comparison(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
+        if (vm.stack.size() < 2) {
+            std::cerr << "ERROR [Line " << instr.line << ", Col " << instr.col
+                      << "] RuntimeError: comparison requires two operands" << std::endl;
+            vm.push(false);
+            return;
+        }
+        auto b = vm.pop();
+        auto a = vm.pop();
+        bool result = false;
+
+        if (Linh::holds_alternative<std::string>(a) || Linh::holds_alternative<std::string>(b))
+        {
+            std::string sa = Linh::holds_alternative<std::string>(a) ? Linh::get<std::string>(a) : Linh::to_str(a);
+            std::string sb = Linh::holds_alternative<std::string>(b) ? Linh::get<std::string>(b) : Linh::to_str(b);
+            switch (instr.opcode)
+            {
+            case OpCode::EQ: result = (sa == sb); break;
+            case OpCode::NEQ: result = (sa != sb); break;
+            case OpCode::LT: result = (sa < sb); break;
+            case OpCode::GT: result = (sa > sb); break;
+            case OpCode::LTE: result = (sa <= sb); break;
+            case OpCode::GTE: result = (sa >= sb); break;
+            default: result = false; break;
+            }
+        }
+        else if (Linh::holds_alternative<bool>(a) && Linh::holds_alternative<bool>(b))
+        {
+            bool av = Linh::get<bool>(a);
+            bool bv = Linh::get<bool>(b);
+            switch (instr.opcode)
+            {
+            case OpCode::EQ: result = (av == bv); break;
+            case OpCode::NEQ: result = (av != bv); break;
+            case OpCode::LT: result = (!av && bv); break;
+            case OpCode::GT: result = (av && !bv); break;
+            case OpCode::LTE: result = (!av || bv); break;
+            case OpCode::GTE: result = (av || !bv); break;
+            default: result = false; break;
+            }
+        }
+        else if ((Linh::holds_alternative<int64_t>(a) || Linh::holds_alternative<double>(a) || Linh::holds_alternative<uint64_t>(a) || Linh::holds_alternative<float>(a)) &&
+                 (Linh::holds_alternative<int64_t>(b) || Linh::holds_alternative<double>(b) || Linh::holds_alternative<uint64_t>(b) || Linh::holds_alternative<float>(b)))
+        {
+            long double av = 0.0L;
+            long double bv = 0.0L;
+            if (Linh::holds_alternative<int64_t>(a))
+                av = static_cast<long double>(Linh::get<int64_t>(a));
+            else if (Linh::holds_alternative<double>(a))
+                av = static_cast<long double>(Linh::get<double>(a));
+            else if (Linh::holds_alternative<uint64_t>(a))
+                av = static_cast<long double>(Linh::get<uint64_t>(a));
+            else
+                av = static_cast<long double>(Linh::get<float>(a));
+
+            if (Linh::holds_alternative<int64_t>(b))
+                bv = static_cast<long double>(Linh::get<int64_t>(b));
+            else if (Linh::holds_alternative<double>(b))
+                bv = static_cast<long double>(Linh::get<double>(b));
+            else if (Linh::holds_alternative<uint64_t>(b))
+                bv = static_cast<long double>(Linh::get<uint64_t>(b));
+            else
+                bv = static_cast<long double>(Linh::get<float>(b));
+
+            switch (instr.opcode)
+            {
+            case OpCode::EQ: result = (av == bv); break;
+            case OpCode::NEQ: result = (av != bv); break;
+            case OpCode::LT: result = (av < bv); break;
+            case OpCode::GT: result = (av > bv); break;
+            case OpCode::LTE: result = (av <= bv); break;
+            case OpCode::GTE: result = (av >= bv); break;
+            default: result = false; break;
+            }
+        }
+        else
+        {
+            std::string sa = Linh::to_str(a);
+            std::string sb = Linh::to_str(b);
+            switch (instr.opcode)
+            {
+            case OpCode::EQ: result = (sa == sb); break;
+            case OpCode::NEQ: result = (sa != sb); break;
+            case OpCode::LT: result = (sa < sb); break;
+            case OpCode::GT: result = (sa > sb); break;
+            case OpCode::LTE: result = (sa <= sb); break;
+            case OpCode::GTE: result = (sa >= sb); break;
+            default: result = false; break;
+            }
+        }
+
+        vm.push(result);
+    }
     static void handle_AND(LiVM& vm, const Instruction& instr, const BytecodeChunk&, size_t&) {
         auto b = vm.pop();
         auto a = vm.pop();
@@ -3187,7 +3268,7 @@ namespace Linh
     static void handle_PUSH_ARRAY(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         vm.push(make_array());
     }
-    static void handle_ARRAY_GET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
+    static void handle_CONTAINER_GET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto idx = vm.pop();
         auto arr_val = vm.pop();
         if (arr_val.is_array()) {
@@ -3196,9 +3277,9 @@ namespace Linh
             if (i >= 0 && i < (int64_t)arr.size())
                 vm.push(arr[i]);
             else
-                vm.push(Value{}); // sol
+                vm.push(Value{}); // nothing
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_ARRAY_SET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3212,7 +3293,7 @@ namespace Linh
                 arr[i] = value;
             vm.push(arr_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_ARRAY_LEN(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3231,7 +3312,7 @@ namespace Linh
             arr_val.as_array_ref().push_back(val);
             vm.push(arr_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_ARRAY_REMOVE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3265,16 +3346,16 @@ namespace Linh
             #endif
             vm.push(arr_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
-    static void handle_ARRAY_CLEAR(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
+    static void handle_CONTAINER_CLEAR(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
         auto arr_val = vm.pop();
         if (arr_val.is_array()) {
             arr_val.as_array_ref().clear();
             vm.push(arr_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_ARRAY_CLONE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3285,7 +3366,7 @@ namespace Linh
             new_arr.as_array_ref() = arr;
             vm.push(new_arr);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_ARRAY_POP(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3296,7 +3377,7 @@ namespace Linh
                 arr.pop_back();
             vm.push(arr_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_PUSH_MAP(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3312,9 +3393,9 @@ namespace Linh
             if (it != map.end())
                 vm.push(it->second);
             else
-                vm.push(Value{}); // sol
+                vm.push(Value{}); // nothing
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_MAP_SET(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3326,7 +3407,7 @@ namespace Linh
             map_val.as_map_ref()[key] = value;
             vm.push(map_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_MAP_KEYS(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3339,7 +3420,7 @@ namespace Linh
             }
             vm.push(arr);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_MAP_VALUES(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3352,7 +3433,7 @@ namespace Linh
             }
             vm.push(arr);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_MAP_DELETE(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3363,7 +3444,7 @@ namespace Linh
             map_val.as_map_ref().erase(key);
             vm.push(map_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_MAP_CLEAR(LiVM& vm, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3372,7 +3453,7 @@ namespace Linh
             map_val.as_map_ref().clear();
             vm.push(map_val);
         } else {
-            vm.push(Value{}); // sol
+            vm.push(Value{}); // nothing
         }
     }
     static void handle_TRY(LiVM&, const Instruction&, const BytecodeChunk&, size_t&) {
@@ -3393,6 +3474,10 @@ namespace Linh
             const auto &instr = chunk[local_ip];
             
 #ifdef _DEBUG
+            std::cerr << "[DEBUG] run_chunk: executing instruction " << local_ip << ": OpCode " << static_cast<int>(instr.opcode) << std::endl;
+#endif
+            
+#ifdef _DEBUG
             if (instr.opcode == OpCode::CALL) {
                 std::cerr << "[DEBUG] run_chunk: about to execute CALL, stack size = " << this->stack.size() << std::endl;
                 if (this->stack.size() >= 2) {
@@ -3405,6 +3490,10 @@ namespace Linh
             // Simple execution without optimization for function calls
             switch (instr.opcode) {
                 case OpCode::PUSH_INT:
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: PUSH_INT " << std::get<int64_t>(instr.operand) << ", stack size = " << this->stack.size() << std::endl;
+                    std::cerr << "[DEBUG] run_chunk: PUSH_INT operand type = " << instr.operand.index() << std::endl;
+#endif
                     push(std::get<int64_t>(instr.operand));
                     break;
                 case OpCode::PUSH_UINT:
@@ -3425,14 +3514,91 @@ namespace Linh
                 case OpCode::STORE_VAR:
                     handle_STORE_VAR(*this, instr, chunk, local_ip);
                     break;
+                case OpCode::AND:
+                    handle_AND(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::OR:
+                    handle_OR(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::NOT:
+                    handle_NOT(*this, instr, chunk, local_ip);
+                    break;
+                case OpCode::EQ:
+                case OpCode::NEQ:
+                case OpCode::LT:
+                case OpCode::GT:
+                case OpCode::LTE:
+                case OpCode::GTE:
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: LTE operation, stack size = " << this->stack.size() << std::endl;
+                    if (this->stack.size() >= 2) {
+                        std::cerr << "[DEBUG] run_chunk: LTE operands: ";
+                        if (Linh::holds_alternative<int64_t>(this->stack[this->stack.size()-2])) {
+                            std::cerr << Linh::get<int64_t>(this->stack[this->stack.size()-2]);
+                        }
+                        std::cerr << " <= ";
+                        if (Linh::holds_alternative<int64_t>(this->stack.back())) {
+                            std::cerr << Linh::get<int64_t>(this->stack.back());
+                        }
+                        std::cerr << std::endl;
+                    }
+#endif
+                    handle_comparison(*this, instr, chunk, local_ip);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: LTE result, stack size = " << this->stack.size() << std::endl;
+                    if (!this->stack.empty() && Linh::holds_alternative<bool>(this->stack.back())) {
+                        std::cerr << "[DEBUG] run_chunk: LTE result = " << Linh::get<bool>(this->stack.back()) << std::endl;
+                    }
+#endif
+                    break;
                 case OpCode::ADD:
                     handle_ADD(*this, instr, chunk, local_ip);
                     break;
                 case OpCode::SUB:
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: SUB operation, stack size = " << this->stack.size() << std::endl;
+                    if (this->stack.size() >= 2) {
+                        std::cerr << "[DEBUG] run_chunk: SUB operands: ";
+                        if (Linh::holds_alternative<int64_t>(this->stack[this->stack.size()-2])) {
+                            std::cerr << Linh::get<int64_t>(this->stack[this->stack.size()-2]);
+                        }
+                        std::cerr << " - ";
+                        if (Linh::holds_alternative<int64_t>(this->stack.back())) {
+                            std::cerr << Linh::get<int64_t>(this->stack.back());
+                        }
+                        std::cerr << std::endl;
+                    }
+#endif
                     handle_SUB(*this, instr, chunk, local_ip);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: SUB result, stack size = " << this->stack.size() << std::endl;
+                    if (!this->stack.empty() && Linh::holds_alternative<int64_t>(this->stack.back())) {
+                        std::cerr << "[DEBUG] run_chunk: SUB result = " << Linh::get<int64_t>(this->stack.back()) << std::endl;
+                    }
+#endif
                     break;
                 case OpCode::MUL:
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: MUL operation, stack size = " << this->stack.size() << std::endl;
+                    if (this->stack.size() >= 2) {
+                        std::cerr << "[DEBUG] run_chunk: MUL operands: ";
+                        if (Linh::holds_alternative<int64_t>(this->stack[this->stack.size()-2])) {
+                            std::cerr << Linh::get<int64_t>(this->stack[this->stack.size()-2]);
+                        }
+                        std::cerr << " * ";
+                        if (Linh::holds_alternative<int64_t>(this->stack.back())) {
+                            std::cerr << Linh::get<int64_t>(this->stack.back());
+                        }
+                        std::cerr << std::endl;
+                    }
+#endif
                     handle_MUL(*this, instr, chunk, local_ip);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: MUL result, stack size = " << this->stack.size() << std::endl;
+                    if (!this->stack.empty() && Linh::holds_alternative<int64_t>(this->stack.back())) {
+                        std::cerr << "[DEBUG] run_chunk: MUL result = " << Linh::get<int64_t>(this->stack.back()) << std::endl;
+                    }
+#endif
                     break;
                 case OpCode::DIV:
                     handle_DIV(*this, instr, chunk, local_ip);
@@ -3468,7 +3634,21 @@ namespace Linh
                     handle_JMP(*this, instr, chunk, local_ip);
                     break;
                 case OpCode::JMP_IF_FALSE:
-                    handle_JMP_IF_FALSE(*this, instr, chunk, local_ip);
+#ifdef _DEBUG
+                    std::cerr << "[DEBUG] run_chunk: JMP_IF_FALSE, local_ip = " << local_ip << std::endl;
+#endif
+                    {
+                        auto cond = pop();
+                        bool cond_val = eval_condition(cond);
+#ifdef _DEBUG
+                        std::cerr << "[DEBUG] run_chunk: JMP_IF_FALSE condition = " << cond_val << std::endl;
+#endif
+                        if (!cond_val) {
+                            local_ip = static_cast<size_t>(std::get<int64_t>(instr.operand));
+                            continue; // Skip the local_ip++ at the end
+                        }
+                        // If condition is true, continue to next instruction (local_ip++ will happen)
+                    }
                     break;
                 case OpCode::JMP_IF_TRUE:
                     handle_JMP_IF_TRUE(*this, instr, chunk, local_ip);
@@ -3476,6 +3656,13 @@ namespace Linh
                 case OpCode::RET:
 #ifdef _DEBUG
                     std::cerr << "[DEBUG] run_chunk: RET instruction, returning from function" << std::endl;
+                    std::cerr << "[DEBUG] run_chunk: stack size before RET = " << this->stack.size() << std::endl;
+                    if (!this->stack.empty()) {
+                        std::cerr << "[DEBUG] run_chunk: top of stack before RET = " << this->stack.back().get_type() << std::endl;
+                        if (Linh::holds_alternative<int64_t>(this->stack.back())) {
+                            std::cerr << "[DEBUG] run_chunk: return value = " << Linh::get<int64_t>(this->stack.back()) << std::endl;
+                        }
+                    }
 #endif
                     return; // Return from function
                 case OpCode::HALT:

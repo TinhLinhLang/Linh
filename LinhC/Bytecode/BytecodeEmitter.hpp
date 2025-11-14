@@ -104,6 +104,8 @@ namespace Linh
         // Closure support
         std::unordered_set<std::string> get_used_variables_in_scope(const AST::StmtList& stmts);
         bool needs_closure_for_function(const AST::FunctionExpr* expr);
+
+        void initialize_function_scope(BytecodeEmitter &body_emitter, const std::vector<FunctionParameter> &params);
     };
 }
 

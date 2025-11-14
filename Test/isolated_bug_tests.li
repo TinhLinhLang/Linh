@@ -1,0 +1,31 @@
+// Test file for specific bugs found during comprehensive testing.
+// Based on bug_report.md
+
+print("--- Starting Isolated Bug Tests ---")
+
+// --- Test Case 1: Array access at index 0 after remove() ---
+print("\n[TEST 1] Array access at index 0 after remove()")
+var arr = [1, 2, 3, 4, 5, 6]
+print("Initial array:", arr)
+
+// Remove an element from the middle of the array
+arr.remove(3) 
+print("After remove(3):", arr)
+print("Array length:", len(arr))
+
+// This is the line that failed in the comprehensive test.
+// Expected: "Accessing first element (arr[0]): 1"
+// Actual (Bug): "Accessing first element (arr[0]): nothing"
+print("Accessing first element (arr[0]):", arr[0]) 
+
+print("--- Test 1 Finished ---\n")
+
+
+// --- Test Case 2: map.clear() method dispatch ---
+print("[TEST 2] map.clear() functionality")
+var my_map = {"name": "Linh", "version": "0.017", "type": "language"}
+print("Initial map:", my_map)
+my_map.clear()
+print("After clear():", my_map)
+print("Expected after clear: {}")
+print("--- Test 2 Finished ---")

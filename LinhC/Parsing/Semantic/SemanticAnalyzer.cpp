@@ -284,9 +284,9 @@ namespace Linh
                 return;
             }
             
-            // Check for sol type/value rules
-            bool type_is_sol = is_sol_type(stmt->declared_type);
-            bool value_is_sol = is_sol_expr(stmt->initializer);
+            // Check for nothingtype/value rules
+            bool type_is_nothing= is_nothing_type(stmt->declared_type);
+            bool value_is_nothing= is_nothing_expr(stmt->initializer);
 
             std::string kw = stmt->keyword.lexeme;
             int line = stmt->keyword.line;
@@ -294,18 +294,18 @@ namespace Linh
 
             if (kw == "vas" || kw == "const")
             {
-                // Bỏ báo lỗi cho phép vas và const được khởi tạo với sol
-                // if (value_is_sol)
+                // Bỏ báo lỗi cho phép vas và const được khởi tạo với nothing
+                // if (value_is_nothing)
                 // {
-                //     errors.emplace_back("'" + kw + "' cannot be initialized with 'sol' value.", line, col);
+                //     errors.emplace_back("'" + kw + "' cannot be initialized with 'nothing' value.", line, col);
                 // }
             }
             else if (kw == "var")
             {
-                // Only error if explicit type is given (not sol) and value is sol
-                if (stmt->declared_type.has_value() && !type_is_sol && value_is_sol)
+                // Only error if explicit type is given (not nothing) and value is nothing
+                if (stmt->declared_type.has_value() && !type_is_nothing&& value_is_nothing)
                 {
-                    push_semantic_error(errors, line, col, "'var' with a specific type cannot be initialized with 'sol' value.");
+                    push_semantic_error(errors, line, col, "'var' with a specific type cannot be initialized with 'nothing' value.");
                 }
             }
             // Kiểm tra trùng tên biến trong cùng scope
@@ -704,7 +704,7 @@ namespace Linh
                         module_name = module_name.substr(1, module_name.size() - 2);
                     }
                     
-                    // Use ModuleManager to resolve and load the module
+                    // Use ModuleManager to renothingve and load the module
                     auto& module_manager = Linh::Module::get_module_manager();
                     bool success = module_manager.load_module(module_name, current_file_path);
                     
@@ -860,7 +860,7 @@ namespace Linh
                 if (imported_packages.count(base) || base == "math" || base == "fs" || base == "json" || base == "os")
                 {
                     // This is a package constant, check if it exists
-                    if (Linh::Std::get_constant(base, member).get_type() != ValueType::Sol) // Not sol
+                    if (Linh::Std::get_constant(base, member).get_type() != ValueType::Sol) // Not nothing
                     {
                         return {}; // Package constant exists, allow it
                     }
@@ -1250,7 +1250,7 @@ namespace Linh
         }
 
         // Helpers
-        bool SemanticAnalyzer::is_sol_type(const std::optional<AST::TypeNodePtr> &type)
+        bool SemanticAnalyzer::is_nothing_type(const std::optional<AST::TypeNodePtr> &type)
         {
             if (!type.has_value() || !type.value())
                 return false;
@@ -1258,7 +1258,7 @@ namespace Linh
             return base && base->type_keyword_token.type == TokenType::SOL_KW;
         }
 
-        bool SemanticAnalyzer::is_sol_expr(const AST::ExprPtr &expr)
+        bool SemanticAnalyzer::is_nothing_expr(const AST::ExprPtr &expr)
         {
             if (!expr)
                 return false;

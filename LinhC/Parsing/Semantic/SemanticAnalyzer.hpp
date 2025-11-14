@@ -76,7 +76,7 @@ namespace Linh
             void set_current_file_path(const std::string& path);
 
         private:
-            // Current file path for module resolution
+            // Current file path for module renothingution
             std::string current_file_path;
             
             // Optimization flags
@@ -112,8 +112,8 @@ namespace Linh
             void analyze_statement_parallel(AST::Stmt* stmt);
             std::vector<Linh::Error> merge_errors(const std::vector<std::vector<Linh::Error>>& error_lists);
 
-            bool is_sol_type(const std::optional<AST::TypeNodePtr> &type);
-            bool is_sol_expr(const AST::ExprPtr &expr);
+            bool is_nothing_type(const std::optional<AST::TypeNodePtr> &type);
+            bool is_nothing_expr(const AST::ExprPtr &expr);
 
             // --- Quản lý scope ---
             std::vector<std::unordered_map<std::string, bool>> var_scopes;

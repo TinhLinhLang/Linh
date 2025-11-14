@@ -79,14 +79,14 @@ namespace Linh
         PRINTIL, // Thêm opcode PRINTIL cho hàm printil của LinhC
         PUSH_ARRAY,
         PUSH_MAP,
-        ARRAY_GET,
+        CONTAINER_GET,
         ARRAY_SET,
         MAP_GET,
         MAP_SET,
         ARRAY_LEN,
         ARRAY_APPEND,
         ARRAY_REMOVE, // <--- Thêm dòng này
-        ARRAY_CLEAR,  // <--- Thêm opcode cho clear()
+        CONTAINER_CLEAR,  // <--- Thêm opcode cho clear()
         ARRAY_CLONE,  // <--- Thêm opcode cho clone()
         ARRAY_POP,    // <--- Thêm opcode cho pop()
         MAP_KEYS,

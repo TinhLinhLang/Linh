@@ -73,11 +73,11 @@ print("After append(6):", arr)
 arr.remove(3)
 print("After remove(3):", arr)
 
-print("Array length:", arr.len())
+print("Array length:", len(arr))
 
 // Array access
 print("First element:", arr[0])
-print("Last element:", arr[arr.len() - 1])
+print("Last element:", arr[len(arr) - 1])
 
 // ===== 7. MAPS =====
 print("\n7. MAPS")

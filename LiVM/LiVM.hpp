@@ -63,12 +63,12 @@ namespace Linh
         friend void handle_PRINT(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_NOP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_PUSH_ARRAY(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
-        friend void handle_ARRAY_GET(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_CONTAINER_GET(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_SET(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_LEN(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_APPEND(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_REMOVE(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
-        friend void handle_ARRAY_CLEAR(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_CONTAINER_CLEAR(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_CLONE(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_ARRAY_POP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_PUSH_MAP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
@@ -82,6 +82,7 @@ namespace Linh
         friend void handle_END_TRY(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_PRINT_MULTIPLE(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_PRINTIL(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
+        friend void handle_comparison(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_POP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_SWAP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);
         friend void handle_DUP(LiVM&, const Instruction&, const BytecodeChunk&, size_t&);

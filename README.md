@@ -1,3 +1,5 @@
+# **Sao Tin Developer** Team has frozen this project. 
+
 # Tinh Linh Programming Language - Linh Interpreter
 
 **Tinh Linh** is a modern programming language developed by the Sao Tin Developer Team, aiming for simplicity, modern syntax, and extensibility.
